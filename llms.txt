@@ -1,0 +1,94 @@
+# Borda Documentation
+
+> Embeddable onboarding widget for any website. Framework-agnostic, SSR-safe.
+
+## Documentation Sets
+
+- [Borda — Full Documentation](https://use-retoo.github.io/borda/llms-full.txt): Complete documentation for the Borda embeddable onboarding widget library.
+
+## Getting Started
+
+- [Introduction](https://use-retoo.github.io/borda/raw/getting-started/introduction.md): Embeddable onboarding widget for any website. Framework-agnostic, SSR-safe.
+- [Installation](https://use-retoo.github.io/borda/raw/getting-started/installation.md): Install @retoo/borda via npm, pnpm, yarn, or connect via CDN.
+- [Quick Start](https://use-retoo.github.io/borda/raw/getting-started/quick-start.md): Set up your first onboarding in under 5 minutes.
+
+## Configuration
+
+- [Overview](https://use-retoo.github.io/borda/raw/configuration/overview.md): Structure of BordaConfig and the principle of disabling components with false.
+- [Size](https://use-retoo.github.io/borda/raw/configuration/size.md): Configure widget dimensions with ComponentSize — xs, sm, md, lg, xl, xxl.
+- [Steps](https://use-retoo.github.io/borda/raw/configuration/steps.md): Define tour steps with target elements, titles, descriptions, images, and lifecycle hooks.
+- [Placement](https://use-retoo.github.io/borda/raw/configuration/placement.md): Control tooltip position relative to the target element using ComponentPlacement.
+- [Animation](https://use-retoo.github.io/borda/raw/configuration/animation.md): Configure enter/exit animations for the tooltip and overlay spotlight transitions.
+- [Scroll](https://use-retoo.github.io/borda/raw/configuration/scroll.md): Configure smooth scroll to bring the active step target into view.
+- [Skip](https://use-retoo.github.io/borda/raw/configuration/skip.md): Configure the "Don't show again" feature with persistent localStorage storage.
+- [Styles](https://use-retoo.github.io/borda/raw/configuration/styles.md): Customize the tour appearance with CSS custom properties (variables).
+
+## Components
+
+- [Container](https://use-retoo.github.io/borda/raw/components/container.md): The root wrapper that hosts the tour widget.
+- [Overlay](https://use-retoo.github.io/borda/raw/components/overlay.md): Spotlight overlay that highlights the target element with a cutout.
+- [Tooltip](https://use-retoo.github.io/borda/raw/components/tooltip.md): Positioned tooltip with title, description, arrow, and auto-flip placement.
+- [Image](https://use-retoo.github.io/borda/raw/components/image.md): Display an image above the tooltip heading with default or bleed variants.
+- [Buttons](https://use-retoo.github.io/borda/raw/components/buttons.md): Navigation buttons for prev, next, finish, and skip actions.
+- [Progress](https://use-retoo.github.io/borda/raw/components/progress.md): Visual progress indicator with dots, text, or line variants.
+- [Skip](https://use-retoo.github.io/borda/raw/components/skip.md): Don't show again
+- [Close Button](https://use-retoo.github.io/borda/raw/components/close-button.md): Button that dismisses the tour before completion.
+
+## Features
+
+- [Visibility](https://use-retoo.github.io/borda/raw/features/visibility.md): Show and hide the widget with optional CSS transitions.
+- [Responsive](https://use-retoo.github.io/borda/raw/features/responsive.md): Apply different component configs at different viewport widths.
+- [Keyboard](https://use-retoo.github.io/borda/raw/features/keyboard.md): Navigate the tour with ArrowRight, ArrowLeft, and Escape keys.
+- [Highlight](https://use-retoo.github.io/borda/raw/features/highlight.md): Spotlight a single element without running a full tour.
+- [Overrides](https://use-retoo.github.io/borda/raw/features/overrides.md): Layered config overrides for responsive breakpoints and per-step customization.
+
+## API Reference
+
+- [useBorda](https://use-retoo.github.io/borda/raw/api-reference/use-borda.md): Tour factory function that returns mount, unmount, highlight, NAME, and VERSION.
+- [useConfig](https://use-retoo.github.io/borda/raw/api-reference/use-config.md): Reactive config store with get, set, and merge methods.
+- [useHighlight](https://use-retoo.github.io/borda/raw/api-reference/use-highlight.md): Spotlight a single element without running a full tour.
+- [Borda Instance](https://use-retoo.github.io/borda/raw/api-reference/borda-instance.md): The object returned by mount() — API, config, responsive, scroll, animation, skip, visibility.
+- [Controller API](https://use-retoo.github.io/borda/raw/api-reference/controller-api.md): Tour navigation API — currentStep, next, prev, changeStep, finish, and move prevention.
+- [Events API](https://use-retoo.github.io/borda/raw/api-reference/events-api.md): Pub/sub event emitter for subscribing to tour and widget lifecycle events.
+- [Visibility API](https://use-retoo.github.io/borda/raw/api-reference/visibility-api.md): Show, hide, and check the widget's visibility state at runtime.
+- [Skip API](https://use-retoo.github.io/borda/raw/api-reference/skip-api.md): Manage the "Don't show again" state persisted in localStorage.
+- [Scroll API](https://use-retoo.github.io/borda/raw/api-reference/scroll-api.md): Programmatically scroll the page to bring elements into view.
+
+## Events
+
+- [Tour](https://use-retoo.github.io/borda/raw/events/tour.md): Lifecycle events for tour start, finish, close, navigation, and step changes.
+- [Widget](https://use-retoo.github.io/borda/raw/events/widget.md): Handle widget destruction with ON_BORDA_DESTROY and interactions with ON_CLOSE_CLICK and ON_OVERLAY_CLICK.
+- [Skip](https://use-retoo.github.io/borda/raw/events/skip.md): Handle "Don't show again" state changes with ON_SKIP_CHANGE and ON_SKIP_CLEAR.
+- [Visibility](https://use-retoo.github.io/borda/raw/events/visibility.md): Handle widget show and hide transitions with ON_VISIBILITY_SHOW and ON_VISIBILITY_HIDE.
+- [Keyboard](https://use-retoo.github.io/borda/raw/events/keyboard.md): Handle keyboard navigation input with ON_KEYBOARD_NEXT and ON_KEYBOARD_PREV.
+
+## Custom Element
+
+- [Setup](https://use-retoo.github.io/borda/raw/custom-element/setup.md): Register the custom element with defineBordaElement() and connect styles.
+- [Usage](https://use-retoo.github.io/borda/raw/custom-element/usage.md): Use the custom element in HTML with attributes and properties.
+- [DOM Events](https://use-retoo.github.io/borda/raw/custom-element/events.md): Listen to tour and widget events on the custom element via addEventListener.
+
+## Examples
+
+- [Basic Setup](https://use-retoo.github.io/borda/raw/examples/basic-setup.md): Every BordaConfig option in one live control panel — steps, widget size, components, animation, and scroll.
+- [Multi-step](https://use-retoo.github.io/borda/raw/examples/multi-step.md): Tour with different target selectors — CSS id, class, and data attributes.
+- [Styling](https://use-retoo.github.io/borda/raw/examples/custom-styling.md): Override tooltip and overlay appearance with customClasses and customStyles.
+- [Highlight](https://use-retoo.github.io/borda/raw/examples/highlight.md): Spotlight a single element with or without tooltip.
+- [Responsive](https://use-retoo.github.io/borda/raw/examples/responsive.md): Different tour configurations at different viewport widths.
+- [Overrides](https://use-retoo.github.io/borda/raw/examples/overrides.md): Per-step config overrides that shadow the global settings.
+- [Keyboard](https://use-retoo.github.io/borda/raw/examples/keyboard.md): Enable or disable keyboard navigation — ArrowRight, ArrowLeft, Escape.
+- [Don't Show Again](https://use-retoo.github.io/borda/raw/examples/skip.md): Let users dismiss the onboarding permanently with a persisted skip flag.
+- [Animation](https://use-retoo.github.io/borda/raw/examples/animation.md): Tooltip enter/exit effects — fade, scale, slide, or none.
+- [Transition](https://use-retoo.github.io/borda/raw/examples/transition.md): How the tooltip moves between steps — fade or glide.
+- [Progress](https://use-retoo.github.io/borda/raw/examples/progress.md): Progress indicator variants — dots, text, line, or none.
+
+## Distribution
+
+- [Formats](https://use-retoo.github.io/borda/raw/distribution/formats.md): Available build formats — ES Module, UMD, CommonJS, and their minified variants.
+- [Browser Support](https://use-retoo.github.io/borda/raw/distribution/browser-support.md): Supported browsers, required polyfills, and compatibility notes.
+- [Bundle Size](https://use-retoo.github.io/borda/raw/distribution/bundle-size.md): Size of each distribution format and tree-shaking capabilities.
+- [TypeScript](https://use-retoo.github.io/borda/raw/distribution/typescript.md): Type declarations, exported interfaces, and TypeScript integration.
+
+## Accessibility
+
+- [Overview](https://use-retoo.github.io/borda/raw/accessibility/overview.md): Keyboard navigation, focus management, and ARIA support built into the widget.

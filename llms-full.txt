@@ -1,0 +1,6166 @@
+# Introduction
+
+## What is Borda?
+
+Borda is an embeddable onboarding widget that guides users through your interface step by step. It renders a spotlight overlay around target elements, paired with a tooltip that displays a title, description, image, and navigation buttons — all configurable per step.
+
+Borda works on any type of site — SaaS dashboards, landing pages, e-commerce stores, documentation portals — without requiring a specific framework. The widget mounts into any container or directly into `document.body` as a floating overlay.
+
+Built with [Svelte 5](https://svelte.dev){rel="&#x22;nofollow&#x22;"}, Borda compiles down to vanilla JavaScript with no framework runtime. The output integrates into React, Vue, Angular, or plain HTML without dependency conflicts. Distribution formats include ES Module, UMD, and CommonJS.
+
+::callout{color="info"}
+Borda is a fully open-source, non-commercial project. It's built and maintained by a small team in their free time with the goal of helping developers build better projects. If you encounter bugs or rough edges — we'd appreciate your patience and a [GitHub issue](https://github.com/use-retoo/borda){rel=""nofollow""} over frustration.
+::
+
+## See it in action
+
+The only required field is `steps` — an array of step definitions. Each step specifies a `target` element, a `title`, a `description`, and a `placement` for the tooltip. Steps can also carry an `image`, and the whole tour can show a `tourProgress` indicator.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Section heading
+        description: Each section starts with a clear heading.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Images
+        description: Steps can carry an image alongside the title and description.
+        image:
+          src: data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480'
+            height='240'%3E%3Crect width='480' height='240'
+            fill='%23d4d4d8'/%3E%3C/svg%3E
+          alt: Placeholder image
+        placement: middle-end
+      - target: "#page-toc"
+        title: On this page
+        description: Quick links to every heading, so readers can skip ahead.
+        placement: top-end
+    tourProgress:
+      variant: dots
+  ---
+  :::
+::
+
+```ts
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#page-header',
+      title: 'Section heading',
+      description: 'Each section starts with a clear heading.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '#page-content',
+      title: 'Images',
+      description: 'Steps can carry an image alongside the title and description.',
+      image: {
+        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='240'%3E%3Crect width='480' height='240' fill='%23d4d4d8'/%3E%3C/svg%3E",
+        alt: 'Placeholder image',
+      },
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+    {
+      target: '#page-toc',
+      title: 'On this page',
+      description: 'Quick links to every heading, so readers can skip ahead.',
+      placement: ComponentPlacement.TOP_END,
+    },
+  ],
+  tourProgress: {
+    variant: BordaTourProgressVariant.DOTS,
+  },
+});
+```
+
+::callout
+---
+icon: i-lucide-settings-2
+to: https://use-retoo.github.io/borda/examples/basic-setup
+---
+See the **Basic Setup** example for a complete onboarding flow with multiple steps.
+::
+
+## Features
+
+::field-group
+  :::field{name="Guided tours" type="multi-step, lifecycle hooks"}
+  Define an ordered list of steps with per-step target elements, tooltips, images, and async preparation hooks.
+  :::
+
+  :::field{name="Spotlight overlay" type="configurable cutout"}
+  Full-screen backdrop with a cutout around the target element. Configurable padding, border radius, and animation.
+  :::
+
+  :::field{name="Tooltips" type="auto-placement, arrow, image"}
+  Positioned tooltips with title, description, image, and arrow. Auto-flips to stay in viewport.
+  :::
+
+  :::field{name="Navigation" type="buttons + keyboard"}
+  Built-in prev/next/finish/skip buttons and keyboard navigation with ArrowRight, ArrowLeft, and Escape.
+  :::
+
+  :::field{name="Skip feature" type="localStorage"}
+  "Don't show again" checkbox with persistent storage — the onboarding won't replay for returning users.
+  :::
+
+  :::field{name="Highlight" type="single element spotlight"}
+  Spotlight a single element without a full tour using the `highlight()` shortcut.
+  :::
+
+  :::field{name="Responsive" type="breakpoint overrides"}
+  Apply different component configs at different viewport widths via matchMedia breakpoints.
+  :::
+
+  :::field{name="Runtime updates" type="mergeConfig / setConfig"}
+  Patch or replace the entire config without unmounting.
+  :::
+::
+
+## Bundle size
+
+The production bundle weighs under **40 KB gzipped** (JS + CSS combined). Zero runtime dependencies — nothing is loaded beyond the assets you provide.
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/distribution/bundle-size
+---
+Full breakdown by format in the **Bundle Size** reference.
+::
+
+
+# Installation
+
+## Package manager
+
+Install the package using your preferred package manager:
+
+::tabs{variant="link"}
+  :::tabs-item{icon="i-simple-icons-npm" label="npm"}
+  ```bash [Terminal]
+  npm install @retoo/borda
+  ```
+  :::
+
+  :::tabs-item{icon="i-simple-icons-pnpm" label="pnpm"}
+  ```bash [Terminal]
+  pnpm add @retoo/borda
+  ```
+  :::
+
+  :::tabs-item{icon="i-simple-icons-yarn" label="yarn"}
+  ```bash [Terminal]
+  yarn add @retoo/borda
+  ```
+  :::
+
+  :::tabs-item{icon="i-simple-icons-bun" label="bun"}
+  ```bash [Terminal]
+  bun add @retoo/borda
+  ```
+  :::
+::
+
+The stylesheet must be imported separately — without it the widget mounts into the DOM but renders without any visual styling:
+
+```ts
+import '@retoo/borda/styles';
+```
+
+::callout{color="warning" icon="i-lucide-alert-triangle"}
+Missing the CSS import is the most common setup issue. If the widget mounts but appears invisible or unstyled, check this import first.
+::
+
+## CDN
+
+For environments without a bundler (static HTML, WordPress, Webflow), load Borda via a `<script>` tag. See the [Formats](https://use-retoo.github.io/borda/distribution/formats#umd) page for full CDN setup instructions.
+
+## Verify installation
+
+Confirm that the package is resolved correctly by checking the exported metadata:
+
+```ts
+import { useBorda } from '@retoo/borda';
+
+const { NAME, VERSION } = useBorda();
+
+console.log(NAME, VERSION);
+```
+
+## Requirements
+
+::field-group
+  :::field{name="Browser" type="string"}
+  Any modern browser supporting ES2020+ (Chrome 80+, Firefox 80+, Safari 14+, Edge 80+).
+  :::
+
+  :::field{name="Node.js" type="string"}
+  16.0 or later (for SSR / CommonJS usage).
+  :::
+
+  :::field{name="Bundler" type="string"}
+  Any bundler with ES Module support — Vite, Webpack 5+, Rollup, esbuild.
+  :::
+::
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/getting-started/quick-start
+---
+Package installed? Let's build your first onboarding flow in the **Quick Start** guide.
+::
+
+
+# Quick Start
+
+## Basic setup
+
+::steps
+### Import Borda
+
+Import the factory function and the required stylesheet:
+
+```ts
+import { useBorda } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+```
+
+### Create a factory
+
+`useBorda()` returns a factory object that manages widget instances. One factory can create multiple independent tours:
+
+```ts
+const borda = useBorda();
+```
+
+### Define steps
+
+Each step requires a `target` (CSS selector or HTMLElement), a `title`, and a `description`. The `placement` controls where the tooltip appears relative to the target:
+
+```ts
+import { ComponentPlacement } from '@retoo/borda';
+
+const steps = [
+  {
+    target: '#sidebar',
+    title: 'Navigation',
+    description: 'Use the sidebar to browse different sections.',
+    placement: ComponentPlacement.MIDDLE_END,
+  },
+  {
+    target: '#search-bar',
+    title: 'Search',
+    description: 'Find anything quickly with the search bar.',
+    placement: ComponentPlacement.BOTTOM_CENTER,
+  },
+];
+```
+
+### Mount the tour
+
+Pass the steps to `mount()`. The tour initializes and displays the first step:
+
+```ts
+const instance = await borda.mount({ steps });
+```
+
+`mount()` is async — it resolves after the widget is rendered and attached to the DOM.
+::
+
+## Controlling the tour
+
+The `instance.api.controller` interface provides full control over the tour navigation. All methods are available immediately after mount:
+
+```ts
+// Navigate between steps
+await instance.api.controller.next();
+await instance.api.controller.prev();
+
+// Jump to a specific step by index (0-based)
+await instance.api.controller.changeStep(1);
+
+// Finish the tour
+instance.api.controller.finish();
+```
+
+You can also read the current tour state at any time:
+
+```ts
+instance.api.controller.currentStep;      // 1-based step number
+instance.api.controller.currentStepIndex;  // 0-based index
+instance.api.controller.totalSteps;
+instance.api.controller.hasNextStep;
+instance.api.controller.hasPrevStep;
+instance.api.controller.currentTarget;     // DOM element of current step
+```
+
+## Listening to events
+
+Subscribe to typed events through `instance.api.events` to connect the tour with your application logic:
+
+```ts [events.ts]
+import { BordaEvent } from '@retoo/borda';
+
+// Tour started
+instance.api.events.on(BordaEvent.ON_TOUR_START, () => {
+  analytics.track('tour_started');
+});
+
+// User advanced to next step
+instance.api.events.on(BordaEvent.ON_TOUR_NEXT, () => {
+  analytics.track('tour_step', { step: instance.api.controller.currentStep });
+});
+
+// Tour completed
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, () => {
+  analytics.track('tour_completed');
+});
+
+// Tour dismissed before completion
+instance.api.events.on(BordaEvent.ON_TOUR_CLOSE, () => {
+  analytics.track('tour_dismissed');
+});
+```
+
+To remove a specific handler, pass the same function reference to `off()`:
+
+```ts
+const handler = () => console.log('started');
+
+instance.api.events.on(BordaEvent.ON_TOUR_START, handler);
+
+// Later
+instance.api.events.off(BordaEvent.ON_TOUR_START, handler);
+```
+
+## Runtime
+
+Modify any config property after mount without recreating the widget. `mergeConfig()` performs a deep merge — only the fields you pass are updated:
+
+```ts [runtime.ts]
+import { ComponentPlacement } from '@retoo/borda';
+
+// Add a new step
+instance.config.mergeConfig({
+  steps: [
+    ...instance.config.current.steps,
+    {
+      target: '#settings',
+      title: 'Settings',
+      description: 'Customize your experience here.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+  ],
+});
+```
+
+To replace the entire config at once, use `setConfig()`:
+
+```ts
+instance.config.setConfig({
+  steps: [
+    {
+      target: '#new-element',
+      title: 'New tour',
+      description: 'Starting fresh.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+  ],
+});
+```
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/configuration/overview
+---
+For full config reference — steps, animation, scroll, skip, visibility — see the **Configuration** section.
+::
+
+
+# Overview
+
+Every aspect of the tour — from step definitions to the appearance of each UI element — is controlled through a single configuration object, `BordaConfig`, passed to `borda.mount()`. The only required field is `steps`; everything else has a sensible default or can be disabled entirely.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Section heading
+        description: Each page opens with a title and short description.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Main content
+        description: The body of the page — text, tables, and live demos like this one.
+        placement: middle-end
+      - target: "#page-toc"
+        title: On this page
+        description: Quick links to every heading on the current page.
+        placement: top-end
+    tourProgress:
+      variant: dots
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentPlacement, BordaTourProgressVariant } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#nav-sidebar',
+      title: 'Navigation',
+      description: 'Every section is one click away.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+    {
+      target: '#search-bar',
+      title: 'Search',
+      description: 'Find any page or setting instantly.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+    {
+      target: '#main-content',
+      title: 'Main area',
+      description: 'Your primary content lives here.',
+      placement: ComponentPlacement.MIDDLE_START,
+    },
+    {
+      target: '#user-menu',
+      title: 'Account',
+      description: 'Manage your profile and preferences.',
+      placement: ComponentPlacement.BOTTOM_END,
+    },
+  ],
+  tourProgress: {
+    variant: BordaTourProgressVariant.DOTS,
+  },
+});
+```
+
+## Config structure
+
+`BordaConfig` combines component overrides and feature configs:
+
+| Key            | Description                                                      |
+| -------------- | ---------------------------------------------------------------- |
+| `steps`        | Array of step definitions. &#x2A;*Required.**                    |
+| `size`         | Widget size — `xs`, `sm`, `md`, `lg`, `xl`, `xxl`                |
+| `shape`        | Widget shape — `circle`, `square`, `portrait`, `landscape`       |
+| `container`    | Outer container props — custom classes/styles                    |
+| `tourOverlay`  | Spotlight overlay. Pass `false` to disable.                      |
+| `tourTooltip`  | Tooltip with title/description. Pass `false` to disable.         |
+| `tourImage`    | Image inside the tooltip. Pass `false` to disable.               |
+| `tourButtons`  | Prev/next/finish/skip buttons. Pass `false` to disable.          |
+| `tourProgress` | Progress indicator. Pass `false` to disable.                     |
+| `tourSkip`     | "Don't show again" checkbox. Pass `false` to disable.            |
+| `closeButton`  | Close button. Pass `false` to disable.                           |
+| `tour`         | Tour behavior — startStep, lifecycle callbacks, keyboard control |
+| `visibility`   | Initial visibility state and animation                           |
+| `responsive`   | Breakpoint-specific overrides                                    |
+| `scroll`       | Smooth scroll to target. Pass `false` to disable.                |
+| `skip`         | Skip feature persistence. Pass `false` to disable.               |
+| `animation`    | Tooltip/overlay animations. Pass `false` to disable.             |
+
+## Disabling components
+
+Pass `false` to any component key to remove it from the tour entirely:
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Quiet mode
+        description: No buttons, no progress dots, no skip checkbox, no close button —
+          just the spotlight and this card.
+        placement: bottom-start
+    tourSkip: false
+    tourButtons: false
+    tourProgress: false
+    closeButton: false
+  ---
+  :::
+::
+
+Compare this to the live demo above the fold: that one shows every component enabled with progress dots; this one strips them all down to the spotlight and tooltip text.
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#announcement-banner',
+      title: 'New feature available',
+      description: 'A one-off spotlight with no navigation chrome — pair it with your own dismiss logic.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+  ],
+  tourSkip: false,
+  tourButtons: false,
+  tourProgress: false,
+  closeButton: false,
+});
+```
+
+This is different from hiding — a disabled component is never rendered in the DOM.
+
+## Runtime updates
+
+After mount, modify any config property through the instance — useful for reacting to screen size, user plan, or A/B test variant without unmounting:
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#trial-banner',
+      title: "You're on a free trial",
+      description: 'Upgrade any time from account settings.',
+      placement: 'bottom-center',
+    },
+  ],
+});
+
+// Deep merge — only the specified fields are updated
+// e.g. enlarge the widget and hide skip once the user is on their 3rd session
+instance.config.mergeConfig({
+  size: ComponentSize.LG,
+  tourButtons: { skip: false },
+});
+
+// Full replacement — e.g. switch to a different flow after the user upgrades
+instance.config.setConfig({
+  steps: [
+    {
+      target: '#billing-section',
+      title: "You're on the Pro plan",
+      description: 'Manage your subscription and invoices here.',
+      placement: 'bottom-center',
+    },
+  ],
+});
+```
+
+Both methods trigger a reactive update — the widget re-renders immediately without remounting.
+
+## Customization
+
+Most components accept `customClasses` and `customStyles` for visual overrides without modifying the source. Classes are merged with the defaults; styles are applied as inline CSS.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Branded tooltip
+        description: This card uses customStyles to override the border radius,
+          background, and border color.
+        placement: bottom-start
+    tourTooltip:
+      customStyles:
+        root:
+          borderRadius: 4px
+          background: "#fafaf9"
+          border: 2px solid
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#cta-button',
+      title: 'Branded tooltip',
+      description: 'Custom classes and inline styles, no source modification required.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+  ],
+  tourTooltip: {
+    customClasses: {
+      root: 'my-tooltip',
+      title: 'text-lg font-bold',
+    },
+    customStyles: {
+      root: {
+        borderRadius: '4px',
+        background: '#fafaf9',
+        border: '2px solid #18181b',
+      },
+    },
+  },
+});
+```
+
+
+# Size
+
+Widget dimensions are controlled by the `size` property, which selects from a predefined scale ranging from `xs` to `xxl`. All internal elements — tooltip, buttons, close button — scale proportionally, so you never need to adjust individual components manually.
+
+## Available sizes
+
+| Value | Description                     |
+| ----- | ------------------------------- |
+| `xs`  | Extra small — minimal footprint |
+| `sm`  | Small                           |
+| `md`  | Medium (default)                |
+| `lg`  | Large                           |
+| `xl`  | Extra large                     |
+| `xxl` | Maximum size                    |
+
+## Extra small
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    size: xs
+    steps:
+      - target: "#extra-small"
+        title: Extra small
+        description: The most compact size — minimal padding and font sizes.
+        placement: bottom-start
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#extra-small',
+      title: 'Extra small',
+      description: 'The most compact size — minimal padding and font sizes.',
+      placement: 'bottom-start',
+    },
+  ],
+  size: ComponentSize.XS,
+});
+```
+
+## Small
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    size: sm
+    steps:
+      - target: "#small"
+        title: Small
+        description: Slightly larger than extra small — still compact.
+        placement: bottom-start
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#small',
+      title: 'Small',
+      description: 'Slightly larger than extra small — still compact.',
+      placement: 'bottom-start',
+    },
+  ],
+  size: ComponentSize.SM,
+});
+```
+
+## Medium
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    size: md
+    steps:
+      - target: "#medium"
+        title: Medium
+        description: The default size — balanced for most use cases.
+        placement: bottom-start
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#medium',
+      title: 'Medium',
+      description: 'The default size — balanced for most use cases.',
+      placement: 'bottom-start',
+    },
+  ],
+  size: ComponentSize.MD,
+});
+```
+
+## Large
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    size: lg
+    steps:
+      - target: "#large"
+        title: Large
+        description: Larger padding and font sizes for better readability.
+        placement: bottom-start
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#large',
+      title: 'Large',
+      description: 'Larger padding and font sizes for better readability.',
+      placement: 'bottom-start',
+    },
+  ],
+  size: ComponentSize.LG,
+});
+```
+
+## Extra large
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    size: xl
+    steps:
+      - target: "#extra-large"
+        title: Extra large
+        description: Spacious layout with generous padding.
+        placement: bottom-start
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#extra-large',
+      title: 'Extra large',
+      description: 'Spacious layout with generous padding.',
+      placement: 'bottom-start',
+    },
+  ],
+  size: ComponentSize.XL,
+});
+```
+
+## Extra extra large
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    size: xxl
+    steps:
+      - target: "#extra-extra-large"
+        title: Extra extra large
+        description: Maximum size — biggest padding, fonts, and button targets.
+        placement: bottom-start
+  ---
+  :::
+::
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#extra-extra-large',
+      title: 'Extra extra large',
+      description: 'Maximum size — biggest padding, fonts, and button targets.',
+      placement: 'bottom-start',
+    },
+  ],
+  size: ComponentSize.XXL,
+});
+```
+
+## Runtime
+
+```ts
+import { useBorda, ComponentSize } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Use the sidebar to browse sections.',
+      placement: 'bottom-start',
+    },
+  ],
+});
+
+instance.config.mergeConfig({
+  size: ComponentSize.LG,
+});
+```
+
+The widget re-renders at the new size immediately. All child elements adapt automatically.
+
+## Overrides
+
+Global size applies to all components at once, but each component can override it individually. This is useful when one element needs to stand out or stay compact regardless of the overall scale:
+
+```ts
+await borda.mount({
+  steps: [...],
+  size: ComponentSize.LG,
+  tourTooltip: {
+    size: ComponentSize.SM,
+  },
+  tourButtons: {
+    size: ComponentSize.MD,
+  },
+  closeButton: {
+    size: ComponentSize.SM,
+  },
+});
+```
+
+
+# Steps
+
+Steps are the core of any tour. Each step defines which element to spotlight, what content to show in the tooltip, and optional lifecycle hooks that fire during navigation.
+
+## Config
+
+| Property              | Type                                          | Description                                                                                     |
+| --------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `target`              | `string | HTMLElement | BordaStepTargetQuery` | Element to spotlight. CSS selector, HTMLElement, or structured query. &#x2A;*Required.**        |
+| `title`               | `string`                                      | Tooltip heading text. &#x2A;*Required.**                                                        |
+| `description`         | `string`                                      | Tooltip body text. &#x2A;*Required.**                                                           |
+| `image`               | `string | BordaStepImage`                     | Image shown above the tooltip heading. A string sets the source; an object carries its own alt. |
+| `placement`           | `ComponentPlacement`                          | Tooltip placement relative to the target.                                                       |
+| `prepareElement`      | `() => Promise<void> | void`                  | Async hook called before entering this step. Navigation waits for it to resolve.                |
+| `onBeforeHighlighted` | `() => void`                                  | Fires before the target is highlighted, after `prepareElement`.                                 |
+| `onHighlighted`       | `() => void`                                  | Fires after the target is highlighted and the step index is updated.                            |
+| `onDeselected`        | `() => void`                                  | Fires when navigating away from this step.                                                      |
+| `onNext`              | `() => void`                                  | Step-level next handler; fires alongside the tour-level `onNext`.                               |
+| `onPrev`              | `() => void`                                  | Step-level prev handler; fires alongside the tour-level `onPrev`.                               |
+
+## Basic example
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Section heading
+        description: Each page opens with a title and short description.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Main content
+        description: The body of the page — text, code, and live demos.
+        placement: middle-end
+      - target: "#page-toc"
+        title: On this page
+        description: Jump to any heading on the current page.
+        placement: top-end
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Use the sidebar to browse different sections.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+    {
+      target: '#search',
+      title: 'Search',
+      description: 'Find anything quickly with the search bar.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+    {
+      target: '#settings',
+      title: 'Settings',
+      description: 'Customize your experience here.',
+      placement: ComponentPlacement.MIDDLE_START,
+    },
+    {
+      target: '#help',
+      title: 'Need help?',
+      description: 'Open the docs link from anywhere in the app.',
+      placement: ComponentPlacement.TOP_END,
+    },
+  ],
+});
+```
+
+## Target resolution
+
+The `target` field accepts three formats:
+
+```ts
+// CSS selector string
+{ target: '#my-element' }
+
+// Direct HTMLElement reference
+{ target: document.getElementById('my-element') }
+
+// Structured query (data attributes)
+{ target: { id: 'my-element', class: 'active', data: { name: 'tour-target', value: 'step-1' } } }
+```
+
+## Images
+
+Add an image above the tooltip heading:
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-content"
+        title: With an image
+        description: Images render above the title, inset within the tooltip padding by
+          default.
+        image:
+          src: data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480'
+            height='240'%3E%3Crect width='480' height='240'
+            fill='%23d4d4d8'/%3E%3C/svg%3E
+          alt: Placeholder image
+        placement: middle-end
+  ---
+  :::
+::
+
+```ts
+// Simple string (empty alt)
+{ target: '#el', title: 'Title', description: 'Text', image: '/tour/step-1.png' }
+
+// Object with alt text
+{ target: '#el', title: 'Title', description: 'Text', image: { src: '/tour/step-1.png', alt: 'Dashboard overview' } }
+```
+
+## Per-step component overrides
+
+Each step can override global component settings. Pass `false` to disable a component for that step only:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#intro',
+      title: 'Welcome',
+      description: 'Getting started.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+      tourButtons: { skip: false },
+      tourProgress: false,
+    },
+    {
+      target: '#details',
+      title: 'Details',
+      description: 'More info here.',
+      placement: ComponentPlacement.MIDDLE_END,
+      closeButton: false,
+    },
+  ],
+});
+```
+
+## Lifecycle hooks
+
+Use `prepareElement` for async setup before a step is shown — expand a panel, scroll to an element, or fetch data:
+
+```ts
+{
+  target: '#hidden-panel',
+  title: 'Advanced settings',
+  description: 'These options are for power users.',
+  placement: ComponentPlacement.MIDDLE_END,
+  prepareElement: async () => {
+    await expandSettingsPanel();
+    await waitForElement('#hidden-panel');
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaStep {
+  target: BordaStepTarget;
+  title: string;
+  description: string;
+  image?: BordaStepImageSource;
+  placement: ComponentPlacement;
+  onBeforeHighlighted?: () => void;
+  onHighlighted?: () => void;
+  onDeselected?: () => void;
+  onNext?: () => void;
+  onPrev?: () => void;
+  prepareElement?: () => Promise<void> | void;
+}
+```
+
+
+# Placement
+
+The `placement` field on each step controls where the tooltip appears relative to its target element. Borda uses a 3×3 grid system with 9 named positions.
+
+## Values
+
+| Placement       | Position                                    |
+| --------------- | ------------------------------------------- |
+| `TOP_START`     | Above the target, aligned to its left edge  |
+| `TOP_CENTER`    | Above the target, centered                  |
+| `TOP_END`       | Above the target, aligned to its right edge |
+| `MIDDLE_START`  | Left of the target, vertically centered     |
+| `MIDDLE_CENTER` | Centered on the target                      |
+| `MIDDLE_END`    | Right of the target, vertically centered    |
+| `BOTTOM_START`  | Below the target, aligned to its left edge  |
+| `BOTTOM_CENTER` | Below the target, centered                  |
+| `BOTTOM_END`    | Below the target, aligned to its right edge |
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: bottom-start
+        description: Tooltip sits below the target, aligned to its left edge.
+        placement: bottom-start
+      - target: "#page-content"
+        title: middle-end
+        description: Tooltip sits to the right of the target, vertically centered.
+        placement: middle-end
+      - target: "#page-toc"
+        title: top-end
+        description: Tooltip sits above the target, aligned to its right edge.
+        placement: top-end
+  ---
+  :::
+::
+
+```ts
+import { ComponentPlacement } from '@retoo/borda';
+
+await borda.mount({
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Browse sections here.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+    {
+      target: '#header',
+      title: 'Header',
+      description: 'Sits below the target, aligned left.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '#hero-banner',
+      title: 'Hero',
+      description: 'Centered directly on top of the target.',
+      placement: ComponentPlacement.MIDDLE_CENTER,
+    },
+  ],
+});
+```
+
+## Auto-placement
+
+When the requested placement doesn't fit in the viewport, Borda can automatically flip the tooltip to a fallback position. This is enabled by default.
+
+Configure the fallback chain through the tooltip's `autoPlacement` option:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: ComponentPlacement.TOP_CENTER,
+    },
+  ],
+  tourTooltip: {
+    autoPlacement: {
+      fallback: [
+        ComponentPlacement.BOTTOM_CENTER,
+        ComponentPlacement.MIDDLE_END,
+      ],
+    },
+  },
+});
+```
+
+The first placement from the fallback list that fits in the viewport wins. If none fit, the originally requested placement is kept and clamped to the viewport.
+
+Disable auto-placement to use the requested position as-is:
+
+```ts
+tourTooltip: {
+  autoPlacement: false,
+}
+```
+
+
+# Animation
+
+Borda supports configurable animations for tooltip enter/exit and overlay spotlight transitions. All animation settings are grouped under the `animation` config key.
+
+## Config
+
+| Property                     | Type                     | Default        | Description                                             |
+| ---------------------------- | ------------------------ | -------------- | ------------------------------------------------------- |
+| `isEnabled`                  | `boolean`                | `true`         | Master switch for all animations                        |
+| `tooltip.enter`              | `AnimationEffect`        | `FADE`         | Tooltip enter effect                                    |
+| `tooltip.exit`               | `AnimationEffect`        | `FADE`         | Tooltip exit effect                                     |
+| `tooltip.enterDuration`      | `number`                 | `200`          | Enter animation duration in ms                          |
+| `tooltip.exitDuration`       | `number`                 | `150`          | Exit animation duration in ms                           |
+| `tooltip.easing`             | `string`                 | `ease-out`     | CSS easing function                                     |
+| `tooltip.appearance`         | `BordaScrollAppearance`  | `AFTER_SCROLL` | When to reveal the tooltip relative to scroll animation |
+| `tooltip.transition`         | `BordaTooltipTransition` | `FADE`         | How the tooltip moves between steps                     |
+| `overlay.transitionDuration` | `number`                 | `350`          | Spotlight transition duration between steps             |
+| `overlay.easing`             | `string`                 | `ease-in-out`  | CSS easing for spotlight movement                       |
+
+## Tooltip transition
+
+Controls how the tooltip moves between steps:
+
+| Transition | Description                                                           |
+| ---------- | --------------------------------------------------------------------- |
+| `FADE`     | Hide the tooltip while transitioning, then fade it in at the new step |
+| `GLIDE`    | Keep the tooltip visible and glide its position to the new step       |
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Glide step 1
+        description: The tooltip stays visible and glides to the next target.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Glide step 2
+        description: No fade-out — the tooltip moves continuously between steps.
+        placement: middle-end
+    animation:
+      tooltip:
+        transition: glide
+  ---
+  :::
+::
+
+```ts
+import { BordaTooltipTransition } from '@retoo/borda';
+
+await borda.mount({
+  steps: [...],
+  animation: {
+    tooltip: {
+      transition: BordaTooltipTransition.GLIDE,
+    },
+  },
+});
+```
+
+## Animation effects
+
+| Effect  | Description        |
+| ------- | ------------------ |
+| `NONE`  | No animation       |
+| `FADE`  | Opacity transition |
+| `SCALE` | Scale from center  |
+| `SLIDE` | Slide from edge    |
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Scale in
+        description: This tooltip scales in from the center on enter.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: Notice the scale transition between steps too.
+        placement: top-end
+    animation:
+      isEnabled: true
+      tooltip:
+        enter: scale
+        exit: scale
+        enterDuration: 250
+        exitDuration: 150
+  ---
+  :::
+::
+
+```ts
+import { AnimationEffect } from '@retoo/borda';
+
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: 'bottom-center',
+    },
+  ],
+  animation: {
+    isEnabled: true,
+    tooltip: {
+      enter: AnimationEffect.FADE,
+      exit: AnimationEffect.FADE,
+      enterDuration: 300,
+      exitDuration: 200,
+    },
+    overlay: {
+      transitionDuration: 400,
+    },
+  },
+});
+```
+
+## Disabling animation
+
+Pass `false` to disable all animations globally:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: 'bottom-center',
+    },
+  ],
+  animation: false,
+});
+```
+
+## Runtime API
+
+Read the resolved animation settings at runtime:
+
+```ts
+instance.animation.isEnabled;
+instance.animation.tooltip;
+instance.animation.overlay;
+```
+
+
+# Scroll
+
+The scroll feature smoothly scrolls the page to bring the active step's target element into view. It uses a custom `requestAnimationFrame` animation so `duration`, `easing`, and `offset` are fully configurable.
+
+## Config
+
+| Property   | Type                    | Default       | Description                                                                        |
+| ---------- | ----------------------- | ------------- | ---------------------------------------------------------------------------------- |
+| `block`    | `ScrollLogicalPosition` | `center`      | Vertical alignment — `start`, `center`, `end`, `nearest`                           |
+| `inline`   | `ScrollLogicalPosition` | `nearest`     | Horizontal alignment                                                               |
+| `duration` | `number`                | `400`         | Animation duration in ms. `0` for instant jump.                                    |
+| `easing`   | `BordaScrollEasing`     | `ease-in-out` | Built-in preset or custom function                                                 |
+| `offset.x` | `number`                | `0`           | Horizontal pixel offset                                                            |
+| `offset.y` | `number`                | `0`           | Vertical pixel offset                                                              |
+| `isLocked` | `boolean`               | `true`        | Block manual page scroll while the tour is active. Set `false` to allow scrolling. |
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Top of the page
+        description: First step starts at the top.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Scrolled into view
+        description: The page scrolled smoothly to bring this target into view.
+        placement: top-end
+    scroll:
+      block: center
+      duration: 600
+      easing: ease-in-out
+      offset:
+        y: -20
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#intro-section',
+      title: 'Welcome',
+      description: 'First step starts at the top of the page.',
+      placement: 'bottom-center',
+    },
+    {
+      target: '#bottom-section',
+      title: 'Down here',
+      description: 'The page scrolled to this element automatically.',
+      placement: 'top-center',
+    },
+  ],
+  scroll: {
+    block: 'center',
+    duration: 600,
+    easing: 'ease-in-out',
+    offset: { y: -20 },
+  },
+});
+```
+
+## Easing presets
+
+| Preset        | Description            |
+| ------------- | ---------------------- |
+| `linear`      | Constant speed         |
+| `ease`        | Default browser easing |
+| `ease-in`     | Slow start, fast end   |
+| `ease-out`    | Fast start, slow end   |
+| `ease-in-out` | Slow start and end     |
+
+Pass a custom function for full control:
+
+```ts
+scroll: {
+  easing: (progress) => progress * progress, // quadratic ease-in
+}
+```
+
+## Disabling scroll
+
+Pass `false` to disable automatic scrolling entirely:
+
+```ts
+await borda.mount({
+  steps: [...],
+  scroll: false,
+});
+```
+
+When `animation.isEnabled` is `false` globally, scroll still runs but becomes an instant jump regardless of `duration`.
+
+## Runtime API
+
+```ts
+// Scroll to any element programmatically
+await instance.scroll.scrollTo(document.getElementById('target'));
+
+// Check if a scroll animation is in progress
+instance.scroll.isScrolling;
+```
+
+
+# Skip
+
+The skip feature adds a "Don't show again" checkbox to the tooltip. When checked, the onboarding won't replay for returning users — the state is persisted in `localStorage`.
+
+## Config
+
+| Property     | Type     | Default      | Description                                       |
+| ------------ | -------- | ------------ | ------------------------------------------------- |
+| `storageKey` | `string` | `borda-skip` | Key used in localStorage to persist the skip flag |
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Welcome
+        description: This onboarding will help you get started. Check the box below to
+          skip it next time.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: One more thing
+        description: The skip checkbox is available on every step, not just the first.
+        placement: top-end
+    skip:
+      storageKey: docs-demo-skip
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#welcome',
+      title: 'Welcome',
+      description: 'This onboarding will help you get started.',
+      placement: 'bottom-center',
+    },
+    {
+      target: '#dashboard',
+      title: 'Your dashboard',
+      description: 'Everything you need is right here.',
+      placement: 'middle-end',
+    },
+  ],
+  skip: {
+    storageKey: 'my-app-onboarding-skip',
+  },
+});
+```
+
+## Disabling skip
+
+Pass `false` to remove the skip checkbox entirely:
+
+```ts
+await borda.mount({
+  steps: [...],
+  skip: false,
+});
+```
+
+## Runtime API
+
+Control the skip state programmatically:
+
+```ts
+// Check if the user chose to skip
+instance.skip.isSkipped;
+
+// Set the skip flag manually
+instance.skip.set(true);
+
+// Clear the persisted flag (onboarding will replay next time)
+instance.skip.clear();
+
+// Read the active storage key
+instance.skip.storageKey;
+```
+
+
+# Styles
+
+Visual appearance is fully customizable through CSS custom properties defined on the `.rb` root element. Override any variable in your own stylesheet to change colors, sizes, spacing, and animations — no need to touch the library source or add extra build steps.
+
+## Container
+
+| Variable                 | Default |
+| ------------------------ | ------- |
+| `--rb-container-z-index` | `10`    |
+
+## Tour overlay
+
+| Variable                       | Default               |
+| ------------------------------ | --------------------- |
+| `--rb-tour-overlay-background` | `rgba(0, 0, 0, 0.45)` |
+| `--rb-tour-overlay-z-index`    | `1000`                |
+
+## Tour tooltip
+
+| Variable                               | Default                            |
+| -------------------------------------- | ---------------------------------- |
+| `--rb-tour-tooltip-background`         | `rgb(255, 255, 255)`               |
+| `--rb-tour-tooltip-border`             | `1px solid rgba(17, 17, 17, 0.06)` |
+| `--rb-tour-tooltip-border-radius`      | `14px`                             |
+| `--rb-tour-tooltip-shadow`             | `0 4px 16px rgba(0, 0, 0, 0.08)`   |
+| `--rb-tour-tooltip-z-index`            | `1010`                             |
+| `--rb-tour-tooltip-max-width`          | `calc(100vw - 32px)`               |
+| `--rb-tour-tooltip-min-width-xs`       | `240px`                            |
+| `--rb-tour-tooltip-min-width-sm`       | `280px`                            |
+| `--rb-tour-tooltip-min-width-md`       | `340px`                            |
+| `--rb-tour-tooltip-min-width-lg`       | `400px`                            |
+| `--rb-tour-tooltip-min-width-xl`       | `460px`                            |
+| `--rb-tour-tooltip-min-width-xxl`      | `520px`                            |
+| `--rb-tour-tooltip-padding-xs`         | `10px`                             |
+| `--rb-tour-tooltip-padding-sm`         | `12px`                             |
+| `--rb-tour-tooltip-padding-md`         | `16px`                             |
+| `--rb-tour-tooltip-padding-lg`         | `20px`                             |
+| `--rb-tour-tooltip-padding-xl`         | `24px`                             |
+| `--rb-tour-tooltip-padding-xxl`        | `28px`                             |
+| `--rb-tour-tooltip-gap-xs`             | `10px`                             |
+| `--rb-tour-tooltip-gap-sm`             | `12px`                             |
+| `--rb-tour-tooltip-gap-md`             | `16px`                             |
+| `--rb-tour-tooltip-gap-lg`             | `20px`                             |
+| `--rb-tour-tooltip-gap-xl`             | `24px`                             |
+| `--rb-tour-tooltip-gap-xxl`            | `28px`                             |
+| `--rb-tour-tooltip-header-gap`         | `12px`                             |
+| `--rb-tour-tooltip-close-offset-top`   | `-2px`                             |
+| `--rb-tour-tooltip-close-offset-right` | `-4px`                             |
+
+### Arrow
+
+| Variable                         | Default |
+| -------------------------------- | ------- |
+| `--rb-tour-tooltip-arrow-size`   | `10px`  |
+| `--rb-tour-tooltip-arrow-inset`  | `16px`  |
+| `--rb-tour-tooltip-arrow-offset` | `50%`   |
+
+### Title
+
+| Variable                                | Default                  |
+| --------------------------------------- | ------------------------ |
+| `--rb-tour-tooltip-title-color`         | `rgba(17, 17, 17, 0.96)` |
+| `--rb-tour-tooltip-title-font-weight`   | `600`                    |
+| `--rb-tour-tooltip-title-line-height`   | `1.35`                   |
+| `--rb-tour-tooltip-title-font-size-xs`  | `14px`                   |
+| `--rb-tour-tooltip-title-font-size-sm`  | `15px`                   |
+| `--rb-tour-tooltip-title-font-size-md`  | `16px`                   |
+| `--rb-tour-tooltip-title-font-size-lg`  | `18px`                   |
+| `--rb-tour-tooltip-title-font-size-xl`  | `20px`                   |
+| `--rb-tour-tooltip-title-font-size-xxl` | `22px`                   |
+
+### Description
+
+| Variable                                      | Default                  |
+| --------------------------------------------- | ------------------------ |
+| `--rb-tour-tooltip-description-color`         | `rgba(17, 17, 17, 0.62)` |
+| `--rb-tour-tooltip-description-line-height`   | `1.5`                    |
+| `--rb-tour-tooltip-description-font-size-xs`  | `12px`                   |
+| `--rb-tour-tooltip-description-font-size-sm`  | `13px`                   |
+| `--rb-tour-tooltip-description-font-size-md`  | `14px`                   |
+| `--rb-tour-tooltip-description-font-size-lg`  | `15px`                   |
+| `--rb-tour-tooltip-description-font-size-xl`  | `16px`                   |
+| `--rb-tour-tooltip-description-font-size-xxl` | `17px`                   |
+
+### Animation
+
+| Variable                               | Default                        |
+| -------------------------------------- | ------------------------------ |
+| `--rb-tour-tooltip-animation-duration` | `200ms`                        |
+| `--rb-tour-tooltip-animation-easing`   | `ease-out`                     |
+| `--rb-tour-tooltip-glide-duration`     | `300ms`                        |
+| `--rb-tour-tooltip-glide-easing`       | `cubic-bezier(0.4, 0, 0.2, 1)` |
+
+## Tour progress
+
+| Variable                                 | Default                  |
+| ---------------------------------------- | ------------------------ |
+| `--rb-tour-progress-dot-size`            | `6px`                    |
+| `--rb-tour-progress-dot-gap`             | `6px`                    |
+| `--rb-tour-progress-dot-border-radius`   | `50%`                    |
+| `--rb-tour-progress-dot-color`           | `rgba(17, 17, 17, 0.18)` |
+| `--rb-tour-progress-dot-color-active`    | `rgba(17, 17, 17, 0.9)`  |
+| `--rb-tour-progress-text-font-size`      | `12px`                   |
+| `--rb-tour-progress-text-color`          | `rgba(17, 17, 17, 0.55)` |
+| `--rb-tour-progress-line-height`         | `6px`                    |
+| `--rb-tour-progress-line-border-radius`  | `4px`                    |
+| `--rb-tour-progress-line-track-color`    | `rgba(17, 17, 17, 0.08)` |
+| `--rb-tour-progress-line-progress-color` | `rgba(17, 17, 17, 0.9)`  |
+
+## Tour buttons
+
+| Variable                        | Default |
+| ------------------------------- | ------- |
+| `--rb-tour-buttons-gap`         | `8px`   |
+| `--rb-tour-buttons-padding-top` | `6px`   |
+
+## Tour skip
+
+| Variable                             | Default                           |
+| ------------------------------------ | --------------------------------- |
+| `--rb-tour-skip-gap`                 | `8px`                             |
+| `--rb-tour-skip-input-size`          | `15px`                            |
+| `--rb-tour-skip-input-background`    | `rgb(255, 255, 255)`              |
+| `--rb-tour-skip-input-border`        | `1px solid rgba(17, 17, 17, 0.3)` |
+| `--rb-tour-skip-input-border-radius` | `4px`                             |
+| `--rb-tour-skip-input-check-color`   | `rgb(255, 255, 255)`              |
+| `--rb-tour-skip-input-accent`        | `rgba(17, 17, 17, 0.9)`           |
+| `--rb-tour-skip-label-font-size`     | `13px`                            |
+| `--rb-tour-skip-label-line-height`   | `1.4`                             |
+| `--rb-tour-skip-label-color`         | `rgba(17, 17, 17, 0.62)`          |
+| `--rb-tour-skip-label-color-hover`   | `rgba(17, 17, 17, 0.9)`           |
+
+## Button (shared)
+
+Shared variables for button sizing and appearance across all button types.
+
+| Variable                           | Default                            |
+| ---------------------------------- | ---------------------------------- |
+| `--rb-button-size-xs`              | `30px`                             |
+| `--rb-button-size-sm`              | `34px`                             |
+| `--rb-button-size-md`              | `38px`                             |
+| `--rb-button-size-lg`              | `42px`                             |
+| `--rb-button-size-xl`              | `46px`                             |
+| `--rb-button-size-xxl`             | `50px`                             |
+| `--rb-button-font-size-xs`         | `11px`                             |
+| `--rb-button-font-size-sm`         | `12px`                             |
+| `--rb-button-font-size-md`         | `13px`                             |
+| `--rb-button-font-size-lg`         | `14px`                             |
+| `--rb-button-font-size-xl`         | `15px`                             |
+| `--rb-button-font-size-xxl`        | `16px`                             |
+| `--rb-button-font-weight`          | `500`                              |
+| `--rb-button-letter-spacing`       | `0.01em`                           |
+| `--rb-button-padding-xs`           | `0px 8px`                          |
+| `--rb-button-padding-sm`           | `0px 10px`                         |
+| `--rb-button-padding-md`           | `0px 14px`                         |
+| `--rb-button-padding-lg`           | `0px 18px`                         |
+| `--rb-button-padding-xl`           | `0px 22px`                         |
+| `--rb-button-padding-xxl`          | `0px 26px`                         |
+| `--rb-button-gap-xs`               | `4px`                              |
+| `--rb-button-gap-sm`               | `6px`                              |
+| `--rb-button-gap-md`               | `8px`                              |
+| `--rb-button-gap-lg`               | `10px`                             |
+| `--rb-button-gap-xl`               | `12px`                             |
+| `--rb-button-gap-xxl`              | `14px`                             |
+| `--rb-button-color`                | `rgb(255, 255, 255)`               |
+| `--rb-button-background`           | `rgb(17, 17, 17)`                  |
+| `--rb-button-background-hover`     | `rgb(38, 38, 38)`                  |
+| `--rb-button-border`               | `1px solid transparent`            |
+| `--rb-button-border-radius`        | `8px`                              |
+| `--rb-button-transition`           | `all 0.18s ease`                   |
+| `--rb-button-focus-outline`        | `2px solid rgba(17, 17, 17, 0.35)` |
+| `--rb-button-focus-outline-offset` | `2px`                              |
+
+### Outlined variant
+
+| Variable                                | Default                            |
+| --------------------------------------- | ---------------------------------- |
+| `--rb-button-outlined-color`            | `rgb(17, 17, 17)`                  |
+| `--rb-button-outlined-background`       | `transparent`                      |
+| `--rb-button-outlined-background-hover` | `rgba(17, 17, 17, 0.06)`           |
+| `--rb-button-outlined-border`           | `1px solid rgba(17, 17, 17, 0.16)` |
+
+### Ghost variant
+
+| Variable                             | Default                  |
+| ------------------------------------ | ------------------------ |
+| `--rb-button-ghost-color`            | `rgba(17, 17, 17, 0.72)` |
+| `--rb-button-ghost-background`       | `transparent`            |
+| `--rb-button-ghost-background-hover` | `rgba(17, 17, 17, 0.06)` |
+| `--rb-button-ghost-border`           | `1px solid transparent`  |
+
+### Text variant
+
+| Variable                       | Default                  |
+| ------------------------------ | ------------------------ |
+| `--rb-button-text-color`       | `rgba(17, 17, 17, 0.72)` |
+| `--rb-button-text-color-hover` | `rgb(17, 17, 17)`        |
+
+## Close button
+
+| Variable                               | Default                  |
+| -------------------------------------- | ------------------------ |
+| `--rb-close-button-size-xs`            | `22px`                   |
+| `--rb-close-button-size-sm`            | `26px`                   |
+| `--rb-close-button-size-md`            | `28px`                   |
+| `--rb-close-button-size-lg`            | `32px`                   |
+| `--rb-close-button-size-xl`            | `36px`                   |
+| `--rb-close-button-size-xxl`           | `38px`                   |
+| `--rb-close-button-icon-size-xs`       | `12px`                   |
+| `--rb-close-button-icon-size-sm`       | `14px`                   |
+| `--rb-close-button-icon-size-md`       | `16px`                   |
+| `--rb-close-button-icon-size-lg`       | `18px`                   |
+| `--rb-close-button-icon-size-xl`       | `20px`                   |
+| `--rb-close-button-icon-size-xxl`      | `22px`                   |
+| `--rb-close-button-color`              | `rgba(17, 17, 17, 0.6)`  |
+| `--rb-close-button-color-hover`        | `rgb(17, 17, 17)`        |
+| `--rb-close-button-background`         | `transparent`            |
+| `--rb-close-button-background-hover`   | `rgba(17, 17, 17, 0.06)` |
+| `--rb-close-button-background-pressed` | `rgba(17, 17, 17, 0.1)`  |
+| `--rb-close-button-border-radius`      | `8px`                    |
+| `--rb-close-button-transition`         | `all 0.18s ease`         |
+| `--rb-close-button-z-index`            | `20`                     |
+
+## Image
+
+| Variable                     | Default  |
+| ---------------------------- | -------- |
+| `--rb-image-width`           | `100%`   |
+| `--rb-image-height`          | `auto`   |
+| `--rb-image-border-radius`   | `10px`   |
+| `--rb-image-object-fit`      | `cover`  |
+| `--rb-image-object-position` | `center` |
+
+## Icons
+
+| Variable             | Default              |
+| -------------------- | -------------------- |
+| `--rb-icon-size-xs`  | `22px`               |
+| `--rb-icon-size-sm`  | `24px`               |
+| `--rb-icon-size-md`  | `28px`               |
+| `--rb-icon-size-lg`  | `32px`               |
+| `--rb-icon-size-xl`  | `36px`               |
+| `--rb-icon-size-xxl` | `40px`               |
+| `--rb-icon-color`    | `rgb(255, 255, 255)` |
+
+## Full reference
+
+All CSS custom properties with their default values:
+
+```css
+.rb {
+  /* Container */
+  --rb-container-z-index: 10;
+
+  /* Button (shared) */
+  --rb-button-size-xs: 30px;
+  --rb-button-size-sm: 34px;
+  --rb-button-size-md: 38px;
+  --rb-button-size-lg: 42px;
+  --rb-button-size-xl: 46px;
+  --rb-button-size-xxl: 50px;
+  --rb-button-font-size-xs: 11px;
+  --rb-button-font-size-sm: 12px;
+  --rb-button-font-size-md: 13px;
+  --rb-button-font-size-lg: 14px;
+  --rb-button-font-size-xl: 15px;
+  --rb-button-font-size-xxl: 16px;
+  --rb-button-font-weight: 500;
+  --rb-button-letter-spacing: 0.01em;
+  --rb-button-padding-xs: 0px 8px;
+  --rb-button-padding-sm: 0px 10px;
+  --rb-button-padding-md: 0px 14px;
+  --rb-button-padding-lg: 0px 18px;
+  --rb-button-padding-xl: 0px 22px;
+  --rb-button-padding-xxl: 0px 26px;
+  --rb-button-gap-xs: 4px;
+  --rb-button-gap-sm: 6px;
+  --rb-button-gap-md: 8px;
+  --rb-button-gap-lg: 10px;
+  --rb-button-gap-xl: 12px;
+  --rb-button-gap-xxl: 14px;
+  --rb-button-color: rgb(255, 255, 255);
+  --rb-button-background: rgb(17, 17, 17);
+  --rb-button-background-hover: rgb(38, 38, 38);
+  --rb-button-border: 1px solid transparent;
+  --rb-button-border-radius: 8px;
+  --rb-button-transition: all 0.18s ease;
+  --rb-button-focus-outline: 2px solid rgba(17, 17, 17, 0.35);
+  --rb-button-focus-outline-offset: 2px;
+  --rb-button-outlined-color: rgb(17, 17, 17);
+  --rb-button-outlined-background: transparent;
+  --rb-button-outlined-background-hover: rgba(17, 17, 17, 0.06);
+  --rb-button-outlined-border: 1px solid rgba(17, 17, 17, 0.16);
+  --rb-button-ghost-color: rgba(17, 17, 17, 0.72);
+  --rb-button-ghost-background: transparent;
+  --rb-button-ghost-background-hover: rgba(17, 17, 17, 0.06);
+  --rb-button-ghost-border: 1px solid transparent;
+  --rb-button-text-color: rgba(17, 17, 17, 0.72);
+  --rb-button-text-color-hover: rgb(17, 17, 17);
+
+  /* Close button */
+  --rb-close-button-size-xs: 22px;
+  --rb-close-button-size-sm: 26px;
+  --rb-close-button-size-md: 28px;
+  --rb-close-button-size-lg: 32px;
+  --rb-close-button-size-xl: 36px;
+  --rb-close-button-size-xxl: 38px;
+  --rb-close-button-icon-size-xs: 12px;
+  --rb-close-button-icon-size-sm: 14px;
+  --rb-close-button-icon-size-md: 16px;
+  --rb-close-button-icon-size-lg: 18px;
+  --rb-close-button-icon-size-xl: 20px;
+  --rb-close-button-icon-size-xxl: 22px;
+  --rb-close-button-color: rgba(17, 17, 17, 0.6);
+  --rb-close-button-color-hover: rgb(17, 17, 17);
+  --rb-close-button-background: transparent;
+  --rb-close-button-background-hover: rgba(17, 17, 17, 0.06);
+  --rb-close-button-background-pressed: rgba(17, 17, 17, 0.1);
+  --rb-close-button-border-radius: 8px;
+  --rb-close-button-transition: all 0.18s ease;
+  --rb-close-button-z-index: 20;
+
+  /* Icons */
+  --rb-icon-size-xs: 22px;
+  --rb-icon-size-sm: 24px;
+  --rb-icon-size-md: 28px;
+  --rb-icon-size-lg: 32px;
+  --rb-icon-size-xl: 36px;
+  --rb-icon-size-xxl: 40px;
+  --rb-icon-color: rgb(255, 255, 255);
+
+  /* Tour overlay */
+  --rb-tour-overlay-background: rgba(0, 0, 0, 0.45);
+  --rb-tour-overlay-z-index: 1000;
+
+  /* Tour progress */
+  --rb-tour-progress-dot-size: 6px;
+  --rb-tour-progress-dot-gap: 6px;
+  --rb-tour-progress-dot-border-radius: 50%;
+  --rb-tour-progress-dot-color: rgba(17, 17, 17, 0.18);
+  --rb-tour-progress-dot-color-active: rgba(17, 17, 17, 0.9);
+  --rb-tour-progress-text-font-size: 12px;
+  --rb-tour-progress-text-color: rgba(17, 17, 17, 0.55);
+  --rb-tour-progress-line-height: 6px;
+  --rb-tour-progress-line-border-radius: 4px;
+  --rb-tour-progress-line-track-color: rgba(17, 17, 17, 0.08);
+  --rb-tour-progress-line-progress-color: rgba(17, 17, 17, 0.9);
+
+  /* Tour buttons */
+  --rb-tour-buttons-gap: 8px;
+  --rb-tour-buttons-padding-top: 6px;
+
+  /* Tour skip */
+  --rb-tour-skip-gap: 8px;
+  --rb-tour-skip-input-size: 15px;
+  --rb-tour-skip-input-background: rgb(255, 255, 255);
+  --rb-tour-skip-input-border: 1px solid rgba(17, 17, 17, 0.3);
+  --rb-tour-skip-input-border-radius: 4px;
+  --rb-tour-skip-input-check-color: rgb(255, 255, 255);
+  --rb-tour-skip-input-accent: rgba(17, 17, 17, 0.9);
+  --rb-tour-skip-label-font-size: 13px;
+  --rb-tour-skip-label-line-height: 1.4;
+  --rb-tour-skip-label-color: rgba(17, 17, 17, 0.62);
+  --rb-tour-skip-label-color-hover: rgba(17, 17, 17, 0.9);
+
+  /* Tour tooltip */
+  --rb-tour-tooltip-arrow-size: 10px;
+  --rb-tour-tooltip-arrow-inset: 16px;
+  --rb-tour-tooltip-arrow-offset: 50%;
+  --rb-tour-tooltip-gap-xs: 10px;
+  --rb-tour-tooltip-gap-sm: 12px;
+  --rb-tour-tooltip-gap-md: 16px;
+  --rb-tour-tooltip-gap-lg: 20px;
+  --rb-tour-tooltip-gap-xl: 24px;
+  --rb-tour-tooltip-gap-xxl: 28px;
+  --rb-tour-tooltip-header-gap: 12px;
+  --rb-tour-tooltip-min-width-xs: 240px;
+  --rb-tour-tooltip-min-width-sm: 280px;
+  --rb-tour-tooltip-min-width-md: 340px;
+  --rb-tour-tooltip-min-width-lg: 400px;
+  --rb-tour-tooltip-min-width-xl: 460px;
+  --rb-tour-tooltip-min-width-xxl: 520px;
+  --rb-tour-tooltip-max-width: calc(100vw - 32px);
+  --rb-tour-tooltip-padding-xs: 10px;
+  --rb-tour-tooltip-padding-sm: 12px;
+  --rb-tour-tooltip-padding-md: 16px;
+  --rb-tour-tooltip-padding-lg: 20px;
+  --rb-tour-tooltip-padding-xl: 24px;
+  --rb-tour-tooltip-padding-xxl: 28px;
+  --rb-tour-tooltip-close-offset-top: -2px;
+  --rb-tour-tooltip-close-offset-right: -4px;
+  --rb-tour-tooltip-background: rgb(255, 255, 255);
+  --rb-tour-tooltip-border: 1px solid rgba(17, 17, 17, 0.06);
+  --rb-tour-tooltip-border-radius: 14px;
+  --rb-tour-tooltip-title-font-size-xs: 14px;
+  --rb-tour-tooltip-title-font-size-sm: 15px;
+  --rb-tour-tooltip-title-font-size-md: 16px;
+  --rb-tour-tooltip-title-font-size-lg: 18px;
+  --rb-tour-tooltip-title-font-size-xl: 20px;
+  --rb-tour-tooltip-title-font-size-xxl: 22px;
+  --rb-tour-tooltip-title-font-weight: 600;
+  --rb-tour-tooltip-title-line-height: 1.35;
+  --rb-tour-tooltip-title-color: rgba(17, 17, 17, 0.96);
+  --rb-tour-tooltip-description-font-size-xs: 12px;
+  --rb-tour-tooltip-description-font-size-sm: 13px;
+  --rb-tour-tooltip-description-font-size-md: 14px;
+  --rb-tour-tooltip-description-font-size-lg: 15px;
+  --rb-tour-tooltip-description-font-size-xl: 16px;
+  --rb-tour-tooltip-description-font-size-xxl: 17px;
+  --rb-tour-tooltip-description-line-height: 1.5;
+  --rb-tour-tooltip-description-color: rgba(17, 17, 17, 0.62);
+  --rb-tour-tooltip-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --rb-tour-tooltip-z-index: 1010;
+  --rb-tour-tooltip-animation-duration: 200ms;
+  --rb-tour-tooltip-animation-easing: ease-out;
+  --rb-tour-tooltip-glide-duration: 300ms;
+  --rb-tour-tooltip-glide-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Image */
+  --rb-image-width: 100%;
+  --rb-image-height: auto;
+  --rb-image-border-radius: 10px;
+  --rb-image-object-fit: cover;
+  --rb-image-object-position: center;
+}
+```
+
+
+# Container
+
+Container is the root wrapper that hosts all tour components. It provides the outermost DOM element for positioning and styling.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Container
+        description: The container wraps all tour components.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Code example
+        description: Configure the container with custom classes and styles.
+        placement: top-center
+  ---
+  :::
+::
+
+## Config
+
+| Property        | Type                                   | Description                            |
+| --------------- | -------------------------------------- | -------------------------------------- |
+| `customClasses` | `Partial<BordaContainerCustomClasses>` | Custom CSS classes for the container   |
+| `customStyles`  | `Partial<BordaContainerCustomStyles>`  | Custom inline styles for the container |
+
+## Customization
+
+The container accepts `root` as the target key:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: 'bottom-center',
+    },
+  ],
+  container: {
+    customClasses: {
+      root: 'my-tour-container',
+    },
+    customStyles: {
+      root: {
+        zIndex: '9999',
+      },
+    },
+  },
+});
+```
+
+## Interface
+
+```ts
+interface BordaContainerProps {
+  customClasses: Partial<BordaContainerCustomClasses>;
+  customStyles: Partial<BordaContainerCustomStyles>;
+}
+```
+
+
+# Overlay
+
+The tour overlay renders a full-screen SVG backdrop with a cutout around the target element. It draws attention to the active step and dims the rest of the page. Pass `false` to disable.
+
+## Config
+
+| Property                  | Type                                        | Default | Description                                     |
+| ------------------------- | ------------------------------------------- | ------- | ----------------------------------------------- |
+| `padding`                 | `number`                                    | `8`     | Pixels the cutout extends beyond the target     |
+| `borderRadius`            | `number`                                    | `8`     | Corner radius of the cutout in pixels           |
+| `isAnimated`              | `boolean`                                   | `true`  | Whether the spotlight animates between steps    |
+| `hasCloseOnBackdropClick` | `boolean`                                   | `true`  | Close the tour when clicking outside the target |
+| `aria`                    | `Partial<ComponentAriaProps>`               | —       | ARIA attributes                                 |
+| `customClasses`           | `Partial<BordaTourOverlayComponentClasses>` | —       | Custom CSS classes                              |
+| `customStyles`            | `Partial<BordaTourOverlayComponentStyles>`  | —       | Custom inline styles                            |
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Browse sections here.',
+      placement: 'middle-end',
+    },
+  ],
+  tourOverlay: {
+    padding: 12,
+    borderRadius: 12,
+    isAnimated: true,
+    hasCloseOnBackdropClick: true,
+  },
+});
+```
+
+## Disabling
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourOverlay: false,
+});
+```
+
+## Customization
+
+```ts
+tourOverlay: {
+  customClasses: {
+    root: 'my-overlay',
+    backdrop: 'opacity-50',
+  },
+  customStyles: {
+    backdrop: {
+      fill: 'rgba(0, 0, 0, 0.7)',
+    },
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaTourOverlayProps {
+  padding: number;
+  borderRadius: number;
+  isAnimated: boolean;
+  hasCloseOnBackdropClick: boolean;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaTourOverlayComponentClasses>;
+  customStyles: Partial<BordaTourOverlayComponentStyles>;
+}
+```
+
+
+# Tooltip
+
+The tour tooltip displays the step's title and description in a positioned card with an optional arrow pointing at the target. It auto-flips to stay within the viewport. Pass `false` to disable.
+
+## Config
+
+| Property        | Type                                        | Default | Description                                                 |
+| --------------- | ------------------------------------------- | ------- | ----------------------------------------------------------- |
+| `size`          | `ComponentSize`                             | `MD`    | Size variant scaling padding, gap, min-width and font sizes |
+| `placement`     | `ComponentPlacement`                        | —       | Tooltip placement relative to the target                    |
+| `autoPlacement` | `BordaTourTooltipAutoPlacement | boolean`   | `true`  | Auto-flip when placement doesn't fit                        |
+| `margin`        | `number`                                    | `16`    | Minimum gap from viewport edges                             |
+| `offset`        | `number`                                    | `8`     | Gap between tooltip and target in pixels                    |
+| `padding`       | `number`                                    | `12`    | Inner padding in pixels                                     |
+| `arrow`         | `BordaTourTooltipArrowProps | false`        | —       | Arrow config. Pass `false` to hide.                         |
+| `animation`     | `BordaTourTooltipAnimation | false`         | —       | Enter/exit animation settings                               |
+| `hasGlide`      | `boolean`                                   | `false` | Whether the tooltip glides its position between steps       |
+| `isHidden`      | `boolean`                                   | `false` | Whether the tooltip is currently hidden                     |
+| `aria`          | `Partial<ComponentAriaProps>`               | —       | ARIA attributes                                             |
+| `customClasses` | `Partial<BordaTourTooltipComponentClasses>` | —       | Custom CSS classes                                          |
+| `customHtml`    | `Partial<BordaTourTooltipComponentHtml>`    | —       | Custom inner HTML for title/description                     |
+| `customStyles`  | `Partial<BordaTourTooltipComponentStyles>`  | —       | Custom inline styles                                        |
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description text.',
+      placement: 'bottom-center',
+    },
+  ],
+  tourTooltip: {
+    offset: 12,
+    margin: 20,
+    arrow: { placement: 'top-center' },
+    autoPlacement: true,
+  },
+});
+```
+
+## Customization
+
+```ts
+tourTooltip: {
+  customClasses: {
+    root: 'shadow-xl rounded-2xl',
+    title: 'text-lg font-semibold',
+    description: 'text-sm text-gray-500',
+  },
+  customStyles: {
+    root: {
+      maxWidth: '360px',
+    },
+  },
+}
+```
+
+Replace the tooltip content entirely with `customHtml`:
+
+```ts
+tourTooltip: {
+  customHtml: {
+    title: '<strong>Custom title</strong>',
+    description: '<em>Custom description</em>',
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaTourTooltipProps {
+  size: ComponentSize;
+  placement: ComponentPlacement;
+  offset: number;
+  margin: number;
+  padding: number;
+  arrow: BordaTourTooltipArrowProps | false;
+  autoPlacement: BordaTourTooltipAutoPlacement | boolean;
+  isHidden: boolean;
+  hasGlide: boolean;
+  animation: BordaTourTooltipAnimation | false;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaTourTooltipComponentClasses>;
+  customStyles: Partial<BordaTourTooltipComponentStyles>;
+  customHtml: Partial<BordaTourTooltipComponentHtml>;
+}
+```
+
+
+# Image
+
+The tour image renders above the tooltip heading. It supports two visual variants — `default` (inset within tooltip padding) and `bleed` (stretched to tooltip edges, only top corners rounded). Pass `false` to disable.
+
+## Config
+
+| Property        | Type                               | Default   | Description                                  |
+| --------------- | ---------------------------------- | --------- | -------------------------------------------- |
+| `variant`       | `BordaTourImageVariant`            | `DEFAULT` | Visual presentation — `default` or `bleed`   |
+| `aria`          | `Partial<ComponentAriaProps>`      | —         | ARIA attributes                              |
+| `customClasses` | `Partial<BordaImageCustomClasses>` | —         | Custom CSS classes                           |
+| `customStyles`  | `Partial<BordaImageCustomStyles>`  | —         | Custom inline styles                         |
+| `customHtml`    | `Partial<BordaImageCustomHtml>`    | —         | Custom HTML that replaces the image entirely |
+
+The image `src` and `alt` come from each step's `image` field, not from the component config.
+
+```ts
+import { BordaTourImageVariant } from '@retoo/borda';
+
+await borda.mount({
+  steps: [
+    {
+      target: '#dashboard',
+      title: 'Dashboard',
+      description: 'Your main overview.',
+      image: { src: '/tour/dashboard.png', alt: 'Dashboard overview' },
+      placement: 'bottom-center',
+    },
+  ],
+  tourImage: {
+    variant: BordaTourImageVariant.BLEED,
+  },
+});
+```
+
+## Disabling
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourImage: false,
+});
+```
+
+Per-step disable:
+
+```ts
+steps: [
+  {
+    target: '#element',
+    title: 'No image here',
+    description: 'This step has no image.',
+    placement: 'bottom-center',
+    tourImage: false,
+  },
+]
+```
+
+## Interface
+
+```ts
+interface BordaTourImageProps {
+  variant: BordaTourImageVariant;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaImageCustomClasses>;
+  customStyles: Partial<BordaImageCustomStyles>;
+  customHtml: Partial<BordaImageCustomHtml>;
+}
+```
+
+
+# Buttons
+
+Tour buttons provide navigation controls — previous, next, finish (on the last step), and skip. Each button is independently configurable and can be hidden by passing `false`. Pass `false` to the entire component to disable all buttons.
+
+## Config
+
+| Property        | Type                                        | Default | Description                                                  |
+| --------------- | ------------------------------------------- | ------- | ------------------------------------------------------------ |
+| `size`          | `ComponentSize`                             | `MD`    | Default size applied to every button; overridable per button |
+| `prev`          | `BordaTourButtonConfig | false`             | —       | Previous button config. Pass `false` to hide.                |
+| `next`          | `BordaTourButtonConfig | false`             | —       | Next button config (non-last steps). Pass `false` to hide.   |
+| `finish`        | `BordaTourButtonConfig | false`             | —       | Finish button config (last step). Pass `false` to hide.      |
+| `skip`          | `BordaTourButtonConfig | false`             | —       | Skip button config. Pass `false` to hide.                    |
+| `aria`          | `Partial<ComponentAriaProps>`               | —       | ARIA attributes                                              |
+| `customClasses` | `Partial<BordaTourButtonsComponentClasses>` | —       | Custom CSS classes                                           |
+| `customStyles`  | `Partial<BordaTourButtonsComponentStyles>`  | —       | Custom inline styles                                         |
+| `customHtml`    | `Partial<BordaTourButtonsComponentHtml>`    | —       | Custom inner HTML for each button                            |
+
+Each button config extends `BordaButtonProps` (except `id`) plus a `label` field:
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourButtons: {
+    prev: { label: 'Back' },
+    next: { label: 'Continue' },
+    finish: { label: 'Done!' },
+    skip: { label: 'Skip tour' },
+  },
+});
+```
+
+## Hiding individual buttons
+
+```ts
+tourButtons: {
+  skip: false,    // hide skip button
+  prev: false,    // hide prev button
+}
+```
+
+## Disabling
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourButtons: false,
+});
+```
+
+## Customization
+
+```ts
+tourButtons: {
+  customClasses: {
+    root: 'my-buttons-bar',
+    next: 'bg-blue-600 text-white',
+    prev: 'text-gray-500',
+  },
+  customStyles: {
+    root: {
+      gap: '12px',
+    },
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaTourButtonsProps {
+  size: ComponentSize;
+  prev: BordaTourButtonConfig | false;
+  next: BordaTourButtonConfig | false;
+  finish: BordaTourButtonConfig | false;
+  skip: BordaTourButtonConfig | false;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaTourButtonsComponentClasses>;
+  customStyles: Partial<BordaTourButtonsComponentStyles>;
+  customHtml: Partial<BordaTourButtonsComponentHtml>;
+}
+```
+
+
+# Progress
+
+Tour progress shows the user's position in the tour. Three visual variants are available — `dots`, `text`, and `line`. Pass `false` to disable.
+
+## Config
+
+| Property        | Type                                         | Default | Description                              |
+| --------------- | -------------------------------------------- | ------- | ---------------------------------------- |
+| `variant`       | `BordaTourProgressVariant`                   | `DOTS`  | Visual style — `dots`, `text`, or `line` |
+| `aria`          | `Partial<ComponentAriaProps>`                | —       | ARIA attributes                          |
+| `customClasses` | `Partial<BordaTourProgressComponentClasses>` | —       | Custom CSS classes                       |
+| `customStyles`  | `Partial<BordaTourProgressComponentStyles>`  | —       | Custom inline styles                     |
+
+```ts
+import { BordaTourProgressVariant } from '@retoo/borda';
+
+await borda.mount({
+  steps: [...],
+  tourProgress: {
+    variant: BordaTourProgressVariant.TEXT,
+  },
+});
+```
+
+## Variants
+
+| Variant | Description                                  |
+| ------- | -------------------------------------------- |
+| `DOTS`  | One dot per step, filled for completed steps |
+| `TEXT`  | "Step 2 of 5" label                          |
+| `LINE`  | Linear progress bar                          |
+
+## Disabling
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourProgress: false,
+});
+```
+
+## Customization
+
+```ts
+tourProgress: {
+  variant: BordaTourProgressVariant.DOTS,
+  customClasses: {
+    root: 'my-progress',
+    item: 'w-2 h-2 rounded-full',
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaTourProgressProps {
+  variant: BordaTourProgressVariant;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaTourProgressComponentClasses>;
+  customStyles: Partial<BordaTourProgressComponentStyles>;
+}
+```
+
+
+# Skip
+
+Tour skip renders a "Don't show again" checkbox inside the tooltip. When checked, the tour won't replay for returning users. The state is persisted in `localStorage` under a configurable key. Pass `false` to disable.
+
+## Config
+
+| Property        | Type                                     | Default            | Description                      |
+| --------------- | ---------------------------------------- | ------------------ | -------------------------------- |
+| `checked`       | `boolean`                                | `false`            | Initial checked state            |
+| `label`         | `string`                                 | `Don't show again` | Checkbox label text              |
+| `disabled`      | `boolean`                                | `false`            | Whether the checkbox is disabled |
+| `aria`          | `Partial<ComponentAriaProps>`            | —                  | ARIA attributes                  |
+| `customClasses` | `Partial<BordaTourSkipComponentClasses>` | —                  | Custom CSS classes               |
+| `customStyles`  | `Partial<BordaTourSkipComponentStyles>`  | —                  | Custom inline styles             |
+| `customHtml`    | `Partial<BordaTourSkipComponentHtml>`    | —                  | Custom HTML for input/label      |
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourSkip: {
+    label: 'Do not show this again',
+  },
+});
+```
+
+## Disabling
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourSkip: false,
+});
+```
+
+## Customization
+
+```ts
+tourSkip: {
+  customClasses: {
+    root: 'my-skip-wrapper',
+    label: 'text-xs text-gray-400',
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaTourSkipProps {
+  checked: boolean;
+  label: string;
+  disabled: boolean;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaTourSkipComponentClasses>;
+  customStyles: Partial<BordaTourSkipComponentStyles>;
+  customHtml: Partial<BordaTourSkipComponentHtml>;
+}
+```
+
+
+# Close Button
+
+Close button renders a dismiss control that ends the tour before the user completes all steps. It fires `ON_TOUR_CLOSE` and triggers the close lifecycle. Pass `false` to disable.
+
+## Config
+
+| Property        | Type                                        | Default  | Description                |
+| --------------- | ------------------------------------------- | -------- | -------------------------- |
+| `size`          | `ComponentSize`                             | `MD`     | Button size                |
+| `shape`         | `ComponentShape`                            | `CIRCLE` | Button shape               |
+| `aria`          | `Partial<ComponentAriaProps>`               | —        | ARIA attributes            |
+| `customClasses` | `Partial<BordaCloseButtonComponentClasses>` | —        | Custom CSS classes         |
+| `customStyles`  | `Partial<BordaCloseButtonComponentStyles>`  | —        | Custom inline styles       |
+| `customHtml`    | `Partial<BordaCloseButtonComponentHtml>`    | —        | Custom HTML for the button |
+
+```ts
+await borda.mount({
+  steps: [...],
+  closeButton: {
+    size: ComponentSize.SM,
+    shape: ComponentShape.CIRCLE,
+  },
+});
+```
+
+## Disabling
+
+```ts
+await borda.mount({
+  steps: [...],
+  closeButton: false,
+});
+```
+
+## Customization
+
+```ts
+closeButton: {
+  customClasses: {
+    root: 'my-close-wrapper',
+    button: 'hover:bg-gray-100',
+    cross: 'text-gray-500',
+  },
+  customStyles: {
+    button: {
+      width: '28px',
+      height: '28px',
+    },
+  },
+}
+```
+
+## Interface
+
+```ts
+interface BordaCloseButtonProps {
+  size: ComponentSize;
+  shape: ComponentShape;
+  aria: Partial<ComponentAriaProps>;
+  customClasses: Partial<BordaCloseButtonComponentClasses>;
+  customStyles: Partial<BordaCloseButtonComponentStyles>;
+  customHtml: Partial<BordaCloseButtonComponentHtml>;
+}
+```
+
+
+# Visibility
+
+Visibility controls whether the widget is shown or hidden. It supports an initial hidden state and CSS-animated transitions. The widget can be toggled at runtime through the visibility API.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Visibility
+        description: This tour demonstrates visibility transitions.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Code example
+        description: Configure visibility with isHidden and isAnimated.
+        placement: top-center
+    visibility:
+      isHidden: true
+      isAnimated: true
+  ---
+  :::
+::
+
+## Config
+
+| Property     | Type      | Default | Description                                     |
+| ------------ | --------- | ------- | ----------------------------------------------- |
+| `isHidden`   | `boolean` | `false` | Start the widget in a hidden state              |
+| `isAnimated` | `boolean` | `false` | Enable CSS animations for show/hide transitions |
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: 'bottom-center',
+    },
+  ],
+  visibility: {
+    isHidden: true,
+    isAnimated: true,
+  },
+});
+```
+
+When `isHidden` is `true`, the widget mounts but remains invisible until `show()` is called.
+
+## Runtime API
+
+```ts
+// Show the widget
+instance.visibility.show();
+
+// Hide the widget
+instance.visibility.hide();
+
+// Check current state
+instance.visibility.isHidden;
+```
+
+## Events
+
+Visibility changes emit events through the event bus:
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_VISIBILITY_SHOW, () => {
+  console.log('Widget is now visible');
+});
+
+instance.api.events.on(BordaEvent.ON_VISIBILITY_HIDE, () => {
+  console.log('Widget is now hidden');
+});
+```
+
+
+# Responsive
+
+Responsive breakpoints let you apply different component overrides at different viewport widths. Borda listens to `matchMedia` changes and applies the matching breakpoint's config as a named override layer.
+
+## Config
+
+The `responsive` key maps breakpoint widths (in pixels) to partial config overrides:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: 'bottom-center',
+    },
+  ],
+  responsive: {
+    480: {
+      tourTooltip: {
+        padding: 8,
+      },
+      tourButtons: {
+        skip: false,
+      },
+    },
+    768: {
+      tourTooltip: {
+        padding: 16,
+      },
+    },
+  },
+});
+```
+
+When the viewport width matches a breakpoint, its overrides are merged on top of the base config. Multiple breakpoints can be active simultaneously — they stack in ascending order.
+
+## How it works
+
+1. Borda creates `matchMedia` listeners for each breakpoint key.
+2. When a breakpoint matches, its overrides are applied as a named layer in the overrides system.
+3. When the viewport changes, the previous breakpoint's overrides are removed and the new ones applied.
+4. The widget re-renders reactively without remounting.
+
+## Runtime API
+
+Read the currently active breakpoint:
+
+```ts
+instance.responsive.activeBreakpoint; // e.g. 768, or null if none matched
+```
+
+
+# Keyboard
+
+When keyboard control is enabled, Borda attaches a document-level `keydown` listener that maps arrow keys and Escape to tour navigation. Enabled by default.
+
+## Key bindings
+
+| Key          | Action         |
+| ------------ | -------------- |
+| `ArrowRight` | Next step      |
+| `ArrowLeft`  | Previous step  |
+| `Escape`     | Close the tour |
+
+## Config
+
+Keyboard control is part of the `tour` config:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Use arrow keys to navigate.',
+      placement: 'bottom-center',
+    },
+  ],
+  tour: {
+    hasKeyboardControl: true,
+  },
+});
+```
+
+Disable keyboard navigation:
+
+```ts
+tour: {
+  hasKeyboardControl: false,
+}
+```
+
+## Events
+
+Keyboard input emits dedicated events:
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_KEYBOARD_NEXT, () => {
+  console.log('ArrowRight pressed');
+});
+
+instance.api.events.on(BordaEvent.ON_KEYBOARD_PREV, () => {
+  console.log('ArrowLeft pressed');
+});
+```
+
+## Notes
+
+- Keypresses originating from form controls (`input`, `textarea`, `select`, `contenteditable`) are ignored so the widget doesn't interfere with text input.
+- Keyboard listeners are automatically removed on unmount.
+
+
+# Highlight
+
+The `highlight()` method spotlights a single element by mounting a one-step tour through the factory. It accepts the same step data as a regular tour step, plus optional top-level config.
+
+## Usage
+
+```ts
+import { useBorda, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.highlight({
+  target: '#important-button',
+  title: 'Try this',
+  description: 'This is the main action button.',
+  placement: ComponentPlacement.BOTTOM_CENTER,
+});
+```
+
+The returned instance is identical to a regular tour instance — you can listen to events, control visibility, and unmount it the same way.
+
+## With config
+
+Pass a second argument to customize the widget appearance:
+
+```ts
+const instance = await borda.highlight(
+  {
+    target: '#element',
+    title: 'Title',
+    description: 'Description',
+    placement: ComponentPlacement.BOTTOM_CENTER,
+  },
+  {
+    closeButton: false,
+    tourButtons: false,
+    tourProgress: false,
+    animation: {
+      tooltip: {
+        enterDuration: 300,
+      },
+    },
+  },
+);
+```
+
+## Target
+
+Pass a third argument to specify the mount target:
+
+```ts
+const container = document.getElementById('widget-root');
+
+const instance = await borda.highlight(
+  { target: '#el', title: 'Title', description: 'Text', placement: 'bottom-center' },
+  {},
+  container,
+);
+```
+
+
+# Overrides
+
+Borda uses a layered override system that merges config from multiple sources in a fixed priority order. This powers both responsive breakpoints and per-step component overrides.
+
+## Override layers
+
+| Layer        | Priority | Source                                                |
+| ------------ | -------- | ----------------------------------------------------- |
+| `base`       | Lowest   | The config passed to `mount()`                        |
+| `responsive` | Medium   | Breakpoint overrides from the `responsive` config key |
+| `step`       | Highest  | Per-step overrides from individual step definitions   |
+
+Each layer can override any config property. Higher-priority layers always win — a per-step `tourButtons: false` overrides both the base config and any responsive override.
+
+## Per-step overrides
+
+Each step can override global component settings. These overrides are active only while that step is displayed:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#intro',
+      title: 'Welcome',
+      description: 'Getting started.',
+      placement: 'bottom-center',
+      tourButtons: { skip: false },
+      tourProgress: false,
+    },
+    {
+      target: '#details',
+      title: 'Details',
+      description: 'More info here.',
+      placement: 'middle-end',
+      closeButton: false,
+      tourOverlay: {
+        padding: 16,
+      },
+    },
+  ],
+});
+```
+
+When the user navigates from step 1 to step 2, the step 1 overrides are cleared and step 2's overrides are applied.
+
+## Runtime API
+
+```ts
+// Read the fully resolved config (all layers merged)
+const resolved = instance.config.current;
+
+// Update the base layer
+instance.config.mergeConfig({ size: ComponentSize.LG });
+```
+
+
+# useBorda
+
+The factory function that creates a tour manager. Call it once to get a reusable object with mount, unmount, and highlight methods — each mount creates an independent instance.
+
+```ts
+import { useBorda } from '@retoo/borda';
+
+const borda = useBorda();
+```
+
+## Returns
+
+Returns a `UseBordaReturns` object with the following properties:
+
+| Property    | Type                                                                                                     | Description                |
+| ----------- | -------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `NAME`      | `string`                                                                                                 | Library name               |
+| `VERSION`   | `string`                                                                                                 | Library version            |
+| `mount`     | `(config: BordaConfig, target?: BordaTarget) => Promise<BordaInstance>`                                  | Mount a tour into the DOM  |
+| `unmount`   | `(instance: BordaInstance) => Promise<void>`                                                             | Destroy a mounted tour     |
+| `highlight` | `(step: BordaStepConfig, config?: BordaHighlightConfig, target?: BordaTarget) => Promise<BordaInstance>` | Spotlight a single element |
+
+## mount
+
+Mounts a tour into a target element and returns a promise that resolves with a `BordaInstance` once the Svelte component is rendered and the event bus is ready. The only required config field is `steps`.
+
+```ts
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Browse sections here.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+  ],
+});
+```
+
+The second argument specifies the mount target — any `HTMLElement` or `ShadowRoot`. When omitted, the widget mounts into `document.body`:
+
+```ts
+const container = document.getElementById('tour-root');
+
+const instance = await borda.mount(
+  { steps: [...] },
+  container,
+);
+```
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/api-reference/borda-instance
+---
+See **Borda Instance** for the full shape of the returned object.
+::
+
+## unmount
+
+Destroys a previously mounted tour and removes it from the DOM:
+
+```ts
+await borda.unmount(instance);
+```
+
+After unmounting, all event handlers are cleared automatically.
+
+## highlight
+
+Spotlights a single element without running a full tour:
+
+```ts
+const instance = await borda.highlight({
+  target: '#important-button',
+  title: 'Try this',
+  description: 'This is the main action.',
+  placement: ComponentPlacement.BOTTOM_CENTER,
+});
+```
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/features/highlight
+---
+See **Highlight** for full usage details and config options.
+::
+
+## Multiple instances
+
+Each `mount()` call creates an independent tour. You can run several instances on the same page:
+
+```ts
+const borda = useBorda();
+
+const tour1 = await borda.mount({ steps: [...] });
+const tour2 = await borda.mount({ steps: [...] });
+
+// Unmount individually
+await borda.unmount(tour1);
+```
+
+
+# useConfig
+
+The config store provides reactive read and write access to the tour configuration at runtime. Access it through `instance.config`.
+
+## Methods
+
+| Method                 | Description                                         |
+| ---------------------- | --------------------------------------------------- |
+| `current`              | Current resolved config snapshot (reactive)         |
+| `getConfig()`          | Returns the current config object                   |
+| `setConfig(value)`     | Replaces the entire config with a new value         |
+| `mergeConfig(partial)` | Deeply merges a partial config into the current one |
+
+## Usage
+
+```ts
+// Read current config
+const config = instance.config.current;
+
+// Get a snapshot
+const snapshot = instance.config.getConfig();
+
+// Replace entirely
+instance.config.setConfig({
+  steps: [
+    {
+      target: '#new-element',
+      title: 'New tour',
+      description: 'Starting fresh.',
+      placement: 'bottom-center',
+    },
+  ],
+});
+
+// Deep merge — only specified fields are updated
+instance.config.mergeConfig({
+  size: ComponentSize.LG,
+  tourButtons: { skip: false },
+});
+```
+
+Both `setConfig` and `mergeConfig` trigger a reactive update — the widget re-renders immediately without remounting.
+
+
+# useHighlight
+
+The `useBordaHighlight` hook provides the `highlight()` shortcut — spotlights a single element by mounting a one-step tour through the factory.
+
+```ts
+import { useBordaHighlight } from '@retoo/borda';
+```
+
+In most cases, you don't need this hook directly — use `borda.highlight()` instead, which calls it internally.
+
+## Usage
+
+```ts
+import { useBorda, useBordaHighlight, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+// Equivalent to borda.highlight(...)
+const instance = await borda.highlight({
+  target: '#important-button',
+  title: 'Try this',
+  description: 'This is the main action.',
+  placement: ComponentPlacement.BOTTOM_CENTER,
+});
+```
+
+## Parameters
+
+| Parameter | Type                   | Description                                                       |
+| --------- | ---------------------- | ----------------------------------------------------------------- |
+| `step`    | `BordaStepConfig`      | Step definition (target, title, description, placement, etc.)     |
+| `config`  | `BordaHighlightConfig` | Optional top-level config (same as `BordaConfig` without `steps`) |
+| `target`  | `BordaTarget`          | Optional mount target — `HTMLElement` or `ShadowRoot`             |
+
+## Returns
+
+Returns a `Promise<BordaInstance>` — the same instance object as `mount()`.
+
+## Interface
+
+```ts
+interface UseBordaHighlightReturns {
+  highlight: (
+    step: BordaStepConfig,
+    config?: BordaHighlightConfig,
+    target?: BordaTarget
+  ) => Promise<BordaInstance>;
+}
+```
+
+
+# Borda Instance
+
+The `BordaInstance` is returned by `borda.mount()` and `borda.highlight()`. It provides runtime access to every feature API and the reactive config store.
+
+```ts
+const instance = await borda.mount({ steps: [...] });
+```
+
+## Properties
+
+| Property     | Type                    | Description                                |
+| ------------ | ----------------------- | ------------------------------------------ |
+| `api`        | `BordaApi`              | Tour controller, components, and event bus |
+| `config`     | `UseBordaConfigReturns` | Reactive config store                      |
+| `responsive` | `BordaResponsiveApi`    | Active breakpoint info                     |
+| `scroll`     | `BordaScrollApi`        | Scroll-to-target API                       |
+| `animation`  | `BordaAnimationApi`     | Resolved animation settings                |
+| `skip`       | `BordaSkipApi`          | "Don't show again" state                   |
+| `visibility` | `BordaVisibilityApi`    | Show/hide API                              |
+
+## api
+
+The top-level API surface:
+
+| Property         | Type                 | Description                                                   |
+| ---------------- | -------------------- | ------------------------------------------------------------- |
+| `api.controller` | `BordaControllerApi` | Tour navigation — currentStep, next, prev, changeStep, finish |
+| `api.components` | `BordaComponents`    | References to all child component instances                   |
+| `api.events`     | `BordaEventEmitter`  | Pub/sub event bus for tour events                             |
+
+## config
+
+The reactive config store:
+
+```ts
+// Read current config
+const config = instance.config.current;
+
+// Get a snapshot
+const snapshot = instance.config.getConfig();
+
+// Replace entirely
+instance.config.setConfig({ steps: [...] });
+
+// Deep merge
+instance.config.mergeConfig({ tourButtons: { skip: false } });
+```
+
+## Quick reference
+
+```ts
+// Tour navigation
+instance.api.controller.next();
+instance.api.controller.prev();
+instance.api.controller.changeStep(2);
+instance.api.controller.finish();
+
+// Visibility
+instance.visibility.show();
+instance.visibility.hide();
+
+// Scroll
+await instance.scroll.scrollTo(document.getElementById('target'));
+
+// Skip
+instance.skip.set(true);
+instance.skip.clear();
+
+// Events
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, () => { ... });
+
+// Config
+instance.config.mergeConfig({ size: ComponentSize.LG });
+```
+
+
+# Controller API
+
+The controller manages the active tour step state. It provides navigation methods, step info, and a move-prevention mechanism for async workflows.
+
+## Properties
+
+| Property           | Type                          | Description                                                        |
+| ------------------ | ----------------------------- | ------------------------------------------------------------------ |
+| `isActivated`      | `boolean`                     | `true` when the tour has at least one step                         |
+| `currentStep`      | `number`                      | Current 1-based step number                                        |
+| `currentStepIndex` | `number`                      | Current 0-based index                                              |
+| `totalSteps`       | `number`                      | Total number of steps                                              |
+| `hasNextStep`      | `boolean`                     | `true` when there is a step after the current one                  |
+| `hasPrevStep`      | `boolean`                     | `true` when there is a step before the current one                 |
+| `currentTarget`    | `HTMLElement | null`          | Resolved DOM element for the current step's target                 |
+| `step`             | `BordaStepConfig | undefined` | Full data object of the current step, including per-step overrides |
+| `isMovePrevented`  | `boolean`                     | `true` while navigation is paused via `preventMove()`              |
+
+## Methods
+
+### next()
+
+Navigate to the next step. On the last step, calls `finish()` instead:
+
+```ts
+await instance.api.controller.next();
+```
+
+### prev()
+
+Navigate to the previous step:
+
+```ts
+await instance.api.controller.prev();
+```
+
+### changeStep(index)
+
+Jump to a specific step by 0-based index. Waits for `prepareElement` if defined:
+
+```ts
+await instance.api.controller.changeStep(2); // jump to step 3
+```
+
+### finish()
+
+Emit `ON_TOUR_FINISH` and end the tour:
+
+```ts
+instance.api.controller.finish();
+```
+
+### preventMove()
+
+Pause the in-progress navigation. Useful for async workflows where you need to fetch data or animate something before the step changes:
+
+```ts
+instance.api.events.on(BordaEvent.ON_TOUR_STEP_CHANGE, async () => {
+  instance.api.controller.preventMove();
+  await loadData();
+  instance.api.controller.continue();
+});
+```
+
+### continue()
+
+Resume a navigation paused by `preventMove()`:
+
+```ts
+instance.api.controller.continue();
+```
+
+### clearMovePrevented()
+
+Cancel a paused navigation without completing it:
+
+```ts
+instance.api.controller.clearMovePrevented();
+```
+
+
+# Events API
+
+The event emitter provides a typed pub/sub system for listening to tour, widget, and feature events. Access it through `instance.api.events`.
+
+## Methods
+
+| Method                      | Description                                   |
+| --------------------------- | --------------------------------------------- |
+| `on(eventName, handler)`    | Subscribe a handler to an event               |
+| `once(eventName, handler)`  | Subscribe; auto-unsubscribes after first call |
+| `off(eventName, handler)`   | Unsubscribe a specific handler                |
+| `emit<T>(eventName, data?)` | Emit an event with optional data              |
+| `remove(eventName)`         | Remove all handlers for a specific event      |
+| `clear()`                   | Remove all handlers for all events            |
+
+## Usage
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+// Subscribe
+instance.api.events.on(BordaEvent.ON_TOUR_START, () => {
+  console.log('Tour started');
+});
+
+// Unsubscribe
+const handler = () => console.log('finished');
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, handler);
+instance.api.events.off(BordaEvent.ON_TOUR_FINISH, handler);
+
+// One-time subscription
+instance.api.events.once(BordaEvent.ON_TOUR_CLOSE, () => {
+  console.log('Tour closed (once)');
+});
+```
+
+## Cleanup
+
+All handlers are automatically cleared when the instance is unmounted. There is no need to unsubscribe manually before calling `borda.unmount()`.
+
+## Events list
+
+See the [Events](https://use-retoo.github.io/borda/events/tour) section for the full list of available events organized by category.
+
+
+# Visibility API
+
+The visibility API controls whether the widget is shown or hidden. Access it through `instance.visibility`.
+
+## Properties
+
+| Property   | Type      | Description                            |
+| ---------- | --------- | -------------------------------------- |
+| `isHidden` | `boolean` | Whether the widget is currently hidden |
+
+## Methods
+
+| Method   | Description                                 |
+| -------- | ------------------------------------------- |
+| `show()` | Show the widget (set `isHidden` to `false`) |
+| `hide()` | Hide the widget (set `isHidden` to `true`)  |
+
+## Usage
+
+```ts
+// Check state
+if (instance.visibility.isHidden) {
+  instance.visibility.show();
+}
+
+// Toggle
+instance.visibility.show();
+instance.visibility.hide();
+```
+
+## Events
+
+Visibility changes emit events:
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_VISIBILITY_SHOW, () => {
+  console.log('Visible');
+});
+
+instance.api.events.on(BordaEvent.ON_VISIBILITY_HIDE, () => {
+  console.log('Hidden');
+});
+```
+
+
+# Skip API
+
+The skip API manages the "Don't show again" flag. Access it through `instance.skip`.
+
+## Properties
+
+| Property     | Type      | Description                                 |
+| ------------ | --------- | ------------------------------------------- |
+| `isSkipped`  | `boolean` | Whether the skip flag is currently set      |
+| `storageKey` | `string`  | Active storage key (from config or default) |
+
+## Methods
+
+| Method       | Description                                                        |
+| ------------ | ------------------------------------------------------------------ |
+| `set(value)` | Sets the skip flag and persists it. No-op when `skip` is disabled. |
+| `clear()`    | Clears the persisted flag. Works even when `skip` is disabled.     |
+
+## Usage
+
+```ts
+// Check if user chose to skip
+if (instance.skip.isSkipped) {
+  console.log('User opted out of tours');
+}
+
+// Set manually
+instance.skip.set(true);
+
+// Clear (tour will replay next time)
+instance.skip.clear();
+
+// Read the storage key
+console.log(instance.skip.storageKey); // e.g. "borda-skip"
+```
+
+## Events
+
+Skip state changes emit events:
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_SKIP_CHANGE, () => {
+  console.log('Skip toggled:', instance.skip.isSkipped);
+});
+
+instance.api.events.on(BordaEvent.ON_SKIP_CLEAR, () => {
+  console.log('Skip cleared');
+});
+```
+
+
+# Scroll API
+
+The scroll API provides smooth scroll-to-target functionality. Access it through `instance.scroll`.
+
+## Properties
+
+| Property      | Type      | Description                                         |
+| ------------- | --------- | --------------------------------------------------- |
+| `isScrolling` | `boolean` | Whether a scroll animation is currently in progress |
+| `isLocked`    | `boolean` | Whether manual page scroll is currently blocked     |
+
+## Methods
+
+| Method              | Description                                                             |
+| ------------------- | ----------------------------------------------------------------------- |
+| `scrollTo(element)` | Scroll to bring an element into view. Resolves when animation finishes. |
+
+## Usage
+
+```ts
+// Scroll to a specific element
+await instance.scroll.scrollTo(document.getElementById('target'));
+
+// Check if scrolling
+if (instance.scroll.isScrolling) {
+  console.log('Scroll animation in progress');
+}
+```
+
+When `scroll: false` is set in config, `scrollTo` becomes a no-op that resolves immediately.
+
+When `animation.isEnabled` is `false` globally, scroll still runs but becomes an instant jump regardless of the configured `duration`.
+
+
+# Tour
+
+Tour events fire during the tour lifecycle — when it starts, finishes, closes, and when the user navigates between steps. All events are accessible through `instance.api.events`.
+
+## Events
+
+| Event                 | String value       | When                                              |
+| --------------------- | ------------------ | ------------------------------------------------- |
+| `ON_TOUR_START`       | `tour:start`       | Tour initialises on mount                         |
+| `ON_TOUR_FINISH`      | `tour:finish`      | Last step is completed                            |
+| `ON_TOUR_CLOSE`       | `tour:close`       | Tour is dismissed before completion               |
+| `ON_TOUR_NEXT`        | `tour:next`        | User advances to the next step (not on last step) |
+| `ON_TOUR_PREV`        | `tour:prev`        | User navigates to the previous step               |
+| `ON_TOUR_STEP_CHANGE` | `tour:step-change` | Active step changes (any navigation)              |
+
+## Usage
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_TOUR_START, () => {
+  analytics.track('tour_started');
+});
+
+instance.api.events.on(BordaEvent.ON_TOUR_NEXT, () => {
+  analytics.track('tour_step_next', { step: instance.api.controller.currentStep });
+});
+
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, () => {
+  analytics.track('tour_completed');
+});
+
+instance.api.events.on(BordaEvent.ON_TOUR_CLOSE, () => {
+  analytics.track('tour_dismissed');
+});
+
+instance.api.events.on(BordaEvent.ON_TOUR_STEP_CHANGE, () => {
+  console.log('Now on step', instance.api.controller.currentStep);
+});
+```
+
+## Unsubscribing
+
+Pass the same handler reference to `off()`:
+
+```ts
+const handler = () => console.log('finished');
+
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, handler);
+
+// Later
+instance.api.events.off(BordaEvent.ON_TOUR_FINISH, handler);
+```
+
+## Notes
+
+- `ON_TOUR_START` fires once after the first step is rendered.
+- `ON_TOUR_FINISH` fires before the unmount animation begins.
+- `ON_TOUR_CLOSE` fires when the user dismisses the tour via the close button, backdrop click, or Escape key.
+- `ON_TOUR_STEP_CHANGE` fires on every navigation — including `next`, `prev`, `changeStep`, and `finish`.
+
+
+# Widget
+
+Widget events fire for structural lifecycle and user interactions with the overlay and close button. They carry no payload and require no arguments in the handler.
+
+## Events
+
+| Event              | String value       | When                                                     |
+| ------------------ | ------------------ | -------------------------------------------------------- |
+| `ON_BORDA_DESTROY` | `borda:on-destroy` | Widget is about to be destroyed, before cleanup          |
+| `ON_CLOSE_CLICK`   | `close:click`      | Close button is clicked                                  |
+| `ON_OVERLAY_CLICK` | `overlay:click`    | Overlay backdrop is clicked or activated via Enter/Space |
+
+## Usage
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_BORDA_DESTROY, () => {
+  console.log('Widget is being destroyed');
+});
+
+instance.api.events.on(BordaEvent.ON_CLOSE_CLICK, () => {
+  console.log('Close button clicked');
+});
+
+instance.api.events.on(BordaEvent.ON_OVERLAY_CLICK, () => {
+  console.log('Overlay backdrop clicked');
+});
+```
+
+## Unsubscribing
+
+Pass the same handler reference to `off()`:
+
+```ts
+const onDestroy = () => console.log('Destroyed');
+
+instance.api.events.on(BordaEvent.ON_BORDA_DESTROY, onDestroy);
+
+// Later
+instance.api.events.off(BordaEvent.ON_BORDA_DESTROY, onDestroy);
+```
+
+## Notes
+
+- `ON_BORDA_DESTROY` fires before cleanup. After this event, the event emitter is cleared and all handlers are removed automatically.
+- `ON_CLOSE_CLICK` and `ON_OVERLAY_CLICK` are user interaction events — they fire regardless of whether the tour has a close handler configured.
+
+
+# Skip
+
+Skip events fire when the "Don't show again" checkbox changes value or when the skip state is cleared programmatically.
+
+## Events
+
+| Event            | String value  | When                                     |
+| ---------------- | ------------- | ---------------------------------------- |
+| `ON_SKIP_CHANGE` | `skip:change` | Checkbox value changes                   |
+| `ON_SKIP_CLEAR`  | `skip:clear`  | Skip state is cleared via `skip.clear()` |
+
+## Usage
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_SKIP_CHANGE, () => {
+  console.log('Skip toggled:', instance.skip.isSkipped);
+});
+
+instance.api.events.on(BordaEvent.ON_SKIP_CLEAR, () => {
+  console.log('Skip state cleared');
+});
+```
+
+
+# Visibility
+
+Visibility events fire when the widget's visibility state changes.
+
+## Events
+
+| Event                | String value      | When                   |
+| -------------------- | ----------------- | ---------------------- |
+| `ON_VISIBILITY_SHOW` | `visibility:show` | Widget becomes visible |
+| `ON_VISIBILITY_HIDE` | `visibility:hide` | Widget becomes hidden  |
+
+## Usage
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_VISIBILITY_SHOW, () => {
+  console.log('Widget is now visible');
+});
+
+instance.api.events.on(BordaEvent.ON_VISIBILITY_HIDE, () => {
+  console.log('Widget is now hidden');
+});
+```
+
+
+# Keyboard
+
+Keyboard events fire when the user presses arrow keys during an active tour. These events are emitted only when keyboard control is enabled.
+
+## Events
+
+| Event              | String value    | When                  |
+| ------------------ | --------------- | --------------------- |
+| `ON_KEYBOARD_NEXT` | `keyboard:next` | ArrowRight is pressed |
+| `ON_KEYBOARD_PREV` | `keyboard:prev` | ArrowLeft is pressed  |
+
+## Usage
+
+```ts
+import { BordaEvent } from '@retoo/borda';
+
+instance.api.events.on(BordaEvent.ON_KEYBOARD_NEXT, () => {
+  console.log('ArrowRight pressed');
+});
+
+instance.api.events.on(BordaEvent.ON_KEYBOARD_PREV, () => {
+  console.log('ArrowLeft pressed');
+});
+```
+
+## Notes
+
+- Keypresses originating from form controls (`input`, `textarea`, `select`, `contenteditable`) are ignored.
+- The Escape key emits `ON_TOUR_CLOSE`, not a keyboard event.
+- Keyboard listeners are automatically removed on unmount.
+
+
+# Setup
+
+The `<borda-tour-widget>` custom element must be registered before use by calling `defineBordaElement()`. Calling it more than once has no effect.
+
+```ts [setup.ts]
+import { defineBordaElement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+defineBordaElement();
+```
+
+After registration, `<borda-tour-widget>` is available in the DOM like any native HTML element.
+
+## UMD
+
+When using a script tag instead of a bundler, the registration function is on `window`:
+
+```html [index.html]
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/@retoo/borda/dist/borda.css" />
+</head>
+<body>
+  <script src="https://unpkg.com/@retoo/borda/dist/borda.umd.js"></script>
+  <script>
+    window.defineBordaElement();
+  </script>
+</body>
+```
+
+
+# Usage
+
+After registration, use `<borda-tour-widget>` like any HTML element. Pass configuration through attributes or JavaScript properties.
+
+## HTML attributes
+
+```html
+<borda-tour-widget></borda-tour-widget>
+```
+
+## JavaScript properties
+
+Set the config programmatically after the element is in the DOM:
+
+```ts
+const widget = document.querySelector('borda-tour-widget');
+
+widget.config = {
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Browse sections here.',
+      placement: 'middle-end',
+    },
+  ],
+};
+```
+
+## Framework integration
+
+The custom element works in any framework — React, Vue, Angular, Svelte, or vanilla HTML:
+
+```html
+<!-- Vue -->
+<borda-tour-widget :config="tourConfig" />
+
+<!-- React -->
+<borda-tour-widget config={tourConfig} />
+
+<!-- Vanilla HTML -->
+<script>
+  const el = document.querySelector('borda-tour-widget');
+  el.config = { steps: [...] };
+</script>
+```
+
+
+# DOM Events
+
+The custom element dispatches all `BordaEvent` values as standard `CustomEvent` instances on the DOM element itself. Both bubble and cross shadow DOM boundaries (`composed: true`).
+
+Events fire with the same names as the `BordaEvent` enum values — `tour:start`, `tour:finish`, `close:click`, and so on. The `event.detail` payload matches the data emitted on the internal event bus.
+
+## Listening
+
+```ts
+const widget = document.querySelector('borda-tour-widget');
+
+widget.addEventListener('tour:start', () => {
+  console.log('Onboarding started');
+});
+
+widget.addEventListener('tour:finish', () => {
+  console.log('Onboarding completed');
+});
+
+widget.addEventListener('tour:step-change', (event) => {
+  console.log('Step changed', event.detail);
+});
+
+widget.addEventListener('tour:close', () => {
+  console.log('Onboarding dismissed');
+});
+```
+
+## Removing listeners
+
+Use standard `removeEventListener` — pass the same handler reference:
+
+```ts
+const handler = () => console.log('finished');
+
+widget.addEventListener('tour:finish', handler);
+
+// Later
+widget.removeEventListener('tour:finish', handler);
+```
+
+## Event summary
+
+| Event              | Fires when                          | `event.detail` |
+| ------------------ | ----------------------------------- | -------------- |
+| `tour:start`       | Tour initialises on mount           | —              |
+| `tour:finish`      | Last step is completed              | —              |
+| `tour:close`       | Tour is dismissed before completion | —              |
+| `tour:next`        | User advances to the next step      | —              |
+| `tour:prev`        | User navigates to the previous step | —              |
+| `tour:step-change` | Active step changes                 | —              |
+| `close:click`      | Close button is clicked             | —              |
+| `overlay:click`    | Overlay backdrop is clicked         | —              |
+| `skip:change`      | Skip checkbox changes               | —              |
+| `skip:clear`       | Skip state is cleared               | —              |
+| `visibility:show`  | Widget becomes visible              | —              |
+| `visibility:hide`  | Widget becomes hidden               | —              |
+| `keyboard:next`    | ArrowRight is pressed               | —              |
+| `keyboard:prev`    | ArrowLeft is pressed                | —              |
+
+## Notes
+
+- Events bubble and are composed, so they cross shadow DOM boundaries.
+- Use standard `addEventListener` / `removeEventListener` — no custom API needed.
+- All handlers are automatically cleaned up when the element is removed from the DOM.
+
+
+# Basic Setup
+
+This example exposes the full `BordaConfig` surface through a live control panel: per-step content and placement, widget size and shape, tooltip spacing, which components render, animation effects, and scroll behavior.
+
+Adjust any control below, then click **Start Tour** to mount the widget with your current settings.
+
+## Demo
+
+:borda-component-basic-setup
+
+## Code
+
+```ts [main.ts]
+import {
+  useBorda,
+  ComponentPlacement,
+  ComponentSize,
+  ComponentShape,
+} from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  size: ComponentSize.MD,
+  shape: ComponentShape.CIRCLE,
+  steps: [
+    {
+      target: '#step-1',
+      title: 'Welcome',
+      description: 'This is the first step of the onboarding.',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+    {
+      target: '#step-2',
+      title: 'Navigation',
+      description: 'Use the sidebar to browse different sections.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+    {
+      target: '#step-3',
+      title: 'Settings',
+      description: 'Customize your experience here.',
+      placement: ComponentPlacement.TOP_CENTER,
+    },
+  ],
+  closeButton: {},
+  tourButtons: {},
+  tourProgress: {},
+  tourSkip: {},
+  tourTooltip: {
+    offset: 8,
+    padding: 12,
+  },
+  animation: {
+    isEnabled: true,
+    tooltip: {
+      enter: 'scale',
+      exit: 'scale',
+      enterDuration: 200,
+      exitDuration: 150,
+    },
+  },
+  scroll: {
+    block: 'center',
+    duration: 400,
+  },
+});
+```
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/getting-started/quick-start
+---
+See **Quick Start** for more details on controlling the tour and listening to events.
+::
+
+
+# Multi-step
+
+Borda supports multiple ways to target step elements: CSS selectors, class names, and data attributes. This example demonstrates all three approaches in a single tour.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Target by id
+        description: Pass a CSS selector string.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Target by element
+        description: Direct element reference via CSS selector.
+        placement: top-start
+      - target: "#page-toc"
+        title: Target by id
+        description: Another CSS selector targeting the table of contents.
+        placement: middle-start
+    scroll:
+      block: center
+      duration: 400
+  ---
+  :::
+::
+
+## Code
+
+```ts [main.ts]
+import { useBorda, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#step-1',
+      title: 'Target by id',
+      description: 'Pass a CSS selector string.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '.card-step',
+      title: 'Target by class',
+      description: 'Pass a class name as a CSS selector.',
+      placement: ComponentPlacement.TOP_START,
+    },
+    {
+      target: '[data-step="3"]',
+      title: 'Target by data attribute',
+      description: 'Pass a data attribute selector.',
+      placement: ComponentPlacement.MIDDLE_START,
+    },
+  ],
+  scroll: {
+    block: 'center',
+    duration: 400,
+  },
+});
+```
+
+
+# Styling
+
+Customize the look and feel of the tour by overriding CSS classes and inline styles on any component.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Custom styled
+        description: This tooltip has custom classes and styles.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Overlay styled
+        description: The overlay has custom padding and border radius.
+        placement: top-start
+        tourOverlay:
+          padding: 2
+          borderRadius: 0
+    scroll:
+      block: center
+      duration: 400
+    tourTooltip:
+      customClasses:
+        root: shadow-xl rounded-2xl
+        title: text-lg font-bold
+      customStyles:
+        root:
+          maxWidth: 400px
+    tourOverlay:
+      padding: 12
+  ---
+  :::
+::
+
+## Code
+
+```ts [main.ts]
+import { useBorda, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Custom styled',
+      description: 'This tooltip has custom classes and styles.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '#other',
+      title: 'Tight spotlight',
+      description: 'Per-step overlay overrides.',
+      placement: ComponentPlacement.TOP_START,
+      tourOverlay: { padding: 2, borderRadius: 0 },
+    },
+  ],
+  tourTooltip: {
+    customClasses: {
+      root: 'shadow-xl rounded-2xl',
+      title: 'text-lg font-bold',
+    },
+    customStyles: {
+      root: { maxWidth: '400px' },
+    },
+  },
+  tourOverlay: {
+    padding: 12,
+  },
+});
+```
+
+
+# Highlight
+
+Use `highlight()` to draw attention to a single element. You can show a full tooltip with buttons, or just the spotlight overlay with no UI.
+
+## With tooltip
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Spotlight
+        description: Single-element highlight — no multi-step navigation.
+        placement: bottom-start
+    tourProgress: false
+    tourButtons:
+      prev: false
+      next: false
+      finish:
+        label: Got it
+  ---
+  :::
+::
+
+```ts
+const instance = await borda.highlight(
+  {
+    target: '#element',
+    title: 'Spotlight',
+    description: 'Single-element highlight — no navigation.',
+    placement: ComponentPlacement.BOTTOM_START,
+  },
+  {
+    tourProgress: false,
+    tourButtons: {
+      prev: false,
+      next: false,
+      finish: { label: 'Got it' },
+    },
+  },
+);
+```
+
+## Overlay only
+
+Show just the spotlight cutout with no tooltip, buttons, or close button:
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: ""
+        description: ""
+        placement: bottom-start
+    tourOverlay:
+      padding: 12
+      hasCloseOnBackdropClick: true
+    tourTooltip: false
+    tourProgress: false
+    tourButtons: false
+    closeButton: false
+    tourSkip: false
+  ---
+  :::
+::
+
+```ts
+const instance = await borda.highlight(
+  {
+    target: '#element',
+    title: '',
+    description: '',
+    placement: ComponentPlacement.BOTTOM_START,
+  },
+  {
+    tourOverlay: { padding: 12, hasCloseOnBackdropClick: true },
+    tourTooltip: false,
+    tourProgress: false,
+    tourButtons: false,
+    closeButton: false,
+    tourSkip: false,
+  },
+);
+```
+
+
+# Responsive
+
+Apply different component overrides at different breakpoints. Resize the browser or open DevTools device toolbar to see the tour adapt.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Responsive
+        description: This tour adapts to your screen size.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: Buttons and progress hide on small screens.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    responsive:
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - tourButtons:
+          skip: false
+        tourProgress: false
+        tourTooltip:
+          padding: 8
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - tourTooltip:
+          padding: 16
+  ---
+  :::
+::
+
+## Code
+
+```ts [main.ts]
+import { useBorda, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Responsive',
+      description: 'This tour adapts to your screen size.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+  ],
+  responsive: {
+    480: {
+      tourButtons: { skip: false },
+      tourTooltip: { padding: 8 },
+      tourProgress: false,
+    },
+    768: {
+      tourTooltip: { padding: 16 },
+    },
+  },
+});
+```
+
+
+# Overrides
+
+Each step can override global component settings. These overrides are active only while that step is displayed — when the user navigates away, the global config is restored.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Default step
+        description: No overrides — all components use the global config.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Custom buttons
+        description: This step has custom button labels and no skip checkbox.
+        placement: top-start
+        tourButtons:
+          next:
+            label: Got it →
+          prev:
+            label: ← Back
+        tourSkip: false
+      - target: "#page-toc"
+        title: Locked step
+        description: Progress and close button hidden — must click Finish.
+        placement: top-start
+        tourProgress: false
+        closeButton: false
+        tourButtons:
+          finish:
+            label: All done!
+    scroll:
+      block: center
+      duration: 400
+    tourProgress:
+      variant: line
+  ---
+  :::
+::
+
+## Code
+
+```ts [main.ts]
+import { useBorda, ComponentPlacement, BordaTourProgressVariant } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+await borda.mount({
+  tourProgress: { variant: BordaTourProgressVariant.LINE },
+  steps: [
+    {
+      target: '#step-1',
+      title: 'Default step',
+      description: 'No overrides — all components use the global config.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '#step-2',
+      title: 'Custom buttons',
+      description: 'This step has custom button labels and no skip checkbox.',
+      placement: ComponentPlacement.TOP_START,
+      tourButtons: {
+        next: { label: 'Got it →' },
+        prev: { label: '← Back' },
+      },
+      tourSkip: false,
+    },
+    {
+      target: '#step-3',
+      title: 'Locked step',
+      description: 'Progress and close button hidden — must click Finish.',
+      placement: ComponentPlacement.TOP_START,
+      tourProgress: false,
+      closeButton: false,
+      tourButtons: { finish: { label: 'All done!' } },
+    },
+  ],
+});
+```
+
+
+# Keyboard
+
+Keyboard control is enabled by default. Disable it for tours where keyboard input might interfere with the page.
+
+## Keys
+
+| Key          | Action         |
+| ------------ | -------------- |
+| `ArrowRight` | Next step      |
+| `ArrowLeft`  | Previous step  |
+| `Escape`     | Close the tour |
+
+## Enabled (default)
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Use keyboard
+        description: Press ArrowRight to continue, ArrowLeft to go back.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: Keyboard navigation works across all steps.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    tour:
+      hasKeyboardControl: true
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  tour: { hasKeyboardControl: true },
+});
+```
+
+## Disabled
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: No keyboard
+        description: Keyboard navigation is disabled for this tour.
+        placement: bottom-start
+    scroll:
+      block: center
+      duration: 400
+    tour:
+      hasKeyboardControl: false
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  tour: { hasKeyboardControl: false },
+});
+```
+
+
+# Don't Show Again
+
+A common onboarding pattern: show the tour once, let users opt out, and don't bother them again. Borda handles this out of the box with a "Don't show again" checkbox and localStorage persistence.
+
+## How it works
+
+1. Borda checks `localStorage` for the skip flag under the configured key.
+2. If the flag is set, `borda.mount()` still works — but your app can skip calling it entirely.
+3. When the user checks "Don't show again", the flag is written to `localStorage` automatically.
+4. On the next visit, your app reads the flag and skips the onboarding.
+
+The skip state is managed by Borda — you only need to wrap the mount call in a check.
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Welcome!
+        description: This tour will help you get started.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Documentation
+        description: Read through the guides to learn how Borda works.
+        placement: middle-end
+    skip:
+      storageKey: my-app-onboarding
+    tourSkip:
+      label: Do not show this again
+  ---
+  :::
+::
+
+## Code
+
+```ts [main.ts]
+import { useBorda, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const isSkipped = localStorage.getItem('my-app-onboarding') === 'true';
+
+if (!isSkipped) {
+  const instance = await borda.mount({
+    steps: [
+      {
+        target: '#page-header',
+        title: 'Welcome!',
+        description: 'This tour will help you get started.',
+        placement: ComponentPlacement.BOTTOM_START,
+      },
+      {
+        target: '#page-content',
+        title: 'Documentation',
+        description: 'Read through the guides to learn how Borda works.',
+        placement: ComponentPlacement.MIDDLE_END,
+      },
+    ],
+    skip: {
+      storageKey: 'my-app-onboarding',
+    },
+    tourSkip: {
+      label: 'Do not show this again',
+    },
+  });
+}
+```
+
+Clearing the skip state:
+
+```ts
+localStorage.removeItem('my-app-onboarding');
+// or
+instance.skip.clear();
+```
+
+
+# Animation
+
+Borda supports four animation effects for tooltip enter/exit transitions. Each effect can be applied independently to enter and exit.
+
+## Fade
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Fade
+        description: Tooltip fades in and out.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: Transition between steps with fade effect.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    animation:
+      isEnabled: true
+      tooltip:
+        enter: fade
+        exit: fade
+        enterDuration: 200
+        exitDuration: 150
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  animation: {
+    isEnabled: true,
+    tooltip: {
+      enter: AnimationEffect.FADE,
+      exit: AnimationEffect.FADE,
+      enterDuration: 200,
+      exitDuration: 150,
+    },
+  },
+});
+```
+
+## Scale
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Scale
+        description: Tooltip scales from center.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: Transition between steps with scale effect.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    animation:
+      isEnabled: true
+      tooltip:
+        enter: scale
+        exit: scale
+        enterDuration: 200
+        exitDuration: 150
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  animation: {
+    isEnabled: true,
+    tooltip: {
+      enter: AnimationEffect.SCALE,
+      exit: AnimationEffect.SCALE,
+      enterDuration: 200,
+      exitDuration: 150,
+    },
+  },
+});
+```
+
+## No animation
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: No animation
+        description: Tooltip appears instantly.
+        placement: bottom-start
+    scroll:
+      block: center
+      duration: 400
+    animation: false
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  animation: false,
+});
+```
+
+
+# Transition
+
+The tooltip transition controls how it moves from one step to the next. **Fade** hides the tooltip while transitioning, then fades it in at the new position. **Glide** keeps it visible and slides it smoothly.
+
+## Fade
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Fade transition
+        description: Tooltip fades out, then fades in at the new position.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: The tooltip disappears between steps.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    animation:
+      tooltip:
+        transition: fade
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  animation: {
+    tooltip: { transition: BordaTooltipTransition.FADE },
+  },
+});
+```
+
+## Glide
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Glide transition
+        description: Tooltip slides smoothly to the next position.
+        placement: bottom-start
+      - target: "#page-toc"
+        title: Step 2
+        description: The tooltip stays visible and glides.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    animation:
+      tooltip:
+        transition: glide
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  animation: {
+    tooltip: { transition: BordaTooltipTransition.GLIDE },
+  },
+});
+```
+
+
+# Progress
+
+The progress indicator shows the user's position in the tour. Three visual variants are available, or disable it entirely.
+
+## Dots
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Step 1
+        description: Progress shows as dots.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Step 2
+        description: One dot per step.
+        placement: top-start
+      - target: "#page-toc"
+        title: Step 3
+        description: Completed dots are filled.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    tourProgress:
+      variant: dots
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourProgress: { variant: BordaTourProgressVariant.DOTS },
+});
+```
+
+## Text
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Step 1
+        description: Progress shows as text.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Step 2
+        description: Displays "Step 2 of 3".
+        placement: top-start
+      - target: "#page-toc"
+        title: Step 3
+        description: Text updates on each step.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    tourProgress:
+      variant: text
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourProgress: { variant: BordaTourProgressVariant.TEXT },
+});
+```
+
+## Line
+
+::borda-container
+  :::borda-component
+  ---
+  config:
+    steps:
+      - target: "#page-header"
+        title: Step 1
+        description: Progress shows as a line.
+        placement: bottom-start
+      - target: "#page-content"
+        title: Step 2
+        description: Linear progress bar fills as you advance.
+        placement: top-start
+      - target: "#page-toc"
+        title: Step 3
+        description: Full line means tour is complete.
+        placement: top-center
+    scroll:
+      block: center
+      duration: 400
+    tourProgress:
+      variant: line
+  ---
+  :::
+::
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourProgress: { variant: BordaTourProgressVariant.LINE },
+});
+```
+
+
+# Formats
+
+Borda is distributed in three module formats. Each format has a development build (readable, with comments) and a minified production build. All variants export the same API surface — the difference is how the module is loaded by the consumer.
+
+## ES Module
+
+The recommended format for projects using a bundler (Vite, Webpack 5+, Rollup, esbuild). ES Modules support static analysis, tree-shaking, and modern `import`/`export` syntax.
+
+| File              | Description                                            |
+| ----------------- | ------------------------------------------------------ |
+| `borda.es.js`     | Development build — unminified, suitable for debugging |
+| `borda.min.es.js` | Production build — minified and optimized              |
+
+The `main` and `module` fields in `package.json` point to this build, so bundlers resolve it automatically.
+
+```ts [main.ts]
+import { useBorda } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+```
+
+## UMD
+
+Universal Module Definition — works via `<script>` tags in the browser, AMD loaders, and CommonJS `require()`. Use this for environments without a bundler: static HTML pages, WordPress, Webflow, Squarespace, or any CMS that allows custom scripts.
+
+| File               | Description       |
+| ------------------ | ----------------- |
+| `borda.umd.js`     | Development build |
+| `borda.min.umd.js` | Production build  |
+
+```html [index.html]
+<link rel="stylesheet" href="https://unpkg.com/@retoo/borda/dist/borda.css" />
+<script src="https://unpkg.com/@retoo/borda/dist/borda.min.umd.js"></script>
+<script>
+  const borda = window.bordaWidget();
+
+  borda.mount({
+    steps: [
+      {
+        target: '#element',
+        title: 'Welcome',
+        description: 'Getting started.',
+        placement: 'bottom-center',
+      },
+    ],
+  });
+</script>
+```
+
+::callout{color="warning" icon="i-lucide-alert-triangle"}
+In UMD mode, the factory function is exposed directly as `window.bordaWidget()` — no need to access a namespace object.
+::
+
+## CommonJS
+
+For Node.js environments, SSR frameworks, or legacy build systems that use `require()`.
+
+| File               | Description       |
+| ------------------ | ----------------- |
+| `borda.cjs.js`     | Development build |
+| `borda.min.cjs.js` | Production build  |
+
+```js [server.js]
+const { useBorda } = require('@retoo/borda');
+
+const borda = useBorda();
+```
+
+## Custom Element
+
+Register Borda as a native Web Component to use it in any framework — or vanilla HTML:
+
+::steps
+### Register the element
+
+```ts [setup.ts]
+import { defineBordaElement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+defineBordaElement();
+```
+
+### Use in HTML
+
+```html [page.html]
+<borda-tour-widget></borda-tour-widget>
+```
+::
+
+::callout
+---
+icon: i-lucide-arrow-right
+to: https://use-retoo.github.io/borda/custom-element/setup
+---
+For detailed Custom Element docs — framework integration, attributes, and lifecycle — see the **Custom Element** section.
+::
+
+## Stylesheets
+
+CSS must be imported separately regardless of the JS format. Without styles, the widget mounts into the DOM but renders without any visual appearance.
+
+| Import path               | Description                                      |
+| ------------------------- | ------------------------------------------------ |
+| `@retoo/borda/styles`     | Development build — unminified, with source maps |
+| `@retoo/borda/styles/min` | Production build — minified                      |
+
+```ts
+// ES Module / bundler
+import '@retoo/borda/styles';        // dev
+import '@retoo/borda/styles/min';    // prod
+```
+
+```html
+<!-- UMD / script tag -->
+<link rel="stylesheet" href="https://unpkg.com/@retoo/borda/dist/borda.css" />
+```
+
+
+# Browser Support
+
+Borda targets modern browsers that support ES2020+. The compiled output uses `async`/`await`, optional chaining, nullish coalescing, and `IntersectionObserver` — all available in current versions of major browsers without polyfills.
+
+## Supported browsers
+
+| Browser          | Minimum version      |
+| ---------------- | -------------------- |
+| Chrome           | 80+                  |
+| Firefox          | 80+                  |
+| Safari           | 14+                  |
+| Edge             | 80+ (Chromium-based) |
+| Opera            | 67+                  |
+| Samsung Internet | 13+                  |
+
+## Required Web APIs
+
+Borda relies on the following browser APIs at runtime:
+
+| API                     | Used for                                                       |
+| ----------------------- | -------------------------------------------------------------- |
+| `IntersectionObserver`  | Detecting target element visibility for spotlight positioning  |
+| `ResizeObserver`        | Adapting tooltip and overlay layout when the container resizes |
+| `customElements`        | Custom Element registration (`defineBordaElement()`)           |
+| `matchMedia`            | Responsive breakpoint detection                                |
+| `CSS Custom Properties` | Theming and dynamic style overrides                            |
+
+All listed APIs are supported in the browsers above. If you need to support older browsers, include the corresponding polyfills before loading Borda.
+
+## Internet Explorer
+
+Internet Explorer is not supported. Borda uses ES Module syntax, CSS custom properties, and modern DOM APIs that have no IE equivalents.
+
+## Mobile browsers
+
+Borda works on mobile Chrome, Safari (iOS), Firefox, and Samsung Internet. The spotlight overlay, tooltip positioning, and keyboard navigation all work on touch devices. Keyboard navigation is optional and can be disabled via `tour.hasKeyboardControl: false`.
+
+## Node.js
+
+For SSR or prerendering scenarios, Borda requires Node.js 16.0 or later. The CommonJS build is available for `require()` usage. Note that actual tour rendering requires a browser DOM — the Node.js build is intended for server-side mounting logic and config preparation.
+
+
+# Bundle Size
+
+The production bundle (minified JS + CSS) weighs **\~41 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
+
+## Distribution files
+
+Each module format ships in two variants: a minified production build and an unminified development build with readable code and comments.
+
+| File               | Format    | Raw       | Gzip     |
+| ------------------ | --------- | --------- | -------- |
+| `borda.min.es.js`  | ES Module | 132.88 KB | 36.90 KB |
+| `borda.min.umd.js` | UMD       | 137.87 KB | 37.29 KB |
+| `borda.min.cjs.js` | CommonJS  | 133.23 KB | 36.93 KB |
+| `borda.es.js`      | ES Module | 311.41 KB | 73.27 KB |
+| `borda.umd.js`     | UMD       | 322.41 KB | 74.12 KB |
+| `borda.cjs.js`     | CommonJS  | 312.62 KB | 73.42 KB |
+| `borda.css`        | CSS       | 27.62 KB  | 4.13 KB  |
+
+## Tree-shaking
+
+The ES Module build supports tree-shaking. If your bundler detects unused exports, they are removed from the final output. In practice, this means projects that only use a subset of Borda's API can produce smaller bundles than the numbers above.
+
+::callout{color="info"}
+The numbers above are for the full library with all components. Tree-shaking with ES Module imports can reduce the JavaScript payload for projects that only use a subset of features.
+::
+
+## What's included
+
+The bundle contains:
+
+- Svelte 5 runtime (minimal, compiled away in most cases)
+- Tour controller and step navigation logic
+- Spotlight overlay with SVG cutout
+- Tooltip positioning engine with auto-flip
+- Keyboard navigation handler
+- Event bus
+- Responsive breakpoint system
+- Scroll animation engine
+- Skip persistence layer
+- All UI components (buttons, progress, image, close button)
+
+
+# TypeScript
+
+TypeScript declarations are bundled inside the package as `index.d.ts`. The compiler resolves them automatically — no separate `@types/*` package or manual `tsconfig` path mapping needed.
+
+## Setup
+
+Import from `@retoo/borda` and TypeScript resolves everything automatically. Enums, interfaces, and the composable are all available from the same entry point:
+
+```ts
+import { useBorda, BordaEvent, ComponentSize, ComponentPlacement } from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Browse sections here.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+  ],
+  size: ComponentSize.MD,
+});
+
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, () => {
+  console.log('Tour completed');
+});
+```
+
+## Types
+
+The types below cover the full public API surface — config input, instance handles, and runtime controls. Import only what you need; the rest is tree-shaken at build time.
+
+#### BordaConfig
+
+Root config passed to `mount()`. Only `steps` is required — everything else is optional.
+
+```ts
+type BordaConfig = Partial<BordaOverrides> & Pick<BordaOverrides, 'steps'> & Partial<BordaFeatures>;
+```
+
+#### BordaOverrides
+
+Per-component field overrides. Pass `false` to disable a component entirely.
+
+```ts
+interface BordaOverrides {
+  size: ComponentSize;
+  shape: ComponentShape;
+  steps: BordaStepConfig[];
+  container: Partial<BordaContainerProps>;
+  tourOverlay: Partial<BordaTourOverlayProps> | false;
+  tourTooltip: Partial<BordaTourTooltipProps> | false;
+  tourImage: Partial<BordaTourImageProps> | false;
+  tourButtons: Partial<BordaTourButtonsProps> | false;
+  tourProgress: Partial<BordaTourProgressProps> | false;
+  tourSkip: Partial<BordaTourSkipProps> | false;
+  closeButton: Partial<BordaCloseButtonProps> | false;
+}
+```
+
+#### BordaFeatures
+
+Optional feature sections: tour behavior, visibility, responsive, scroll, skip, and animation.
+
+```ts
+interface BordaFeatures {
+  tour: Partial<BordaTourConfig>;
+  visibility: Partial<BordaVisibilityConfig>;
+  responsive: BordaResponsiveConfig;
+  scroll: Partial<BordaScrollConfig> | false;
+  skip: Partial<BordaSkipConfig> | false;
+  animation: Partial<BordaAnimationConfig> | false;
+}
+```
+
+#### BordaStepConfig
+
+A single step definition with optional per-step component overrides. Override fields shadow the global config while this step is active.
+
+```ts
+interface BordaStepConfig extends BordaStep {
+  tourOverlay?: Partial<BordaTourOverlayProps> | false;
+  tourTooltip?: Partial<BordaTourTooltipProps> | false;
+  tourImage?: Partial<BordaTourImageProps> | false;
+  tourButtons?: Partial<BordaTourButtonsProps> | false;
+  tourProgress?: Partial<BordaTourProgressProps> | false;
+  tourSkip?: Partial<BordaTourSkipProps> | false;
+  closeButton?: Partial<BordaCloseButtonProps> | false;
+}
+```
+
+#### BordaStep
+
+A single step in the onboarding tour.
+
+```ts
+interface BordaStep {
+  target: BordaStepTarget;
+  title: string;
+  description: string;
+  image?: BordaStepImageSource;
+  placement: ComponentPlacement;
+  onBeforeHighlighted?: () => void;
+  onHighlighted?: () => void;
+  onDeselected?: () => void;
+  onNext?: () => void;
+  onPrev?: () => void;
+  prepareElement?: () => Promise<void> | void;
+}
+```
+
+#### BordaInstance
+
+Handle returned by `mount()`. Entry point for all runtime APIs.
+
+```ts
+interface BordaInstance {
+  api: BordaApi;
+  component: BordaRef;
+  config: UseBordaConfigReturns;
+  responsive: BordaResponsiveApi;
+  scroll: BordaScrollApi;
+  animation: BordaAnimationApi;
+  skip: BordaSkipApi;
+  visibility: BordaVisibilityApi;
+}
+```
+
+#### BordaApi
+
+Top-level API surface exposed via `instance.api`.
+
+```ts
+interface BordaApi {
+  controller: BordaControllerApi;
+  components: BordaComponents;
+  events: BordaEventEmitter;
+}
+```
+
+#### BordaControllerApi
+
+Tour navigation API — current step, next, prev, changeStep, finish, and move prevention.
+
+```ts
+interface BordaControllerApi {
+  isActivated: boolean;
+  currentStep: number;
+  currentStepIndex: number;
+  totalSteps: number;
+  hasNextStep: boolean;
+  hasPrevStep: boolean;
+  currentTarget: HTMLElement | null;
+  step: BordaStepConfig | undefined;
+  changeStep: (index: number) => Promise<void>;
+  prev: () => Promise<void>;
+  next: () => Promise<void>;
+  finish: () => void;
+  isMovePrevented: boolean;
+  preventMove: () => void;
+  continue: () => void;
+  clearMovePrevented: () => void;
+}
+```
+
+#### BordaComponents
+
+Registry of all component refs within a mounted tour. Required components are always present; optional ones are `null` when disabled via config.
+
+```ts
+interface BordaComponents {
+  container: BordaContainerRef;
+  tourOverlay: BordaTourOverlayRef | null;
+  tourTooltip: BordaTourTooltipRef | null;
+  tourImage: BordaTourImageRef | null;
+  tourButtons: BordaTourButtonsRef | null;
+  tourSkip: BordaTourSkipRef | null;
+  closeButton: BordaCloseButtonRef | null;
+}
+```
+
+#### BordaEventEmitter
+
+Pub/sub event bus for widget events.
+
+```ts
+interface BordaEventEmitter {
+  on(eventName: BordaEvent, handler: BordaEventHandler): void;
+  once(eventName: BordaEvent, handler: BordaEventHandler): void;
+  off(eventName: BordaEvent, handler: BordaEventHandler): void;
+  emit<T>(eventName: BordaEvent, data?: T): void;
+  remove(eventName: BordaEvent): void;
+  clear(): void;
+}
+```
+
+#### UseBordaReturns
+
+Return type of `useBorda()` — the tour factory.
+
+```ts
+interface UseBordaReturns {
+  NAME: string;
+  VERSION: string;
+  mount: (config: BordaConfig, target?: BordaTarget) => Promise<BordaInstance>;
+  unmount: (instance: BordaInstance) => Promise<void>;
+  highlight: (step: BordaStepConfig, config?: BordaHighlightConfig, target?: BordaTarget) => Promise<BordaInstance>;
+}
+```
+
+#### UseBordaConfigReturns
+
+Reactive config store available via `instance.config`. Use `mergeConfig` to patch at runtime, `setConfig` to replace entirely.
+
+```ts
+interface UseBordaConfigReturns {
+  current: BordaConfig;
+  getConfig: () => BordaConfig;
+  setConfig: (value: BordaConfig) => void;
+  mergeConfig: (partial: Partial<BordaConfig>) => void;
+}
+```
+
+#### BordaVisibilityApi
+
+Controls widget visibility at runtime. Available via `instance.visibility`.
+
+```ts
+interface BordaVisibilityApi {
+  isHidden: boolean;
+  show: () => void;
+  hide: () => void;
+}
+```
+
+#### BordaSkipApi
+
+Controls the "Don't show again" feature. Available via `instance.skip`.
+
+```ts
+interface BordaSkipApi {
+  isSkipped: boolean;
+  storageKey: string;
+  set: (value: boolean) => void;
+  clear: () => void;
+}
+```
+
+#### BordaScrollApi
+
+Scroll-to-target API. Available via `instance.scroll`.
+
+```ts
+interface BordaScrollApi {
+  isScrolling: boolean;
+  isLocked: boolean;
+  scrollTo: (element: HTMLElement | null) => Promise<void>;
+}
+```
+
+#### BordaAnimationApi
+
+Resolved animation settings. Available via `instance.animation`.
+
+```ts
+interface BordaAnimationApi {
+  isEnabled: boolean;
+  tooltip: BordaTooltipAnimation;
+  overlay: BordaOverlayAnimation;
+}
+```
+
+## Enums
+
+All enums are re-exported from the package root. Each value has a string equivalent — pass either form and Borda will accept both.
+
+#### ComponentSize
+
+T-shirt size scale used across all sizeable components.
+
+```ts
+enum ComponentSize {
+  XS = 'xs',
+  SM = 'sm',
+  MD = 'md',
+  LG = 'lg',
+  XL = 'xl',
+  XXL = 'xxl',
+}
+```
+
+#### ComponentShape
+
+Shape variant for components — affects border-radius and aspect ratio.
+
+```ts
+enum ComponentShape {
+  CIRCLE = 'circle',
+  LANDSCAPE = 'landscape',
+  PORTRAIT = 'portrait',
+  SQUARE = 'square',
+}
+```
+
+#### ComponentPlacement
+
+Tooltip placement relative to the target — a 3×3 grid of named slots.
+
+```ts
+enum ComponentPlacement {
+  TOP_START = 'top-start',
+  TOP_CENTER = 'top-center',
+  TOP_END = 'top-end',
+  MIDDLE_START = 'middle-start',
+  MIDDLE_CENTER = 'middle-center',
+  MIDDLE_END = 'middle-end',
+  BOTTOM_START = 'bottom-start',
+  BOTTOM_CENTER = 'bottom-center',
+  BOTTOM_END = 'bottom-end',
+}
+```
+
+#### BordaEvent
+
+Event names emitted by the widget event bus.
+
+```ts
+enum BordaEvent {
+  ON_BORDA_DESTROY = 'borda:on-destroy',
+  ON_CLOSE_CLICK = 'close:click',
+  ON_OVERLAY_CLICK = 'overlay:click',
+  ON_TOUR_START = 'tour:start',
+  ON_TOUR_FINISH = 'tour:finish',
+  ON_TOUR_CLOSE = 'tour:close',
+  ON_TOUR_NEXT = 'tour:next',
+  ON_TOUR_PREV = 'tour:prev',
+  ON_KEYBOARD_NEXT = 'keyboard:next',
+  ON_KEYBOARD_PREV = 'keyboard:prev',
+  ON_TOUR_STEP_CHANGE = 'tour:step-change',
+  ON_SKIP_CHANGE = 'skip:change',
+  ON_SKIP_CLEAR = 'skip:clear',
+  ON_VISIBILITY_SHOW = 'visibility:show',
+  ON_VISIBILITY_HIDE = 'visibility:hide',
+}
+```
+
+#### AnimationEffect
+
+Built-in animation effects for tooltip and overlay.
+
+```ts
+enum AnimationEffect {
+  NONE = 'none',
+  FADE = 'fade',
+  SCALE = 'scale',
+  SLIDE = 'slide',
+}
+```
+
+#### BordaTourImageVariant
+
+Visual presentation of the tooltip image.
+
+```ts
+enum BordaTourImageVariant {
+  DEFAULT = 'default',
+  BLEED = 'bleed',
+}
+```
+
+#### BordaTourProgressVariant
+
+Visual style of the progress indicator.
+
+```ts
+enum BordaTourProgressVariant {
+  DOTS = 'dots',
+  TEXT = 'text',
+  LINE = 'line',
+}
+```
+
+## Usage examples
+
+Common patterns for integrating Borda's types into your own code.
+
+#### Typing the config
+
+```ts
+import { useBorda, ComponentSize, ComponentPlacement, type BordaConfig } from '@retoo/borda';
+
+const config: BordaConfig = {
+  steps: [
+    {
+      target: '#sidebar',
+      title: 'Navigation',
+      description: 'Browse sections here.',
+      placement: ComponentPlacement.MIDDLE_END,
+    },
+  ],
+  size: ComponentSize.MD,
+};
+
+const borda = useBorda();
+const instance = await borda.mount(config);
+```
+
+#### Typing an event handler
+
+```ts
+import { BordaEvent, type BordaEventHandler } from '@retoo/borda';
+
+const onFinish: BordaEventHandler = () => {
+  analytics.track('tour_completed');
+};
+
+instance.api.events.on(BordaEvent.ON_TOUR_FINISH, onFinish);
+```
+
+#### Working with the controller
+
+```ts
+import type { BordaControllerApi } from '@retoo/borda';
+
+function logTourState(controller: BordaControllerApi) {
+  console.log(controller.currentStep);
+  console.log(controller.totalSteps);
+  console.log(controller.hasNextStep);
+  console.log(controller.currentTarget);
+}
+
+logTourState(instance.api.controller);
+```
+
+#### Controlling visibility and skip
+
+```ts
+import type { BordaVisibilityApi, BordaSkipApi } from '@retoo/borda';
+
+const visibility: BordaVisibilityApi = instance.visibility;
+visibility.hide();
+
+const skip: BordaSkipApi = instance.skip;
+skip.set(true);
+```
+
+#### Using enums in config
+
+Enum values give you autocomplete and catch typos at compile time. String equivalents also work.
+
+```ts
+import {
+  useBorda,
+  ComponentSize,
+  ComponentShape,
+  ComponentPlacement,
+} from '@retoo/borda';
+
+const borda = useBorda();
+
+const instance = await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: ComponentPlacement.BOTTOM_CENTER,
+    },
+  ],
+  size: ComponentSize.MD,
+  shape: ComponentShape.CIRCLE,
+});
+```
+
+
+# Overview
+
+Borda is accessible out of the box: every interactive element is keyboard-operable, exposes ARIA roles and attributes, and keeps a visible focus indicator. No extra configuration is required.
+
+## Keyboard navigation
+
+| Element       | Keys              | Action                                     |
+| ------------- | ----------------- | ------------------------------------------ |
+| Tour active   | `ArrowRight`      | Next step                                  |
+| Tour active   | `ArrowLeft`       | Previous step                              |
+| Tour active   | `Escape`          | Close the tour                             |
+| Buttons       | `Enter` / `Space` | Activate (next, prev, finish, skip, close) |
+| Overlay       | `Enter` / `Space` | Close on backdrop click                    |
+| Skip checkbox | `Enter` / `Space` | Toggle checkbox                            |
+
+Keyboard control is enabled by default. Disable it with `tour.hasKeyboardControl: false`.
+
+```ts
+await borda.mount({
+  steps: [...],
+  tour: {
+    hasKeyboardControl: false,
+  },
+});
+```
+
+## Focus management
+
+When the tour mounts, focus moves to the first interactive element within the tooltip. The focus trap keeps tab navigation within the active tooltip, overlay close button, and skip checkbox — users cannot tab to elements behind the overlay.
+
+When the tour closes or finishes, focus returns to the previously focused element.
+
+## ARIA attributes
+
+Every interactive component exposes ARIA roles and attributes:
+
+| Component     | ARIA                                                   |
+| ------------- | ------------------------------------------------------ |
+| Tooltip       | `role="dialog"`, `aria-labelledby`, `aria-describedby` |
+| Overlay       | `aria-hidden="true"` on backdrop                       |
+| Buttons       | `role="button"`, `aria-label`                          |
+| Progress dots | `role="tablist"`, `role="tab"`, `aria-selected`        |
+| Skip checkbox | `role="checkbox"`, `aria-checked`                      |
+
+Every component accepts an `aria` prop to override or extend its attributes:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#element',
+      title: 'Title',
+      description: 'Description',
+      placement: 'bottom-center',
+    },
+  ],
+  tourTooltip: {
+    aria: {
+      ariaLabel: 'Product tour tooltip',
+    },
+  },
+  closeButton: {
+    aria: {
+      ariaLabel: 'Dismiss tour',
+    },
+  },
+});
+```
+
+The available attributes are defined by `ComponentAriaProps`:
+
+```ts
+interface ComponentAriaProps {
+  ariaLabel?: string;
+  ariaLabelledby?: string;
+  ariaDescribedby?: string;
+  ariaDisabled?: boolean;
+  ariaExpanded?: boolean;
+  ariaControls?: string;
+  ariaPressed?: ComponentAriaPressed;
+  ariaHaspopup?: ComponentAriaHaspopup;
+}
+```
+
+See the [component pages](https://use-retoo.github.io/borda/components/overlay) for the `aria` shape each component accepts.
