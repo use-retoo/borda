@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount, untrack } from 'svelte';
 
 	import { setBordaContext } from '@/entities/borda';
 	import { BordaEvent } from '@/entities/event';
@@ -102,7 +102,12 @@
 	/** In fade mode, hide the tooltip while the step settles, then fade it in at the new position. */
 	const isHidden = $derived(!hasGlide && isAnimated && isStepSettling && !isShownOnScroll);
 
-	const step = $derived(controller.step);
+	/** Seeded once from the initial step so the first render has content; kept in sync by the effect below. */
+	let displayedStep = $state(untrack(() => controller.step));
+
+	let displayedTarget = $state(untrack(() => controller.currentTarget));
+
+	let displayedCurrentStep = $state(untrack(() => controller.currentStep));
 
 	const tourComponents = $derived.by(() => {
 		const components = bordaTour?.getComponents();
@@ -140,6 +145,31 @@
 		void scroll.scrollTo(controller.currentTarget);
 	});
 
+	$effect(() => {
+		if (!isHidden) {
+			displayedStep = controller.step;
+			displayedTarget = controller.currentTarget;
+			displayedCurrentStep = controller.currentStep;
+
+			return;
+		}
+
+		/**
+		 * `step`/`currentTarget`/`currentStep` are live and swap the instant the
+		 * step index changes, so binding the tooltip/overlay to them directly
+		 * would render the new step's content and position immediately — visible
+		 * for a frame before the fade-out even starts. Keep showing the outgoing
+		 * step while it fades out, and only swap once it's actually invisible.
+		 */
+		const timeoutId = setTimeout(() => {
+			displayedStep = controller.step;
+			displayedTarget = controller.currentTarget;
+			displayedCurrentStep = controller.currentStep;
+		}, animation.tooltip.exitDuration);
+
+		return () => clearTimeout(timeoutId);
+	});
+
 	onMount(() => {
 		mount();
 	});
@@ -152,11 +182,11 @@
 
 <div class={rootClasses}>
 	<BordaContainer bind:this={bordaContainer} {...containerProps}>
-		{#if controller.currentTarget && step}
+		{#if controller.currentTarget && controller.step}
 			{#if tourOverlayProps !== false}
 				<BordaTourOverlay
 					bind:this={bordaTourOverlay}
-					targetElement={controller.currentTarget}
+					targetElement={displayedTarget}
 					{isAnimated}
 					{...tourOverlayProps}
 				/>
@@ -165,9 +195,9 @@
 			{#if tourTooltipProps !== false}
 				<BordaTour
 					bind:this={bordaTour}
-					{step}
-					currentTarget={controller.currentTarget}
-					currentStep={controller.currentStep}
+					step={displayedStep}
+					currentTarget={displayedTarget}
+					currentStep={displayedCurrentStep}
 					totalSteps={controller.totalSteps}
 					isSkipChecked={skip.isSkipped}
 					{isHidden}
