@@ -56,12 +56,9 @@ export default function useTooltipPosition({
 
 	const arrowSide = $derived(getArrowSide());
 
-	$effect(() => {
+	/** Reads the live target/tooltip rects and writes the resolved position into state. */
+	function recompute() {
 		if (!target || !tooltip) return;
-
-		/** Re-run on scroll so auto-flip/shift recompute against the live viewport. */
-		void scroll.x;
-		void scroll.y;
 
 		const layout = useTooltipLayout({
 			target,
@@ -79,6 +76,25 @@ export default function useTooltipPosition({
 		left = layout.position.left;
 		effectivePlacement = layout.placement;
 		arrowOffset = layout.arrowOffset;
+	}
+
+	$effect(() => {
+		if (!tooltip) return;
+
+		/** Re-run when the tooltip's own size changes (e.g. an image finishes loading). */
+		const observer = new ResizeObserver(recompute);
+
+		observer.observe(tooltip);
+
+		return () => observer.disconnect();
+	});
+
+	$effect(() => {
+		/** Re-run on scroll so auto-flip/shift recompute against the live viewport. */
+		void scroll.x;
+		void scroll.y;
+
+		recompute();
 	});
 
 	return {
