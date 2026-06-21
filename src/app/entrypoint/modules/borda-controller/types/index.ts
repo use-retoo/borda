@@ -45,4 +45,6 @@ export interface UseBordaControllerReturns {
 	apply: () => void;
 	/** Reactive public API for controlling the tour. */
 	api: BordaControllerApi;
+	/** Verifies the current step's target resolved; closes the tour and returns `false` if not. */
+	checkCurrentTarget: () => boolean;
 }

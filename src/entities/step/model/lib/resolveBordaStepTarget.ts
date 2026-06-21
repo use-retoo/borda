@@ -1,5 +1,14 @@
 import type { BordaStepTarget, BordaStepTargetQuery } from '../types';
 
+/** Runs `querySelector`, treating a malformed selector as "no match" instead of throwing. */
+function queryTarget(selector: string): HTMLElement | null {
+	try {
+		return document.querySelector<HTMLElement>(selector);
+	} catch {
+		return null;
+	}
+}
+
 function buildSelector(query: Partial<BordaStepTargetQuery>): string {
 	const parts: string[] = [];
 
@@ -43,7 +52,7 @@ export function resolveBordaStepTarget(target: BordaStepTarget | undefined): HTM
 	}
 
 	if (typeof target === 'string') {
-		return document.querySelector<HTMLElement>(target);
+		return queryTarget(target);
 	}
 
 	const selector = buildSelector(target);
@@ -52,5 +61,5 @@ export function resolveBordaStepTarget(target: BordaStepTarget | undefined): HTM
 		return null;
 	}
 
-	return document.querySelector<HTMLElement>(selector);
+	return queryTarget(selector);
 }

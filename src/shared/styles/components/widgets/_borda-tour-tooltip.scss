@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 $rb-tour-tooltip-gaps: (
 	'xs': var(--rb-tour-tooltip-gap-xs),
 	'sm': var(--rb-tour-tooltip-gap-sm),
@@ -23,6 +25,15 @@ $rb-tour-tooltip-min-widths: (
 	'lg': var(--rb-tour-tooltip-min-width-lg),
 	'xl': var(--rb-tour-tooltip-min-width-xl),
 	'xxl': var(--rb-tour-tooltip-min-width-xxl)
+);
+
+$rb-tour-tooltip-max-widths: (
+	'xs': var(--rb-tour-tooltip-max-width-xs),
+	'sm': var(--rb-tour-tooltip-max-width-sm),
+	'md': var(--rb-tour-tooltip-max-width-md),
+	'lg': var(--rb-tour-tooltip-max-width-lg),
+	'xl': var(--rb-tour-tooltip-max-width-xl),
+	'xxl': var(--rb-tour-tooltip-max-width-xxl)
 );
 
 $rb-tour-tooltip-title-font-sizes: (
@@ -109,7 +120,6 @@ $rb-tour-tooltip-description-font-sizes: (
 	position: fixed;
 	display: flex;
 	flex-direction: column;
-	max-width: var(--rb-tour-tooltip-max-width);
 	background: var(--rb-tour-tooltip-background);
 	border: var(--rb-tour-tooltip-border);
 	border-radius: var(--rb-tour-tooltip-border-radius);
@@ -134,7 +144,10 @@ $rb-tour-tooltip-description-font-sizes: (
 
 	@each $size-name, $min-width in $rb-tour-tooltip-min-widths {
 		&.rb-tour-tooltip--#{$size-name} {
-			min-width: min(#{$min-width}, var(--rb-tour-tooltip-max-width));
+			$max-width: map.get($rb-tour-tooltip-max-widths, $size-name);
+
+			max-width: min(#{$max-width}, calc(100vw - 32px));
+			min-width: min(#{$min-width}, min(#{$max-width}, calc(100vw - 32px)));
 		}
 	}
 

@@ -18,6 +18,8 @@ export enum BordaEvent {
 	ON_TOUR_NEXT = 'tour:next',
 	/** Fired when navigating to the previous step. */
 	ON_TOUR_PREV = 'tour:prev',
+	/** Fired when a step's target fails to resolve to a DOM element, just before the tour closes. */
+	ON_TOUR_ERROR = 'tour:error',
 	/** Fired when the ArrowRight key is pressed during an active tour. */
 	ON_KEYBOARD_NEXT = 'keyboard:next',
 	/** Fired when the ArrowLeft key is pressed during an active tour. */
