@@ -1,0 +1,146 @@
+$rb-button-sizes: (
+	'xs': var(--rb-button-size-xs),
+	'sm': var(--rb-button-size-sm),
+	'md': var(--rb-button-size-md),
+	'lg': var(--rb-button-size-lg),
+	'xl': var(--rb-button-size-xl),
+	'xxl': var(--rb-button-size-xxl)
+);
+
+$rb-button-font-sizes: (
+	'xs': var(--rb-button-font-size-xs),
+	'sm': var(--rb-button-font-size-sm),
+	'md': var(--rb-button-font-size-md),
+	'lg': var(--rb-button-font-size-lg),
+	'xl': var(--rb-button-font-size-xl),
+	'xxl': var(--rb-button-font-size-xxl)
+);
+
+$rb-button-paddings: (
+	'xs': var(--rb-button-padding-xs),
+	'sm': var(--rb-button-padding-sm),
+	'md': var(--rb-button-padding-md),
+	'lg': var(--rb-button-padding-lg),
+	'xl': var(--rb-button-padding-xl),
+	'xxl': var(--rb-button-padding-xxl)
+);
+
+$rb-button-gaps: (
+	'xs': var(--rb-button-gap-xs),
+	'sm': var(--rb-button-gap-sm),
+	'md': var(--rb-button-gap-md),
+	'lg': var(--rb-button-gap-lg),
+	'xl': var(--rb-button-gap-xl),
+	'xxl': var(--rb-button-gap-xxl)
+);
+
+.rb-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	font-family: inherit;
+	font-weight: var(--rb-button-font-weight);
+	letter-spacing: var(--rb-button-letter-spacing);
+	border-radius: var(--rb-button-border-radius);
+	transition: var(--rb-button-transition);
+	box-sizing: border-box;
+	cursor: pointer;
+	user-select: none;
+
+	&:focus-visible {
+		outline: var(--rb-button-focus-outline);
+		outline-offset: var(--rb-button-focus-outline-offset);
+	}
+
+	&--filled {
+		color: var(--rb-button-color);
+		background: var(--rb-button-background);
+		border: var(--rb-button-border);
+
+		&:hover {
+			background: var(--rb-button-background-hover);
+		}
+	}
+
+	&--outlined {
+		color: var(--rb-button-outlined-color);
+		background: var(--rb-button-outlined-background);
+		border: var(--rb-button-outlined-border);
+
+		&:hover {
+			background: var(--rb-button-outlined-background-hover);
+		}
+	}
+
+	&--ghost {
+		color: var(--rb-button-ghost-color);
+		background: var(--rb-button-ghost-background);
+		border: var(--rb-button-ghost-border);
+
+		&:hover {
+			background: var(--rb-button-ghost-background-hover);
+		}
+	}
+
+	&--text {
+		color: var(--rb-button-text-color);
+		background: transparent;
+		border: none;
+
+		&:hover {
+			color: var(--rb-button-text-color-hover);
+		}
+	}
+
+	&:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	&--rectangle {
+		max-width: 100%;
+		width: max-content;
+	}
+
+	&--circle {
+		border-radius: 100%;
+	}
+
+	@each $size-name, $size in $rb-button-sizes {
+		&.rb-button--#{$size-name} {
+			&.rb-button--rectangle {
+				height: $size;
+			}
+
+			&.rb-button--circle,
+			&.rb-button--square {
+				width: $size;
+				height: $size;
+			}
+		}
+	}
+
+	@each $size-name, $font-size in $rb-button-font-sizes {
+		&.rb-button--#{$size-name} {
+			&.rb-button--rectangle {
+				font-size: $font-size;
+			}
+		}
+	}
+
+	@each $size-name, $padding in $rb-button-paddings {
+		&.rb-button--#{$size-name} {
+			&.rb-button--rectangle {
+				padding: $padding;
+			}
+		}
+	}
+
+	@each $size-name, $gap in $rb-button-gaps {
+		&.rb-button--#{$size-name} {
+			gap: $gap;
+		}
+	}
+}

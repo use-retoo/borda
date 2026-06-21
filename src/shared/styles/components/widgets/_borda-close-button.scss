@@ -1,0 +1,54 @@
+$rb-close-button-sizes: (
+	'xs': var(--rb-close-button-size-xs),
+	'sm': var(--rb-close-button-size-sm),
+	'md': var(--rb-close-button-size-md),
+	'lg': var(--rb-close-button-size-lg),
+	'xl': var(--rb-close-button-size-xl),
+	'xxl': var(--rb-close-button-size-xxl)
+);
+
+.rb-close-button {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--rb-close-button-border-radius);
+	transition: var(--rb-close-button-transition);
+	z-index: var(--rb-close-button-z-index);
+
+	@each $size-name, $size in $rb-close-button-sizes {
+		&.rb-close-button--#{$size-name} {
+			width: $size;
+			height: $size;
+		}
+	}
+
+	.rb-button {
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		color: var(--rb-close-button-color);
+		background: var(--rb-close-button-background);
+		border: none;
+
+		&:hover {
+			color: var(--rb-close-button-color-hover);
+			background: var(--rb-close-button-background-hover);
+		}
+
+		&:active {
+			background: var(--rb-close-button-background-pressed);
+		}
+
+		.rb-icon {
+			color: currentColor;
+
+			--rb-icon-size-xs: var(--rb-close-button-icon-size-xs);
+			--rb-icon-size-sm: var(--rb-close-button-icon-size-sm);
+			--rb-icon-size-md: var(--rb-close-button-icon-size-md);
+			--rb-icon-size-lg: var(--rb-close-button-icon-size-lg);
+			--rb-icon-size-xl: var(--rb-close-button-icon-size-xl);
+			--rb-icon-size-xxl: var(--rb-close-button-icon-size-xxl);
+		}
+	}
+}

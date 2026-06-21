@@ -1,0 +1,9 @@
+.rb-image {
+	display: block;
+	width: var(--rb-image-width);
+	height: var(--rb-image-height);
+	max-width: 100%;
+	border-radius: var(--rb-image-border-radius);
+	object-fit: var(--rb-image-object-fit);
+	object-position: var(--rb-image-object-position);
+}

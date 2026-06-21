@@ -1,0 +1,199 @@
+@use 'sass:map';
+
+$variables: (
+	'rb-container': (
+		'z-index': 10
+	),
+
+	'rb-button': (
+		'size-xs': 30px,
+		'size-sm': 34px,
+		'size-md': 38px,
+		'size-lg': 42px,
+		'size-xl': 46px,
+		'size-xxl': 50px,
+		'font-size-xs': 11px,
+		'font-size-sm': 12px,
+		'font-size-md': 13px,
+		'font-size-lg': 14px,
+		'font-size-xl': 15px,
+		'font-size-xxl': 16px,
+		'font-weight': 500,
+		'letter-spacing': 0.01em,
+		'padding-xs': 0px 8px,
+		'padding-sm': 0px 10px,
+		'padding-md': 0px 14px,
+		'padding-lg': 0px 18px,
+		'padding-xl': 0px 22px,
+		'padding-xxl': 0px 26px,
+		'gap-xs': 4px,
+		'gap-sm': 6px,
+		'gap-md': 8px,
+		'gap-lg': 10px,
+		'gap-xl': 12px,
+		'gap-xxl': 14px,
+		'color': rgba(255, 255, 255, 1),
+		'background': rgba(17, 17, 17, 1),
+		'background-hover': rgba(38, 38, 38, 1),
+		'border': 1px solid transparent,
+		'border-radius': 8px,
+		'transition': all 0.18s ease,
+		'focus-outline': 2px solid rgba(17, 17, 17, 0.35),
+		'focus-outline-offset': 2px,
+		'outlined-color': rgba(17, 17, 17, 1),
+		'outlined-background': transparent,
+		'outlined-background-hover': rgba(17, 17, 17, 0.06),
+		'outlined-border': 1px solid rgba(17, 17, 17, 0.16),
+		'ghost-color': rgba(17, 17, 17, 0.72),
+		'ghost-background': transparent,
+		'ghost-background-hover': rgba(17, 17, 17, 0.06),
+		'ghost-border': 1px solid transparent,
+		'text-color': rgba(17, 17, 17, 0.72),
+		'text-color-hover': rgba(17, 17, 17, 1)
+	),
+
+	'rb-close-button': (
+		'size-xs': 22px,
+		'size-sm': 26px,
+		'size-md': 28px,
+		'size-lg': 32px,
+		'size-xl': 36px,
+		'size-xxl': 38px,
+		'icon-size-xs': 12px,
+		'icon-size-sm': 14px,
+		'icon-size-md': 16px,
+		'icon-size-lg': 18px,
+		'icon-size-xl': 20px,
+		'icon-size-xxl': 22px,
+		'color': rgba(17, 17, 17, 0.6),
+		'color-hover': rgba(17, 17, 17, 1),
+		'background': transparent,
+		'background-hover': rgba(17, 17, 17, 0.06),
+		'background-pressed': rgba(17, 17, 17, 0.1),
+		'border-radius': 8px,
+		'transition': all 0.18s ease,
+		'z-index': 20
+	),
+
+	'rb-icon': (
+		'size-xs': 22px,
+		'size-sm': 24px,
+		'size-md': 28px,
+		'size-lg': 32px,
+		'size-xl': 36px,
+		'size-xxl': 40px,
+		'color': rgba(255, 255, 255, 1)
+	),
+
+	'rb-tour-overlay': (
+		'background': rgba(0, 0, 0, 0.45),
+		'z-index': 1000
+	),
+
+	'rb-tour-progress': (
+		'dot-size': 6px,
+		'dot-gap': 6px,
+		'dot-border-radius': 50%,
+		'dot-color': rgba(17, 17, 17, 0.18),
+		'dot-color-active': rgba(17, 17, 17, 0.9),
+		'text-font-size': 12px,
+		'text-color': rgba(17, 17, 17, 0.55),
+		'line-height': 6px,
+		'line-border-radius': 4px,
+		'line-track-color': rgba(17, 17, 17, 0.08),
+		'line-progress-color': rgba(17, 17, 17, 0.9)
+	),
+
+	'rb-tour-buttons': (
+		'gap': 8px,
+		'padding-top': 6px
+	),
+
+	'rb-tour-skip': (
+		'gap': 8px,
+		'input-size': 15px,
+		'input-background': rgba(255, 255, 255, 1),
+		'input-border': 1px solid rgba(17, 17, 17, 0.3),
+		'input-border-radius': 4px,
+		'input-check-color': rgba(255, 255, 255, 1),
+		'input-accent': rgba(17, 17, 17, 0.9),
+		'label-font-size': 13px,
+		'label-line-height': 1.4,
+		'label-color': rgba(17, 17, 17, 0.62),
+		'label-color-hover': rgba(17, 17, 17, 0.9)
+	),
+
+	'rb-tour-tooltip': (
+		'arrow-size': 10px,
+		'arrow-inset': 16px,
+		'arrow-offset': 50%,
+		'gap-xs': 10px,
+		'gap-sm': 12px,
+		'gap-md': 16px,
+		'gap-lg': 20px,
+		'gap-xl': 24px,
+		'gap-xxl': 28px,
+		'header-gap': 12px,
+		'min-width-xs': 240px,
+		'min-width-sm': 280px,
+		'min-width-md': 340px,
+		'min-width-lg': 400px,
+		'min-width-xl': 460px,
+		'min-width-xxl': 520px,
+		'max-width': calc(100vw - 32px),
+		'padding-xs': 10px,
+		'padding-sm': 12px,
+		'padding-md': 16px,
+		'padding-lg': 20px,
+		'padding-xl': 24px,
+		'padding-xxl': 28px,
+		'close-offset-top': -2px,
+		'close-offset-right': -4px,
+		'background': rgba(255, 255, 255, 1),
+		'border': 1px solid rgba(17, 17, 17, 0.06),
+		'border-radius': 14px,
+		'title-font-size-xs': 14px,
+		'title-font-size-sm': 15px,
+		'title-font-size-md': 16px,
+		'title-font-size-lg': 18px,
+		'title-font-size-xl': 20px,
+		'title-font-size-xxl': 22px,
+		'title-font-weight': 600,
+		'title-line-height': 1.35,
+		'title-color': rgba(17, 17, 17, 0.96),
+		'description-font-size-xs': 12px,
+		'description-font-size-sm': 13px,
+		'description-font-size-md': 14px,
+		'description-font-size-lg': 15px,
+		'description-font-size-xl': 16px,
+		'description-font-size-xxl': 17px,
+		'description-line-height': 1.5,
+		'description-color': rgba(17, 17, 17, 0.62),
+		'shadow': 0 4px 16px rgba(0, 0, 0, 0.08),
+		'z-index': 1010,
+		'animation-duration': 200ms,
+		'animation-easing': ease-out,
+		'glide-duration': 300ms,
+		'glide-easing': cubic-bezier(0.4, 0, 0.2, 1)
+	),
+
+	'rb-image': (
+		'width': 100%,
+		'height': auto,
+		'border-radius': 10px,
+		'object-fit': cover,
+		'object-position': center
+	)
+);
+
+@mixin generate-variables {
+	@each $component-name, $component-props in $variables {
+		@each $property, $value in $component-props {
+			--#{$component-name}-#{$property}: #{$value};
+		}
+	}
+}
+
+.rb {
+	@include generate-variables();
+}

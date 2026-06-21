@@ -1,0 +1,19 @@
+$rb-icon: (
+	'xs': var(--rb-icon-size-xs),
+	'sm': var(--rb-icon-size-sm),
+	'md': var(--rb-icon-size-md),
+	'lg': var(--rb-icon-size-lg),
+	'xl': var(--rb-icon-size-xl),
+	'xxl': var(--rb-icon-size-xxl)
+);
+
+.rb-icon {
+	color: var(--rb-icon-color);
+
+	@each $size-name, $size in $rb-icon {
+		&.rb-icon--#{$size-name} {
+			width: $size;
+			height: $size;
+		}
+	}
+}

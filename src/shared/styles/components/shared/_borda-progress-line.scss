@@ -1,0 +1,20 @@
+.rb-progress--line {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	touch-action: none;
+
+	.rb-progress__track {
+		transition: height 0.3s linear;
+	}
+
+	.rb-progress__buffer {
+		transition: width 0.1s linear;
+		overflow: hidden;
+	}
+
+	.rb-progress__progress {
+		transition: width 0.1s linear;
+		overflow: hidden;
+	}
+}
