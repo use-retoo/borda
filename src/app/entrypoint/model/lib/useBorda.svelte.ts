@@ -3,6 +3,7 @@ import { mount as _mount, unmount as _unmount } from 'svelte';
 import { BordaEvent, useEventEmitter } from '@/entities/event';
 import { waitForAnimations } from '@/shared/utils/animation';
 import { assertBrowser } from '@/shared/utils/environment';
+import type { BordaError } from '@/shared/utils/errors';
 
 import {
 	useBordaAnimation,
@@ -165,6 +166,15 @@ export default function useBorda(): UseBordaReturns {
 
 							await unmount(instance);
 						});
+
+						eventEmitter.once(BordaEvent.ON_TOUR_ERROR, (error: BordaError) => {
+							const tourConfig = config.getConfig().tour;
+
+							tourConfig?.onError?.(error);
+						});
+
+						/** Validate the initial step now that ON_TOUR_ERROR/ON_TOUR_CLOSE listeners above are registered. */
+						controller.checkCurrentTarget();
 
 						resolve(instance);
 					},

@@ -9,16 +9,16 @@ import type { BordaEventMap, BordaEventHandler, BordaEventEmitter } from '../typ
 export function useEventEmitter(): BordaEventEmitter {
 	const events: BordaEventMap = new Map();
 
-	function on(eventName: BordaEvent, handler: BordaEventHandler) {
+	function on<T = unknown>(eventName: BordaEvent, handler: BordaEventHandler<T>) {
 		if (!events.has(eventName)) {
 			events.set(eventName, new Set());
 		}
 
-		events.get(eventName)?.add(handler);
+		events.get(eventName)?.add(handler as BordaEventHandler);
 	}
 
-	function once(eventName: BordaEvent, handler: BordaEventHandler) {
-		const wrapper: BordaEventHandler = (data) => {
+	function once<T = unknown>(eventName: BordaEvent, handler: BordaEventHandler<T>) {
+		const wrapper: BordaEventHandler<T> = (data) => {
 			off(eventName, wrapper);
 			handler(data);
 		};
@@ -26,11 +26,11 @@ export function useEventEmitter(): BordaEventEmitter {
 		on(eventName, wrapper);
 	}
 
-	function off(eventName: BordaEvent, handler: BordaEventHandler) {
+	function off<T = unknown>(eventName: BordaEvent, handler: BordaEventHandler<T>) {
 		const handlers = events.get(eventName);
 
 		if (handlers) {
-			handlers.delete(handler);
+			handlers.delete(handler as BordaEventHandler);
 		}
 	}
 

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
 
 import { useBordaConfig } from '@/app/entrypoint';
@@ -8,7 +9,7 @@ import { useBordaController } from '../';
 
 function makeStep(overrides = {}) {
 	return {
-		target: '',
+		target: document.createElement('div'),
 		title: '',
 		description: '',
 		placement: ComponentPlacement.BOTTOM_START,
@@ -334,6 +335,71 @@ describe('useBordaController', () => {
 			await nextPromise;
 
 			expect(api.currentStepIndex).toBe(0);
+		});
+	});
+
+	describe('invalid target', () => {
+		it('should emit ON_TOUR_ERROR and ON_TOUR_CLOSE when the initial step target does not resolve', () => {
+			const config = useBordaConfig({ steps: [makeStep({ target: '#does-not-exist' })] });
+			const emitter = useEventEmitter();
+			const onError = vi.fn();
+			const onClose = vi.fn();
+
+			emitter.on(BordaEvent.ON_TOUR_ERROR, onError);
+			emitter.on(BordaEvent.ON_TOUR_CLOSE, onClose);
+
+			const { checkCurrentTarget } = useBordaController(config, emitter);
+
+			expect(checkCurrentTarget()).toBe(false);
+			expect(onError).toHaveBeenCalledOnce();
+			expect(onClose).toHaveBeenCalledOnce();
+		});
+
+		it('should not emit ON_TOUR_ERROR when the step target resolves', () => {
+			const config = useBordaConfig({ steps: [makeStep()] });
+			const emitter = useEventEmitter();
+			const onError = vi.fn();
+
+			emitter.on(BordaEvent.ON_TOUR_ERROR, onError);
+
+			const { checkCurrentTarget } = useBordaController(config, emitter);
+
+			expect(checkCurrentTarget()).toBe(true);
+			expect(onError).not.toHaveBeenCalled();
+		});
+
+		it('should skip ON_TOUR_STEP_CHANGE and onHighlighted when navigating into a step with an invalid target', async () => {
+			const onHighlighted = vi.fn();
+
+			const config = useBordaConfig({
+				steps: [makeStep(), makeStep({ target: '#does-not-exist', onHighlighted })]
+			});
+
+			const emitter = useEventEmitter();
+			const stepChangeHandler = vi.fn();
+
+			emitter.on(BordaEvent.ON_TOUR_STEP_CHANGE, stepChangeHandler);
+
+			const { api } = useBordaController(config, emitter);
+
+			await api.next();
+
+			expect(api.currentStepIndex).toBe(1);
+			expect(onHighlighted).not.toHaveBeenCalled();
+			expect(stepChangeHandler).not.toHaveBeenCalled();
+		});
+
+		it('should be a no-op (return true) when there is no current step', () => {
+			const config = useBordaConfig({ steps: [] });
+			const emitter = useEventEmitter();
+			const onError = vi.fn();
+
+			emitter.on(BordaEvent.ON_TOUR_ERROR, onError);
+
+			const { checkCurrentTarget } = useBordaController(config, emitter);
+
+			expect(checkCurrentTarget()).toBe(true);
+			expect(onError).not.toHaveBeenCalled();
 		});
 	});
 

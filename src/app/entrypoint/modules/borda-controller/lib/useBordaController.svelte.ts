@@ -1,5 +1,6 @@
 import { BordaEvent, type BordaEventEmitter } from '@/entities/event';
 import { resolveBordaStepTarget } from '@/entities/step';
+import { BordaError } from '@/shared/utils';
 
 import type { UseBordaConfigReturns } from '../../../model';
 import type { BordaControllerApi, UseBordaControllerReturns } from '../types';
@@ -42,6 +43,30 @@ export default function useBordaController(
 
 	const tourConfig = $derived(config.getConfig().tour);
 
+	/**
+	 * Verifies the current step's target resolved to a DOM element.
+	 *
+	 * Emits {@link BordaEvent.ON_TOUR_ERROR} followed by {@link BordaEvent.ON_TOUR_CLOSE}
+	 * when it didn't, instead of leaving the widget rendering nothing for a step
+	 * the user can't see or dismiss.
+	 *
+	 * @returns `true` when there is no step, or its target resolved; `false` when the tour was closed due to an error.
+	 */
+	function checkCurrentTarget(): boolean {
+		if (!step || currentTarget) return true;
+
+		const error = new BordaError(
+			`Borda: target for step ${currentStep} did not resolve to an element.`
+		);
+
+		console.error(error);
+
+		eventEmitter.emit(BordaEvent.ON_TOUR_ERROR, error);
+		eventEmitter.emit(BordaEvent.ON_TOUR_CLOSE);
+
+		return false;
+	}
+
 	function apply() {
 		stepIndex = tourConfig?.startStep ?? 0;
 
@@ -61,6 +86,8 @@ export default function useBordaController(
 		entering?.onBeforeHighlighted?.();
 
 		stepIndex = index;
+
+		if (!checkCurrentTarget()) return;
 
 		entering?.onHighlighted?.();
 		eventEmitter.emit(BordaEvent.ON_TOUR_STEP_CHANGE, currentStep);
@@ -175,5 +202,5 @@ export default function useBordaController(
 		finish
 	};
 
-	return { apply, api };
+	return { apply, api, checkCurrentTarget };
 }

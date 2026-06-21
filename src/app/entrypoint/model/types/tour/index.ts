@@ -1,5 +1,6 @@
 import type { BordaStep } from '@/entities/step';
 import type { ComponentShape, ComponentSize } from '@/shared/enums';
+import type { BordaError } from '@/shared/utils';
 import type { BordaCloseButtonProps, BordaCloseButtonRef } from '@/widgets/borda-controls';
 import type { BordaTourButtonsProps, BordaTourButtonsRef } from '@/widgets/borda-tour-buttons';
 import type { BordaTourImageProps, BordaTourImageRef } from '@/widgets/borda-tour-image';
@@ -20,9 +21,7 @@ export interface BordaTourProps {
 	size: ComponentSize;
 	shape: ComponentShape;
 	isSkipChecked: boolean;
-	/** Hides the tooltip (fade transition) while scrolling/transitioning between steps. */
 	isHidden: boolean;
-	/** Enables position gliding of the tooltip between steps (glide transition). */
 	hasGlide: boolean;
 	tourTooltipAnimation: BordaTourTooltipAnimation | false;
 	tourTooltipProps: Partial<BordaTourTooltipProps>;
@@ -69,6 +68,8 @@ export interface BordaTourConfig {
 	onFinish: () => void;
 	/** Called when the tour is dismissed before completion (close button, backdrop or Escape), before the unmount animation. */
 	onClose: () => void;
+	/** Called when a step's target fails to resolve to a DOM element, just before the tour closes. */
+	onError: (error: BordaError) => void;
 	/**
 	 * Enable keyboard navigation: ArrowRight/ArrowLeft for next/prev, Escape to close.
 	 * Defaults to `true`. Set to `false` to disable all keyboard handling.

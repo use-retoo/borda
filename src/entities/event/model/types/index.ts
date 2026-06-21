@@ -9,11 +9,11 @@ export type BordaEventMap<T = unknown> = Map<BordaEvent, Set<BordaEventHandler<T
 /** Pub/sub event bus for communication between borda components. */
 export interface BordaEventEmitter {
 	/** Subscribe a handler to an event. */
-	on(eventName: BordaEvent, handler: BordaEventHandler): void;
+	on<T = unknown>(eventName: BordaEvent, handler: BordaEventHandler<T>): void;
 	/** Subscribe a handler to an event; auto-unsubscribes after first call. */
-	once(eventName: BordaEvent, handler: BordaEventHandler): void;
+	once<T = unknown>(eventName: BordaEvent, handler: BordaEventHandler<T>): void;
 	/** Unsubscribe a specific handler from an event. */
-	off(eventName: BordaEvent, handler: BordaEventHandler): void;
+	off<T = unknown>(eventName: BordaEvent, handler: BordaEventHandler<T>): void;
 	/** Emit an event, calling all subscribed handlers with optional data. */
 	emit<T>(eventName: BordaEvent, data?: T): void;
 	/** Remove all handlers for a specific event. */
