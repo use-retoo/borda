@@ -128,6 +128,7 @@ $rb-tour-tooltip-description-font-sizes: (
 	@each $size-name, $padding in $rb-tour-tooltip-paddings {
 		&.rb-tour-tooltip--#{$size-name} {
 			padding: $padding;
+			--rb-tour-tooltip-padding: #{$padding};
 		}
 	}
 
