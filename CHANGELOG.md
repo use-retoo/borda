@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1](https://github.com/use-retoo/borda/compare/v0.1.0...v0.1.1) (2026-06-21)
+
+
+### Bug Fixes
+
+* **tooltip:** keep outgoing step visible until fade-out completes ([4114797](https://github.com/use-retoo/borda/commit/4114797f6a53e7cb212bb1d5f26f2d92b17d5112))
+* **tooltip:** keep outgoing step's content and config until fade-out completes ([f691901](https://github.com/use-retoo/borda/commit/f6919015fa55bfc1be4d384981f0c3918b8b4c73))
+* **tooltip:** recompute position when tooltip content resizes ([fab43f6](https://github.com/use-retoo/borda/commit/fab43f6c9e24cf358b7e74e1a18f497eb153d4cc))
+
 # [0.1.0](https://github.com/use-retoo/borda/compare/v0.0.2...v0.1.0) (2026-06-21)
 
 
