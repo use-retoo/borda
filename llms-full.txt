@@ -14,30 +14,44 @@ Borda is a fully open-source, non-commercial project. It's built and maintained 
 
 ## See it in action
 
-The only required field is `steps` — an array of step definitions. Each step specifies a `target` element, a `title`, a `description`, and a `placement` for the tooltip. Steps can also carry an `image`, and the whole tour can show a `tourProgress` indicator.
+The only required field is `steps` — an array of step definitions. Each step specifies a `target` element, a `title`, a `description`, and a `placement` for the tooltip. This tour runs on the page you're reading right now: every target below is a real heading or feature card further down, and each step uses a different `placement` to show the tooltip positioning itself around its target.
 
 ::borda-container
   :::borda-component
   ---
   config:
     steps:
-      - target: "#page-header"
-        title: Section heading
-        description: Each section starts with a clear heading.
-        placement: bottom-start
-      - target: "#page-content"
-        title: Images
-        description: Steps can carry an image alongside the title and description.
+      - target: "#what-is-borda"
+        title: What is Borda?
+        description: An embeddable widget — a spotlight overlay plus a positioned
+          tooltip — driven by a plain array of steps. The dimmed backdrop and
+          tooltip you're reading are a single `mount()` call.
+        placement: bottom-center
+      - target: "#feature-tours"
+        title: Guided, multi-step tours
+        description: Chain steps together, each with its own target, title, description,
+          and placement. Async `prepareElement` hooks can expand a panel or wait
+          for data before a step shows.
+        placement: middle-start
+      - target: "#feature-overlay"
+        title: Spotlight overlay
+        description: A backdrop dims the page with a cutout around the active element.
+          Padding, border radius, and the transition between cutouts are all
+          configurable.
+        placement: middle-start
+      - target: "#feature-tooltips"
+        title: Tooltips that adapt
+        description: Tooltips auto-flip to stay inside the viewport and can carry an
+          image above the title, like this one. Components can also be swapped per
+          step — this progress indicator just switched from dots to a line.
         image:
           src: data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480'
             height='240'%3E%3Crect width='480' height='240'
             fill='%23d4d4d8'/%3E%3C/svg%3E
           alt: Placeholder image
-        placement: middle-end
-      - target: "#page-toc"
-        title: On this page
-        description: Quick links to every heading, so readers can skip ahead.
-        placement: top-end
+        placement: top-center
+        tourProgress:
+          variant: line
     tourProgress:
       variant: dots
   ---
@@ -45,29 +59,48 @@ The only required field is `steps` — an array of step definitions. Each step s
 ::
 
 ```ts
+import {
+  useBorda,
+  ComponentPlacement,
+  BordaTourProgressVariant,
+} from '@retoo/borda';
+
+import '@retoo/borda/styles';
+
+const borda = useBorda();
+
 const instance = await borda.mount({
   steps: [
     {
-      target: '#page-header',
-      title: 'Section heading',
-      description: 'Each section starts with a clear heading.',
-      placement: ComponentPlacement.BOTTOM_START,
+      target: '#what-is-borda',
+      title: 'What is Borda?',
+      description: "An embeddable widget — a spotlight overlay plus a positioned tooltip — driven by a plain array of steps. The dimmed backdrop and tooltip you're reading are a single mount() call.",
+      placement: ComponentPlacement.BOTTOM_CENTER,
     },
     {
-      target: '#page-content',
-      title: 'Images',
-      description: 'Steps can carry an image alongside the title and description.',
+      target: '#feature-tours',
+      title: 'Guided, multi-step tours',
+      description: 'Chain steps together, each with its own target, title, description, and placement. Async prepareElement hooks can expand a panel or wait for data before a step shows.',
+      placement: ComponentPlacement.MIDDLE_START,
+    },
+    {
+      target: '#feature-overlay',
+      title: 'Spotlight overlay',
+      description: 'A backdrop dims the page with a cutout around the active element. Padding, border radius, and the transition between cutouts are all configurable.',
+      placement: ComponentPlacement.MIDDLE_START,
+    },
+    {
+      target: '#feature-tooltips',
+      title: 'Tooltips that adapt',
+      description: 'Tooltips auto-flip to stay inside the viewport and can carry an image above the title, like this one. Components can also be swapped per step — this progress indicator just switched from dots to a line.',
       image: {
         src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='240'%3E%3Crect width='480' height='240' fill='%23d4d4d8'/%3E%3C/svg%3E",
         alt: 'Placeholder image',
       },
-      placement: ComponentPlacement.MIDDLE_END,
-    },
-    {
-      target: '#page-toc',
-      title: 'On this page',
-      description: 'Quick links to every heading, so readers can skip ahead.',
-      placement: ComponentPlacement.TOP_END,
+      placement: ComponentPlacement.TOP_CENTER,
+      tourProgress: {
+        variant: BordaTourProgressVariant.LINE,
+      },
     },
   ],
   tourProgress: {
@@ -87,15 +120,15 @@ See the **Basic Setup** example for a complete onboarding flow with multiple ste
 ## Features
 
 ::field-group
-  :::field{name="Guided tours" type="multi-step, lifecycle hooks"}
+  :::field{#feature-tours name="Guided tours" type="multi-step, lifecycle hooks"}
   Define an ordered list of steps with per-step target elements, tooltips, images, and async preparation hooks.
   :::
 
-  :::field{name="Spotlight overlay" type="configurable cutout"}
+  :::field{#feature-overlay name="Spotlight overlay" type="configurable cutout"}
   Full-screen backdrop with a cutout around the target element. Configurable padding, border radius, and animation.
   :::
 
-  :::field{name="Tooltips" type="auto-placement, arrow, image"}
+  :::field{#feature-tooltips name="Tooltips" type="auto-placement, arrow, image"}
   Positioned tooltips with title, description, image, and arrow. Auto-flips to stay in viewport.
   :::
 
