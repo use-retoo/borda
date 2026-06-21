@@ -59,12 +59,9 @@
 
 	useFocusTrap({ getContainer: () => bordaContainer?.getElements()?.root ?? null });
 
-	const size = $derived(config.size);
-
-	const shape = $derived(config.shape);
-
 	const rootClasses = $derived(['rb']);
 
+	/** Container chrome isn't per-step content, so it always tracks the live config. */
 	const containerProps = $derived({
 		...config.container,
 		customClasses: {
@@ -72,20 +69,6 @@
 			root: [config.container?.customClasses?.root, containerAnimator.classes]
 		}
 	});
-
-	const tourOverlayProps = $derived(config.tourOverlay);
-
-	const tourTooltipProps = $derived(config.tourTooltip);
-
-	const tourImageProps = $derived(config.tourImage);
-
-	const tourButtonsProps = $derived(config.tourButtons);
-
-	const tourProgressProps = $derived(config.tourProgress);
-
-	const tourSkipProps = $derived(config.tourSkip);
-
-	const closeButtonProps = $derived(config.closeButton);
 
 	const tourTooltipAnimation = $derived(animation.isEnabled ? animation.tooltip : false);
 
@@ -103,11 +86,30 @@
 	const isHidden = $derived(!hasGlide && isAnimated && isStepSettling && !isShownOnScroll);
 
 	/** Seeded once from the initial step so the first render has content; kept in sync by the effect below. */
-	let displayedStep = $state(untrack(() => controller.step));
+	let displayed = $state({
+		step: untrack(() => controller.step),
+		target: untrack(() => controller.currentTarget),
+		currentStep: untrack(() => controller.currentStep),
+		config: untrack(() => config)
+	});
 
-	let displayedTarget = $state(untrack(() => controller.currentTarget));
+	const size = $derived(displayed.config.size);
 
-	let displayedCurrentStep = $state(untrack(() => controller.currentStep));
+	const shape = $derived(displayed.config.shape);
+
+	const tourOverlayProps = $derived(displayed.config.tourOverlay);
+
+	const tourTooltipProps = $derived(displayed.config.tourTooltip);
+
+	const tourImageProps = $derived(displayed.config.tourImage);
+
+	const tourButtonsProps = $derived(displayed.config.tourButtons);
+
+	const tourProgressProps = $derived(displayed.config.tourProgress);
+
+	const tourSkipProps = $derived(displayed.config.tourSkip);
+
+	const closeButtonProps = $derived(displayed.config.closeButton);
 
 	const tourComponents = $derived.by(() => {
 		const components = bordaTour?.getComponents();
@@ -147,24 +149,31 @@
 
 	$effect(() => {
 		if (!isHidden) {
-			displayedStep = controller.step;
-			displayedTarget = controller.currentTarget;
-			displayedCurrentStep = controller.currentStep;
+			displayed = {
+				step: controller.step,
+				target: controller.currentTarget,
+				currentStep: controller.currentStep,
+				config
+			};
 
 			return;
 		}
 
 		/**
-		 * `step`/`currentTarget`/`currentStep` are live and swap the instant the
-		 * step index changes, so binding the tooltip/overlay to them directly
-		 * would render the new step's content and position immediately — visible
-		 * for a frame before the fade-out even starts. Keep showing the outgoing
-		 * step while it fades out, and only swap once it's actually invisible.
+		 * `step`/`currentTarget`/`currentStep`/`config` (incl. per-step overrides
+		 * like `tourProgress`) are live and swap the instant the step index
+		 * changes, so binding the tooltip/overlay to them directly would render
+		 * the new step's content immediately — visible for a frame before the
+		 * fade-out even starts. Keep showing the outgoing step's snapshot while
+		 * it fades out, and only swap once it's actually invisible.
 		 */
 		const timeoutId = setTimeout(() => {
-			displayedStep = controller.step;
-			displayedTarget = controller.currentTarget;
-			displayedCurrentStep = controller.currentStep;
+			displayed = {
+				step: controller.step,
+				target: controller.currentTarget,
+				currentStep: controller.currentStep,
+				config
+			};
 		}, animation.tooltip.exitDuration);
 
 		return () => clearTimeout(timeoutId);
@@ -186,7 +195,7 @@
 			{#if tourOverlayProps !== false}
 				<BordaTourOverlay
 					bind:this={bordaTourOverlay}
-					targetElement={displayedTarget}
+					targetElement={displayed.target}
 					{isAnimated}
 					{...tourOverlayProps}
 				/>
@@ -195,9 +204,9 @@
 			{#if tourTooltipProps !== false}
 				<BordaTour
 					bind:this={bordaTour}
-					step={displayedStep}
-					currentTarget={displayedTarget}
-					currentStep={displayedCurrentStep}
+					step={displayed.step}
+					currentTarget={displayed.target}
+					currentStep={displayed.currentStep}
 					totalSteps={controller.totalSteps}
 					isSkipChecked={skip.isSkipped}
 					{isHidden}
