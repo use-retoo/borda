@@ -1,6 +1,6 @@
 {
 	"name": "@retoo/borda",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Embeddable onboarding widget for any website. Framework-agnostic, SSR-safe.",
 	"keywords": [
 		"embeddable",
