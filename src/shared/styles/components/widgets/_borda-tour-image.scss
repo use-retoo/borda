@@ -1,0 +1,8 @@
+.rb-tour-image {
+	&--bleed {
+		width: calc(100% + var(--rb-tour-tooltip-padding) * 2);
+		max-width: none;
+		margin: calc(var(--rb-tour-tooltip-padding) * -1) calc(var(--rb-tour-tooltip-padding) * -1) 0;
+		border-radius: var(--rb-tour-tooltip-border-radius) var(--rb-tour-tooltip-border-radius) 0 0;
+	}
+}

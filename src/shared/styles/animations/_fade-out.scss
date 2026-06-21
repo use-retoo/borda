@@ -1,0 +1,12 @@
+.rb-fade-out {
+	animation: rb-fade-out 0.1s ease-out forwards;
+}
+
+@keyframes rb-fade-out {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}

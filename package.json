@@ -1,0 +1,111 @@
+{
+	"name": "@retoo/borda",
+	"version": "0.0.0",
+	"description": "Embeddable onboarding widget for any website. Framework-agnostic, SSR-safe.",
+	"keywords": [
+		"embeddable",
+		"feature-tour",
+		"guided-tour",
+		"hint",
+		"onboarding",
+		"product-tour",
+		"spotlight",
+		"step",
+		"tooltip",
+		"tour",
+		"walkthrough",
+		"widget"
+	],
+	"author": "Retoo <support@retoo.ru>",
+	"license": "PolyForm-Shield-1.0.0",
+	"homepage": "https://use-retoo.github.io/borda",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/use-retoo/borda"
+	},
+	"bugs": {
+		"url": "https://github.com/use-retoo/borda/issues"
+	},
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "./dist/borda.cjs.js",
+	"module": "./dist/borda.es.js",
+	"types": "./dist/index.d.ts",
+	"sideEffects": [
+		"./dist/borda.es.js",
+		"./dist/borda.cjs.js",
+		"./dist/borda.min.umd.js",
+		"**/*.css"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/borda.es.js",
+			"require": "./dist/borda.cjs.js"
+		},
+		"./styles": "./dist/borda.css",
+		"./styles/min": "./dist/borda.min.css"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"dev": "vite --config vite.dev.config.ts",
+		"build": "npm run build:lib && npm run build:types && npm run build:styles",
+		"build:lib": "vite build",
+		"build:types": "rollup --config types.config.js",
+		"build:styles": "rollup --config styles.config.js",
+		"check": "npm run check:svelte && npm run check:node",
+		"check:svelte": "svelte-check --tsconfig ./tsconfig.app.json",
+		"check:node": "tsc -p tsconfig.node.json",
+		"lint": "npm run lint:code && npm run lint:format",
+		"lint:code": "eslint .",
+		"lint:format": "prettier --check .",
+		"format": "prettier --write .",
+		"test": "vitest run --config vite.test.config.ts",
+		"test:watch": "vitest --config vite.test.config.ts",
+		"validate": "npm run check && npm run lint",
+		"prepublishOnly": "npm run build",
+		"release": "release-it",
+		"release:dry": "release-it --dry-run"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^21.0.1",
+		"@commitlint/config-conventional": "^21.0.0",
+		"@eslint/compat": "^2.0.5",
+		"@eslint/js": "^9.39.1",
+		"@release-it/conventional-changelog": "^11.0.0",
+		"@rollup/plugin-node-resolve": "^16.0.3",
+		"@rollup/plugin-terser": "^1.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/svelte": "^5.3.1",
+		"@testing-library/user-event": "^14.6.1",
+		"@tsconfig/svelte": "^5.0.6",
+		"@types/node": "^25",
+		"autoprefixer": "^10.4.23",
+		"eslint": "^9.39.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-import-resolver-typescript": "^4.4.4",
+		"eslint-plugin-import": "^2.32.0",
+		"eslint-plugin-svelte": "^3.13.1",
+		"globals": "^17.6.0",
+		"jsdom": "^29.1.1",
+		"lefthook": "^2.1.6",
+		"postcss": "^8.5.6",
+		"prettier": "^3.7.4",
+		"prettier-plugin-svelte": "^4.0.1",
+		"release-it": "^20.0.1",
+		"rollup-plugin-dts": "^6.3.0",
+		"rollup-plugin-scss": "^4.0.1",
+		"sass": "^1.97.1",
+		"svelte": "^5.53.5",
+		"svelte-check": "^4.3.4",
+		"typescript": "~6.0.3",
+		"typescript-eslint": "^8.48.1",
+		"vite": "^8.0.11",
+		"vitest": "^4.1.0"
+	}
+}

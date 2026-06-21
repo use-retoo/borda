@@ -1,0 +1,35 @@
+.rb-tour-buttons {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-tour-buttons-gap);
+	padding-top: var(--rb-tour-buttons-padding-top);
+
+	&__center {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: 1;
+
+		.rb-progress {
+			position: static;
+			height: auto;
+			pointer-events: none;
+			z-index: auto;
+		}
+
+		.rb-progress--dots,
+		.rb-progress--text {
+			width: auto;
+		}
+	}
+
+	&__next,
+	&__skip {
+		margin-left: auto;
+	}
+
+	&__next ~ &__skip,
+	&__skip ~ &__next {
+		margin-left: 0;
+	}
+}

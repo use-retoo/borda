@@ -1,0 +1,32 @@
+.rb-progress {
+	z-index: 10;
+
+	&:focus {
+		outline: none;
+	}
+
+	.rb-progress__track {
+		position: relative;
+		width: 100%;
+		overflow: hidden;
+		cursor: pointer;
+	}
+
+	.rb-progress__buffer {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		cursor: pointer;
+		z-index: 11;
+	}
+
+	.rb-progress__progress {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		cursor: pointer;
+		z-index: 12;
+	}
+}

@@ -1,0 +1,56 @@
+.rb-tour-progress {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	.rb-progress {
+		position: static;
+		width: auto;
+		height: auto;
+		pointer-events: none;
+		z-index: auto;
+	}
+
+	.rb-progress--line {
+		width: 100%;
+
+		.rb-progress {
+			width: 100%;
+		}
+
+		.rb-progress__track {
+			height: var(--rb-tour-progress-line-height);
+			background: var(--rb-tour-progress-line-track-color);
+			border-radius: var(--rb-tour-progress-line-border-radius);
+		}
+
+		.rb-progress__progress {
+			background: var(--rb-tour-progress-line-progress-color);
+			border-radius: var(--rb-tour-progress-line-border-radius);
+		}
+	}
+}
+
+.rb-progress--dots {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-tour-progress-dot-gap);
+
+	.rb-progress__item {
+		width: var(--rb-tour-progress-dot-size);
+		height: var(--rb-tour-progress-dot-size);
+		background: var(--rb-tour-progress-dot-color);
+		border-radius: var(--rb-tour-progress-dot-border-radius);
+
+		&--active {
+			background: var(--rb-tour-progress-dot-color-active);
+		}
+	}
+}
+
+.rb-progress--text {
+	.rb-progress__item {
+		font-size: var(--rb-tour-progress-text-font-size);
+		color: var(--rb-tour-progress-text-color);
+	}
+}
