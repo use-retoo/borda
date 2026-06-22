@@ -5593,7 +5593,7 @@ For SSR or prerendering scenarios, Borda requires Node.js 16.0 or later. The Com
 
 # Bundle Size
 
-The production bundle (minified JS + CSS) weighs **\~41 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
+The production bundle (minified JS + CSS) weighs **\~40 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
 
 ## Distribution files
 
@@ -5601,13 +5601,13 @@ Each module format ships in two variants: a minified production build and an unm
 
 | File               | Format    | Raw       | Gzip     |
 | ------------------ | --------- | --------- | -------- |
-| `borda.min.es.js`  | ES Module | 132.88 KB | 36.90 KB |
-| `borda.min.umd.js` | UMD       | 137.87 KB | 37.29 KB |
-| `borda.min.cjs.js` | CommonJS  | 133.23 KB | 36.93 KB |
-| `borda.es.js`      | ES Module | 311.41 KB | 73.27 KB |
-| `borda.umd.js`     | UMD       | 322.41 KB | 74.12 KB |
-| `borda.cjs.js`     | CommonJS  | 312.62 KB | 73.42 KB |
-| `borda.css`        | CSS       | 27.62 KB  | 4.13 KB  |
+| `borda.min.es.js`  | ES Module | 130.96 KB | 36.37 KB |
+| `borda.min.umd.js` | UMD       | 135.87 KB | 36.74 KB |
+| `borda.min.cjs.js` | CommonJS  | 131.30 KB | 36.40 KB |
+| `borda.es.js`      | ES Module | 307.27 KB | 72.51 KB |
+| `borda.umd.js`     | UMD       | 318.10 KB | 73.39 KB |
+| `borda.cjs.js`     | CommonJS  | 308.46 KB | 72.65 KB |
+| `borda.css`        | CSS       | 28.03 KB  | 4.12 KB  |
 
 ## Tree-shaking
 

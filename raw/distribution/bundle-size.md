@@ -2,7 +2,7 @@
 
 > Size of each distribution format and tree-shaking capabilities.
 
-The production bundle (minified JS + CSS) weighs **~41 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
+The production bundle (minified JS + CSS) weighs **~40 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
 
 ## Distribution files
 
@@ -42,11 +42,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      132.88 KB
+      130.96 KB
     </td>
     
     <td>
-      36.90 KB
+      36.37 KB
     </td>
   </tr>
   
@@ -62,11 +62,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      137.87 KB
+      135.87 KB
     </td>
     
     <td>
-      37.29 KB
+      36.74 KB
     </td>
   </tr>
   
@@ -82,11 +82,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      133.23 KB
+      131.30 KB
     </td>
     
     <td>
-      36.93 KB
+      36.40 KB
     </td>
   </tr>
   
@@ -102,11 +102,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      311.41 KB
+      307.27 KB
     </td>
     
     <td>
-      73.27 KB
+      72.51 KB
     </td>
   </tr>
   
@@ -122,11 +122,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      322.41 KB
+      318.10 KB
     </td>
     
     <td>
-      74.12 KB
+      73.39 KB
     </td>
   </tr>
   
@@ -142,11 +142,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      312.62 KB
+      308.46 KB
     </td>
     
     <td>
-      73.42 KB
+      72.65 KB
     </td>
   </tr>
   
@@ -162,11 +162,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      27.62 KB
+      28.03 KB
     </td>
     
     <td>
-      4.13 KB
+      4.12 KB
     </td>
   </tr>
 </tbody>
