@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/use-retoo/borda/compare/v0.1.2...v0.1.3) (2026-06-22)
+
+
+### Bug Fixes
+
+* **tour:** anchor tooltip and overlay to the target during scroll ([cac1fcc](https://github.com/use-retoo/borda/commit/cac1fccd153a9d884559b1a3f98af6ad7f4ef88c))
+
 ## [0.1.2](https://github.com/use-retoo/borda/compare/v0.1.1...v0.1.2) (2026-06-22)
 
 ## [0.1.1](https://github.com/use-retoo/borda/compare/v0.1.0...v0.1.1) (2026-06-21)
