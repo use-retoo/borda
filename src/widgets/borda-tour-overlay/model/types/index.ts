@@ -49,13 +49,22 @@ export interface UseOverlayProps {
 	getIsAnimated: () => boolean;
 }
 
+/** CSS `position` the overlay SVG is rendered with, chosen by the target's anchoring. */
+export type BordaOverlayCssPosition = 'absolute' | 'fixed';
+
 /** Reactive state returned by the overlay spotlight hook. */
 export interface UseOverlayReturns {
 	backdropPath: string;
+	/**
+	 * CSS `position` to render the overlay with: `absolute` (document coordinates,
+	 * scrolls with the page) for document-flow targets, `fixed` (viewport
+	 * coordinates) for `fixed`/`sticky` targets.
+	 */
+	cssPosition: BordaOverlayCssPosition;
 	/** True for a short window after a target change — lets CSS animate the spotlight transition. */
 	isTransitioning: boolean;
-	/** Document width (used as SVG `width` attribute). */
+	/** Width of the backdrop (used as SVG `width` attribute). */
 	width: number;
-	/** Document height (used as SVG `height` attribute). */
+	/** Height of the backdrop (used as SVG `height` attribute). */
 	height: number;
 }

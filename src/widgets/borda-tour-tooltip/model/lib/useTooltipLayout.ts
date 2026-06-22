@@ -167,10 +167,10 @@ export default function useTooltipLayout({
 	/**
 	 * Builds a viewport-relative rect for the target element.
 	 *
-	 * The tooltip is positioned with `position: fixed`, so the raw
-	 * `getBoundingClientRect` (viewport coordinates) is used directly. This keeps
-	 * the tooltip aligned with `sticky`/`fixed` targets that stay put while the
-	 * page scrolls, not just statically-positioned ones.
+	 * All overflow/flip/shift math runs in viewport coordinates, so the raw
+	 * `getBoundingClientRect` is used directly. The caller
+	 * ({@link useTooltipPosition}) converts the resolved position to document
+	 * coordinates afterwards for `position: absolute` rendering.
 	 *
 	 * @param target - The DOM element the tooltip points at.
 	 * @returns The target's rect in viewport coordinates.

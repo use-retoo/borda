@@ -1,7 +1,7 @@
 /** Reactive state returned by {@link useViewportSize}. */
 export interface UseViewportSizeReturns {
-	/** Current visible viewport width (`visualViewport.width` where supported, else `window.innerWidth`). */
+	/** Current `window.innerWidth`. Re-derives on resize. */
 	width: number;
-	/** Current visible viewport height (`visualViewport.height` where supported, else `window.innerHeight`). */
+	/** Current `window.innerHeight`. Re-derives on resize. */
 	height: number;
 }

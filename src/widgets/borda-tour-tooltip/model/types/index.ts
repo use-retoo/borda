@@ -104,9 +104,22 @@ export interface BordaTourTooltipElements {
 	root: HTMLDivElement | null;
 }
 
+/**
+ * The tooltip's resolved viewport-coordinate rect — its final placed position,
+ * ignoring any in-flight glide transition (which `getBoundingClientRect` would
+ * otherwise report mid-animation).
+ */
+export interface BordaTourTooltipResolvedRect {
+	top: number;
+	left: number;
+	width: number;
+	height: number;
+}
+
 /** Public ref API exposed by the component via `bind:this`. */
 export interface BordaTourTooltipRef {
 	getElements: () => BordaTourTooltipElements;
+	getResolvedRect: () => BordaTourTooltipResolvedRect | null;
 }
 
 /** Props accepted by the tooltip position hook. */
@@ -126,10 +139,19 @@ export interface UseTooltipPositionProps {
 	getArrowSide: () => BordaTooltipArrowSide | null;
 }
 
+/** CSS `position` the tooltip is rendered with, chosen by the target's anchoring. */
+export type BordaTooltipCssPosition = 'absolute' | 'fixed';
+
 /** Reactive position returned by the tooltip position hook. */
 export interface UseTooltipPositionReturns {
 	top: number;
 	left: number;
+	/**
+	 * CSS `position` to render the tooltip with: `absolute` (document coordinates,
+	 * scrolls with the page) for document-flow targets, `fixed` (viewport
+	 * coordinates) for `fixed`/`sticky` targets.
+	 */
+	cssPosition: BordaTooltipCssPosition;
 	/** The placement actually used after auto-flip resolution. */
 	effectivePlacement: ComponentPlacement;
 	/**

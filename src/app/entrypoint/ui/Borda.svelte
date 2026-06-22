@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount, untrack } from 'svelte';
+	import { onDestroy, onMount, tick, untrack } from 'svelte';
 
 	import { setBordaContext } from '@/entities/borda';
 	import { BordaEvent } from '@/entities/event';
@@ -93,6 +93,14 @@
 		config: untrack(() => config)
 	});
 
+	/**
+	 * The settled target as a value-deduped signal: `displayed` is reassigned to a
+	 * fresh object on every fade settle, but this only changes when the target
+	 * *element* actually changes — so the auto-scroll effect fires once per step
+	 * instead of looping through the `isScrolling → isHidden → displayed` cycle.
+	 */
+	const scrollTarget = $derived(displayed.target);
+
 	const size = $derived(displayed.config.size);
 
 	const shape = $derived(displayed.config.shape);
@@ -144,7 +152,32 @@
 		/** Skip auto-scroll to the step target while the widget is hidden. */
 		if (config.visibility?.isHidden) return;
 
-		void scroll.scrollTo(controller.currentTarget);
+		/**
+		 * Track the settled target (not `controller.currentTarget`): the tooltip
+		 * renders from `displayed.target`, so this is the moment its geometry for
+		 * the new step exists. `tick()` then flushes the tooltip's own position
+		 * effect so its rect is final before we scroll the union of target +
+		 * tooltip into view. Reading the deduped `scrollTarget` keeps this effect
+		 * from re-firing on every fade settle.
+		 */
+		const target = scrollTarget;
+
+		let cancelled = false;
+
+		void (async () => {
+			await tick();
+
+			if (cancelled) return;
+
+			const tooltipRect = bordaTour?.getComponents().tourTooltip?.getResolvedRect() ?? null;
+
+			await scroll.scrollTo(target, tooltipRect);
+		})();
+
+		/** A new step (or teardown) supersedes this scroll before it starts. */
+		return () => {
+			cancelled = true;
+		};
 	});
 
 	$effect(() => {

@@ -12,6 +12,7 @@ vi.mock('../model', () => ({
 		width: 800,
 		height: 600,
 		backdropPath: 'M0,0H800V600H0Z',
+		cssPosition: 'absolute',
 		isTransitioning: false
 	})
 }));

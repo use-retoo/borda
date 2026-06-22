@@ -8,6 +8,7 @@
 	import type {
 		BordaTourTooltipElements,
 		BordaTourTooltipProps,
+		BordaTourTooltipResolvedRect,
 		BordaTourTooltipSnippets
 	} from '../model';
 
@@ -124,6 +125,21 @@
 			root: rootElement
 		};
 	}
+
+	export function getResolvedRect(): BordaTourTooltipResolvedRect | null {
+		if (!rootElement) return null;
+
+		/** `position.top/left` are document coords when absolute, viewport coords when fixed. */
+		const scrollX = position.cssPosition === 'absolute' ? window.scrollX : 0;
+		const scrollY = position.cssPosition === 'absolute' ? window.scrollY : 0;
+
+		return {
+			top: position.top - scrollY,
+			left: position.left - scrollX,
+			width: rootElement.offsetWidth,
+			height: rootElement.offsetHeight
+		};
+	}
 </script>
 
 <div
@@ -131,6 +147,7 @@
 	bind:this={rootElement}
 	class={rootClasses}
 	style={rootStyles}
+	style:position={position.cssPosition}
 	style:top="{position.top}px"
 	style:left="{position.left}px"
 	style:--rb-tt-duration="{activeAnimation.duration}ms"

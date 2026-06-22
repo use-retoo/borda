@@ -1,6 +1,5 @@
 import { useAxisTarget } from '@/shared/lib/axis-target';
 import { useScrollEasing } from '@/shared/lib/scroll-easing';
-import { useViewportVisibility } from '@/shared/lib/viewport-visibility';
 import { isBrowser } from '@/shared/utils';
 
 import { DEFAULT_SCROLL_CONFIG } from '../constants';
@@ -9,6 +8,7 @@ import type { UseBordaConfigReturns } from '../../../model';
 import type {
 	BordaActiveScrollAnimation,
 	BordaScrollConfig,
+	BordaScrollRect,
 	UseBordaScrollReturns
 } from '../types';
 
@@ -47,8 +47,6 @@ export default function useBordaScroll(config: UseBordaConfigReturns): UseBordaS
 
 	const axisTarget = useAxisTarget();
 
-	const viewportVisibility = useViewportVisibility();
-
 	const isLocked = $derived(isScrollEnabled && scrollConfig.isLocked);
 
 	function mergeScrollConfig(overrides: Partial<BordaScrollConfig>): BordaScrollConfig {
@@ -62,9 +60,67 @@ export default function useBordaScroll(config: UseBordaConfigReturns): UseBordaS
 		};
 	}
 
-	function resolveScrollTargets(element: HTMLElement): { targetX: number; targetY: number } {
-		const rect = element.getBoundingClientRect();
+	/**
+	 * Builds the smallest viewport-relative rect containing the target and,
+	 * when present, the tooltip pointing at it.
+	 *
+	 * Prefers the union of target + tooltip so both end up visible. But when that
+	 * union is larger than the viewport — typically a very tall target — aligning
+	 * it just centers the target and pushes the tooltip (which carries the step's
+	 * controls) off-screen. In that case it falls back to revealing the tooltip
+	 * alone, since the tooltip is the part the user must reach.
+	 *
+	 * @param target - The step's target element.
+	 * @param tooltipRect - The tooltip's resolved viewport rect, or `null` if not yet known.
+	 * @returns The rect to scroll into view, in viewport coordinates.
+	 */
+	function buildBoundingRect(
+		target: HTMLElement,
+		tooltipRect: BordaScrollRect | null
+	): BordaScrollRect {
+		const a = target.getBoundingClientRect();
 
+		if (!tooltipRect) {
+			return { top: a.top, left: a.left, width: a.width, height: a.height };
+		}
+
+		const top = Math.min(a.top, tooltipRect.top);
+		const left = Math.min(a.left, tooltipRect.left);
+		const right = Math.max(a.right, tooltipRect.left + tooltipRect.width);
+		const bottom = Math.max(a.bottom, tooltipRect.top + tooltipRect.height);
+
+		const union = { top, left, width: right - left, height: bottom - top };
+
+		if (union.height > window.innerHeight || union.width > window.innerWidth) {
+			return tooltipRect;
+		}
+
+		return union;
+	}
+
+	/**
+	 * Tests whether a viewport-relative rect already sits fully inside the viewport.
+	 *
+	 * @param rect - The rect to test.
+	 * @returns `true` when no scroll is needed to reveal it.
+	 */
+	function isRectFullyVisible(rect: BordaScrollRect): boolean {
+		return (
+			rect.top >= 0 &&
+			rect.left >= 0 &&
+			rect.top + rect.height <= window.innerHeight &&
+			rect.left + rect.width <= window.innerWidth
+		);
+	}
+
+	/**
+	 * Resolves the scroll destination that brings the given rect into view per
+	 * the configured `block`/`inline` alignment.
+	 *
+	 * @param rect - The rect to reveal (from {@link buildBoundingRect}), in viewport coordinates.
+	 * @returns The destination document scroll offsets.
+	 */
+	function resolveScrollTargets(rect: BordaScrollRect): { targetX: number; targetY: number } {
 		const targetX =
 			axisTarget.resolve(
 				window.scrollX,
@@ -176,17 +232,22 @@ export default function useBordaScroll(config: UseBordaConfigReturns): UseBordaS
 		});
 	}
 
-	async function scrollTo(element: HTMLElement | null): Promise<void> {
-		if (!isBrowser || !isScrollEnabled || !element) return;
+	async function scrollTo(
+		target: HTMLElement | null,
+		tooltipRect: BordaScrollRect | null = null
+	): Promise<void> {
+		if (!isBrowser || !isScrollEnabled || !target) return;
 
-		if (viewportVisibility.isFullyVisible(element)) {
+		const rect = buildBoundingRect(target, tooltipRect);
+
+		if (isRectFullyVisible(rect)) {
 			cancelActiveAnimation();
 			isScrolling = false;
 
 			return;
 		}
 
-		const { targetX, targetY } = resolveScrollTargets(element);
+		const { targetX, targetY } = resolveScrollTargets(rect);
 
 		cancelActiveAnimation();
 		isScrolling = true;
@@ -205,6 +266,8 @@ export default function useBordaScroll(config: UseBordaConfigReturns): UseBordaS
 	}
 
 	function destroy() {
+		/** Stop any in-flight rAF scroll loop so it doesn't run on after teardown. */
+		cancelActiveAnimation();
 		unlockScroll();
 	}
 

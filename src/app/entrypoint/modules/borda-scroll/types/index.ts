@@ -22,14 +22,27 @@ export interface BordaScrollConfig {
 	isLocked: boolean;
 }
 
+/** A minimal viewport-relative rect used by the scroll geometry. */
+export interface BordaScrollRect {
+	top: number;
+	left: number;
+	width: number;
+	height: number;
+}
+
 /** Public API for controlling scroll behavior at runtime. */
 export interface BordaScrollApi {
 	/** Whether a scroll-to-target animation is currently in progress. */
 	isScrolling: boolean;
 	/** Whether manual page scroll is currently blocked. */
 	isLocked: boolean;
-	/** Scroll to bring an element into view; resolves once the animation finishes. */
-	scrollTo: (element: HTMLElement | null) => Promise<void>;
+	/**
+	 * Scroll to bring the target — and, if given, the tooltip pointing at it —
+	 * fully into view; resolves once the animation finishes. The tooltip is
+	 * passed as a resolved rect (not an element) so an in-flight glide transition
+	 * doesn't skew the measurement.
+	 */
+	scrollTo: (target: HTMLElement | null, tooltipRect?: BordaScrollRect | null) => Promise<void>;
 }
 
 /** Return value of {@link useBordaScroll}. */
