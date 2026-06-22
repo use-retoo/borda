@@ -1,10 +1,28 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { useBordaConfig } from '@/app/entrypoint';
 
 import { useBordaScroll } from '../';
 import { DEFAULT_SCROLL_CONFIG } from '../../constants';
+
+/** Stubs an element's `getBoundingClientRect` with a fixed viewport rect. */
+function mockRect(
+	element: HTMLElement,
+	rect: { top: number; left: number; width: number; height: number }
+): HTMLElement {
+	const full = {
+		...rect,
+		right: rect.left + rect.width,
+		bottom: rect.top + rect.height,
+		x: rect.left,
+		y: rect.top
+	};
+
+	element.getBoundingClientRect = () => ({ ...full, toJSON: () => full }) as DOMRect;
+
+	return element;
+}
 
 describe('useBordaScroll', () => {
 	describe('enabled state', () => {
@@ -94,6 +112,100 @@ describe('useBordaScroll', () => {
 			await api.scrollTo(document.createElement('div'));
 
 			expect(api.isScrolling).toBe(false);
+		});
+
+		it('should scroll when the target fits but the tooltip overflows the viewport', async () => {
+			const scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+			const config = useBordaConfig({ steps: [], scroll: { duration: 0 } });
+			const { api } = useBordaScroll(config);
+
+			const target = mockRect(document.createElement('div'), {
+				top: 100,
+				left: 100,
+				width: 100,
+				height: 40
+			});
+
+			/** Target is on-screen, but the tooltip below it runs past the viewport bottom. */
+			const tooltipRect = {
+				top: 150,
+				left: 100,
+				width: 200,
+				height: window.innerHeight
+			};
+
+			await api.scrollTo(target, tooltipRect);
+
+			expect(scrollSpy).toHaveBeenCalled();
+
+			scrollSpy.mockRestore();
+		});
+
+		it('should reveal the tooltip (not center the target) when the target is taller than the viewport', async () => {
+			const scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+			const config = useBordaConfig({ steps: [], scroll: { duration: 0 } });
+			const { api } = useBordaScroll(config);
+
+			/** Target taller than the viewport — its union with the tooltip can't fit. */
+			const target = mockRect(document.createElement('div'), {
+				top: 50,
+				left: 100,
+				width: 100,
+				height: window.innerHeight + 200
+			});
+
+			const tooltipTop = target.getBoundingClientRect().bottom + 20;
+			const tooltipHeight = 100;
+
+			const tooltipRect = {
+				top: tooltipTop,
+				left: 100,
+				width: 200,
+				height: tooltipHeight
+			};
+
+			await api.scrollTo(target, tooltipRect);
+
+			expect(scrollSpy).toHaveBeenCalledOnce();
+
+			const scrollY = scrollSpy.mock.calls[0][1] as number;
+
+			/** After scrolling, the tooltip must end up fully inside the viewport. */
+			const tooltipTopAfter = tooltipTop - scrollY;
+
+			expect(tooltipTopAfter).toBeGreaterThanOrEqual(0);
+			expect(tooltipTopAfter + tooltipHeight).toBeLessThanOrEqual(window.innerHeight);
+
+			scrollSpy.mockRestore();
+		});
+
+		it('should not scroll when target and tooltip both fit the viewport', async () => {
+			const scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+			const config = useBordaConfig({ steps: [], scroll: { duration: 0 } });
+			const { api } = useBordaScroll(config);
+
+			const target = mockRect(document.createElement('div'), {
+				top: 100,
+				left: 100,
+				width: 100,
+				height: 40
+			});
+
+			const tooltipRect = {
+				top: 150,
+				left: 100,
+				width: 200,
+				height: 80
+			};
+
+			await api.scrollTo(target, tooltipRect);
+
+			expect(scrollSpy).not.toHaveBeenCalled();
+
+			scrollSpy.mockRestore();
 		});
 	});
 

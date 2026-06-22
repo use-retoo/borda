@@ -93,6 +93,7 @@
 	bind:this={rootElement}
 	class={rootClasses}
 	style={rootStyles}
+	style:position={overlay.cssPosition}
 	style:width="{overlay.width}px"
 	style:height="{overlay.height}px"
 	xmlns="http://www.w3.org/2000/svg"

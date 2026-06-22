@@ -1,10 +1,25 @@
 import { useScrollPosition } from '@/shared/lib/scroll-position';
 import { useViewportSize } from '@/shared/lib/viewport-size';
+import { isViewportAnchored } from '@/shared/utils';
 
-import type { UseOverlayProps, UseOverlayReturns } from '../types';
+import type { BordaOverlayCssPosition, UseOverlayProps, UseOverlayReturns } from '../types';
 
 const TRANSITION_DURATION = 350;
 
+/**
+ * Computes the overlay backdrop with a spotlight hole cut out over the target.
+ *
+ * Anchoring mirrors the tooltip:
+ *
+ * - Document-flow target (the common case): the backdrop spans the whole
+ *   document and the spotlight sits at document coordinates, with the SVG
+ *   rendered `position: absolute`. It scrolls with the page in sync with the
+ *   target — no per-frame recompute, no lag.
+ * - Viewport-anchored target (`position: fixed`/`sticky`): the backdrop spans
+ *   the viewport and the spotlight sits at viewport coordinates, with the SVG
+ *   rendered `position: fixed` and recomputed on scroll to keep tracking the
+ *   target.
+ */
 export default function useOverlay({
 	getTargetElement,
 	getBorderRadius,
@@ -19,6 +34,8 @@ export default function useOverlay({
 	let spotW = $state(0);
 	let spotH = $state(0);
 
+	let cssPosition = $state<BordaOverlayCssPosition>('fixed');
+
 	let isTransitioning = $state(false);
 
 	let hasInitialized = false;
@@ -31,18 +48,25 @@ export default function useOverlay({
 
 	const scroll = useScrollPosition();
 
-	function readOverlaySize() {
-		/**
-		 * Overlay is fixed to the viewport, so it spans exactly the visible area;
-		 * scroll is tracked separately to keep the spotlight glued to the target
-		 * (works for `sticky`/`fixed` targets, not just statically-positioned ones).
-		 */
-		docW = window.innerWidth;
+	const anchored = $derived(isViewportAnchored(getTargetElement()));
 
-		docH = window.innerHeight;
+	/** Backdrop covers the viewport when anchored, else the whole scrollable document. */
+	function readOverlaySize(isAnchored: boolean) {
+		if (isAnchored) {
+			docW = window.innerWidth;
+			docH = window.innerHeight;
+
+			return;
+		}
+
+		const doc = document.documentElement;
+
+		docW = Math.max(doc.scrollWidth, window.innerWidth);
+		docH = Math.max(doc.scrollHeight, window.innerHeight);
 	}
 
-	function readSpotRect() {
+	/** Spotlight uses viewport coords when anchored, else document coords. */
+	function readSpotRect(isAnchored: boolean) {
 		const element = getTargetElement();
 
 		if (!element) return;
@@ -50,16 +74,22 @@ export default function useOverlay({
 		const padding = getPadding();
 		const rect = element.getBoundingClientRect();
 
-		/** Viewport-relative coords — the overlay is `position: fixed`. */
-		spotX = rect.left - padding;
-		spotY = rect.top - padding;
+		const offsetX = isAnchored ? 0 : window.scrollX;
+		const offsetY = isAnchored ? 0 : window.scrollY;
+
+		spotX = rect.left + offsetX - padding;
+		spotY = rect.top + offsetY - padding;
 		spotW = rect.width + padding * 2;
 		spotH = rect.height + padding * 2;
 	}
 
 	function update() {
-		readOverlaySize();
-		readSpotRect();
+		const isAnchored = anchored;
+
+		cssPosition = isAnchored ? 'fixed' : 'absolute';
+
+		readOverlaySize(isAnchored);
+		readSpotRect(isAnchored);
 	}
 
 	$effect(() => {
@@ -89,15 +119,27 @@ export default function useOverlay({
 
 		return () => {
 			observer?.disconnect();
+
+			if (transitionTimer !== null) {
+				window.clearTimeout(transitionTimer);
+				transitionTimer = null;
+			}
 		};
 	});
 
 	$effect(() => {
-		/** Re-run on viewport resize and scroll so the spotlight tracks the target. */
+		/**
+		 * Always recompute on viewport resize. Only viewport-anchored targets also
+		 * recompute on scroll; document-flow targets stay glued via CSS and would
+		 * only jitter if recomputed per scroll frame.
+		 */
 		void viewport.width;
 		void viewport.height;
-		void scroll.x;
-		void scroll.y;
+
+		if (anchored) {
+			void scroll.x;
+			void scroll.y;
+		}
 
 		update();
 	});
@@ -127,6 +169,9 @@ export default function useOverlay({
 	return {
 		get backdropPath() {
 			return backdropPath;
+		},
+		get cssPosition() {
+			return cssPosition;
 		},
 		get isTransitioning() {
 			return isTransitioning;

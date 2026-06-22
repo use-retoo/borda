@@ -1,22 +1,32 @@
 import { ComponentPlacement } from '@/shared/enums';
 import { useScrollPosition } from '@/shared/lib/scroll-position';
 import { useViewportSize } from '@/shared/lib/viewport-size';
-import { resolvePlacement } from '@/shared/utils';
+import { isBrowser, isViewportAnchored, resolvePlacement } from '@/shared/utils';
 
 import useTooltipLayout from './useTooltipLayout';
 
-import type { UseTooltipPositionProps, UseTooltipPositionReturns } from '../types';
+import type {
+	BordaTooltipCssPosition,
+	UseTooltipPositionProps,
+	UseTooltipPositionReturns
+} from '../types';
 
 /**
  * Reactive tooltip positioning hook with auto-flip support.
  *
- * Thin reactive shell over {@link useTooltipLayout}: tracks the target,
- * tooltip, placement props, viewport size and scroll position, recomputes the
- * layout on every change, and exposes the placement that was actually used as
- * `effectivePlacement` (so the arrow can point in the right direction).
+ * Thin reactive shell over {@link useTooltipLayout}, which resolves a
+ * viewport-relative position. How that position is consumed depends on the
+ * target's anchoring:
+ *
+ * - Document-flow target (the common case): the position is converted to
+ *   document coordinates and the tooltip is rendered `position: absolute`, so it
+ *   scrolls with the page in sync with the target — no per-frame JS, no jitter.
+ * - Viewport-anchored target (`position: fixed`/`sticky`): the position is used
+ *   verbatim and the tooltip is rendered `position: fixed`, tracking the target
+ *   on scroll so it stays glued to a target that itself stays in the viewport.
  *
  * @param props - Reactive getters for target/tooltip elements, placement, spatial params, and auto-flip config.
- * @returns Reactive `top`, `left`, `effectivePlacement`, and `arrowOffset` values.
+ * @returns Reactive `top`, `left`, `cssPosition`, `effectivePlacement`, and `arrowOffset` values.
  */
 export default function useTooltipPosition({
 	getTargetElement,
@@ -31,6 +41,8 @@ export default function useTooltipPosition({
 	let top = $state(0);
 
 	let left = $state(0);
+
+	let cssPosition = $state<BordaTooltipCssPosition>('absolute');
 
 	let effectivePlacement = $state<ComponentPlacement>(ComponentPlacement.BOTTOM_START);
 
@@ -56,7 +68,16 @@ export default function useTooltipPosition({
 
 	const arrowSide = $derived(getArrowSide());
 
-	/** Reads the live target/tooltip rects and writes the resolved position into state. */
+	const anchored = $derived(isViewportAnchored(target));
+
+	/**
+	 * Resolves the layout and writes the position into state.
+	 *
+	 * For document-flow targets the viewport-relative result is offset by the
+	 * current scroll into document coordinates (read non-reactively — the
+	 * document position is scroll-invariant). Viewport-anchored targets use it
+	 * verbatim.
+	 */
 	function recompute() {
 		if (!target || !tooltip) return;
 
@@ -72,8 +93,12 @@ export default function useTooltipPosition({
 			viewport: { width: viewport.width, height: viewport.height }
 		});
 
-		top = layout.position.top;
-		left = layout.position.left;
+		const scrollX = anchored || !isBrowser ? 0 : window.scrollX;
+		const scrollY = anchored || !isBrowser ? 0 : window.scrollY;
+
+		top = layout.position.top + scrollY;
+		left = layout.position.left + scrollX;
+		cssPosition = anchored ? 'fixed' : 'absolute';
 		effectivePlacement = layout.placement;
 		arrowOffset = layout.arrowOffset;
 	}
@@ -90,9 +115,17 @@ export default function useTooltipPosition({
 	});
 
 	$effect(() => {
-		/** Re-run on scroll so auto-flip/shift recompute against the live viewport. */
-		void scroll.x;
-		void scroll.y;
+		/**
+		 * `recompute` reads — and therefore tracks — every geometry input (target,
+		 * placement, spatial props, viewport size, anchoring). Only viewport-anchored
+		 * targets additionally track scroll, so they follow a target pinned to the
+		 * viewport; document-flow targets stay glued via CSS and never recompute on
+		 * scroll.
+		 */
+		if (anchored) {
+			void scroll.x;
+			void scroll.y;
+		}
 
 		recompute();
 	});
@@ -103,6 +136,9 @@ export default function useTooltipPosition({
 		},
 		get left() {
 			return left;
+		},
+		get cssPosition() {
+			return cssPosition;
 		},
 		get effectivePlacement() {
 			return effectivePlacement;
