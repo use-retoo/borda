@@ -8,11 +8,11 @@ import { DEFAULT_SCROLL_CONFIG } from '../../constants';
 
 describe('useBordaScroll', () => {
 	describe('enabled state', () => {
-		it('should be locked by default', () => {
+		it('should not be locked by default', () => {
 			const config = useBordaConfig({ steps: [] });
 			const { api } = useBordaScroll(config);
 
-			expect(api.isLocked).toBe(true);
+			expect(api.isLocked).toBe(false);
 		});
 
 		it('should not be scrolling initially', () => {
@@ -66,12 +66,14 @@ describe('useBordaScroll', () => {
 
 			expect(config.getConfig().scroll).toBe(false);
 		});
+	});
 
-		it('should respect isLocked: false override', () => {
-			const config = useBordaConfig({ steps: [], scroll: { isLocked: false } });
+	describe('isLocked override', () => {
+		it('should lock when isLocked: true is set explicitly', () => {
+			const config = useBordaConfig({ steps: [], scroll: { isLocked: true } });
 			const { api } = useBordaScroll(config);
 
-			expect(api.isLocked).toBe(false);
+			expect(api.isLocked).toBe(true);
 		});
 	});
 

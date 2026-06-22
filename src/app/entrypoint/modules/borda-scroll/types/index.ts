@@ -18,7 +18,7 @@ export interface BordaScrollConfig {
 	easing: BordaScrollEasing;
 	/** Pixel offsets applied on top of the alignment-resolved coordinates. Unspecified axes default to `0`. */
 	offset: Partial<BordaScrollOffset>;
-	/** Block manual page scroll while the tour is active so the spotlight stays put. Defaults to `true`; set `false` to allow scrolling. */
+	/** Block manual page scroll while the tour is active so the spotlight stays put. Defaults to `false`; set `true` to lock scrolling. */
 	isLocked: boolean;
 }
 

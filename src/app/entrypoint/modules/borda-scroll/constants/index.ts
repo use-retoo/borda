@@ -11,5 +11,5 @@ export const DEFAULT_SCROLL_CONFIG: BordaScrollConfig = {
 		x: 0,
 		y: 0
 	},
-	isLocked: true
+	isLocked: false
 };
