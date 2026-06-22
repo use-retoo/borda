@@ -20,8 +20,8 @@ import type {
  * Pure pipeline behind `useTooltipPosition`, modelled on Floating UI's
  * `detectOverflow → flip → shift`: picks the first fallback placement that
  * fits the viewport (else the least-overflowing one), then always shifts the
- * result back into view while keeping it attached to the target, and derives
- * the arrow offset.
+ * result back into view while keeping it attached to the target — and never
+ * letting it overlap the target — and derives the arrow offset.
  *
  * @param props - Snapshot of the elements, placement, spatial params, auto-flip config, and viewport size.
  * @returns The resolved position, the placement actually used, and the arrow offset.
@@ -41,11 +41,13 @@ export default function useTooltipLayout({
 	 * Builds the default fallback chain for `autoPlacement: true`.
 	 *
 	 * Mirrors Floating UI's `flip` with alignment handling plus cross-axis
-	 * fallback: the mirrored side and opposite alignment first, then the
-	 * perpendicular sides (`middle-*`) and centered variants. The chain is
-	 * exhaustive so a fitting placement is found before the tooltip falls back
-	 * to overflow-shifting on top of the target. `middle-center` is never used
-	 * as a fallback since it would cover the target.
+	 * fallback: the mirrored side first, then centered variants (preferred
+	 * since they read as the most neutral/balanced placement), then the
+	 * opposite-alignment sides, and finally the perpendicular sides
+	 * (`middle-*`). The chain is exhaustive so a fitting placement is found
+	 * before the tooltip falls back to overflow-shifting on top of the
+	 * target. `middle-center` is never used as a fallback since it would
+	 * cover the target.
 	 *
 	 * @param placement - The originally requested placement.
 	 * @returns Ordered placements to try after the requested one.
@@ -55,12 +57,12 @@ export default function useTooltipLayout({
 			case ComponentPlacement.TOP_START:
 				return [
 					ComponentPlacement.BOTTOM_START,
+					ComponentPlacement.TOP_CENTER,
+					ComponentPlacement.BOTTOM_CENTER,
 					ComponentPlacement.TOP_END,
 					ComponentPlacement.BOTTOM_END,
 					ComponentPlacement.MIDDLE_END,
-					ComponentPlacement.MIDDLE_START,
-					ComponentPlacement.TOP_CENTER,
-					ComponentPlacement.BOTTOM_CENTER
+					ComponentPlacement.MIDDLE_START
 				];
 			case ComponentPlacement.TOP_CENTER:
 				return [
@@ -75,22 +77,22 @@ export default function useTooltipLayout({
 			case ComponentPlacement.TOP_END:
 				return [
 					ComponentPlacement.BOTTOM_END,
+					ComponentPlacement.TOP_CENTER,
+					ComponentPlacement.BOTTOM_CENTER,
 					ComponentPlacement.TOP_START,
 					ComponentPlacement.BOTTOM_START,
 					ComponentPlacement.MIDDLE_START,
-					ComponentPlacement.MIDDLE_END,
-					ComponentPlacement.TOP_CENTER,
-					ComponentPlacement.BOTTOM_CENTER
+					ComponentPlacement.MIDDLE_END
 				];
 			case ComponentPlacement.BOTTOM_START:
 				return [
 					ComponentPlacement.TOP_START,
+					ComponentPlacement.BOTTOM_CENTER,
+					ComponentPlacement.TOP_CENTER,
 					ComponentPlacement.BOTTOM_END,
 					ComponentPlacement.TOP_END,
 					ComponentPlacement.MIDDLE_END,
-					ComponentPlacement.MIDDLE_START,
-					ComponentPlacement.BOTTOM_CENTER,
-					ComponentPlacement.TOP_CENTER
+					ComponentPlacement.MIDDLE_START
 				];
 			case ComponentPlacement.BOTTOM_CENTER:
 				return [
@@ -105,30 +107,30 @@ export default function useTooltipLayout({
 			case ComponentPlacement.BOTTOM_END:
 				return [
 					ComponentPlacement.TOP_END,
+					ComponentPlacement.BOTTOM_CENTER,
+					ComponentPlacement.TOP_CENTER,
 					ComponentPlacement.BOTTOM_START,
 					ComponentPlacement.TOP_START,
 					ComponentPlacement.MIDDLE_START,
-					ComponentPlacement.MIDDLE_END,
-					ComponentPlacement.BOTTOM_CENTER,
-					ComponentPlacement.TOP_CENTER
+					ComponentPlacement.MIDDLE_END
 				];
 			case ComponentPlacement.MIDDLE_START:
 				return [
 					ComponentPlacement.MIDDLE_END,
-					ComponentPlacement.BOTTOM_START,
-					ComponentPlacement.TOP_START,
 					ComponentPlacement.BOTTOM_CENTER,
 					ComponentPlacement.TOP_CENTER,
+					ComponentPlacement.BOTTOM_START,
+					ComponentPlacement.TOP_START,
 					ComponentPlacement.BOTTOM_END,
 					ComponentPlacement.TOP_END
 				];
 			case ComponentPlacement.MIDDLE_END:
 				return [
 					ComponentPlacement.MIDDLE_START,
-					ComponentPlacement.BOTTOM_END,
-					ComponentPlacement.TOP_END,
 					ComponentPlacement.BOTTOM_CENTER,
 					ComponentPlacement.TOP_CENTER,
+					ComponentPlacement.BOTTOM_END,
+					ComponentPlacement.TOP_END,
 					ComponentPlacement.BOTTOM_START,
 					ComponentPlacement.TOP_START
 				];
@@ -409,40 +411,63 @@ export default function useTooltipLayout({
 	}
 
 	/**
-	 * Shifts a placement-axis value into the viewport, but only as far as the
-	 * tooltip stays attached to the target (Floating UI's `limitShift`).
+	 * Shifts a placement-axis value into the viewport without ever crossing
+	 * into the zone where the tooltip would overlap the target.
 	 *
-	 * The attachment range spans the two opposite placements on this axis (e.g.
-	 * fully above vs fully below the target), so when the target scrolls off the
-	 * tooltip follows it off-screen instead of pinning to the viewport edge.
+	 * `attachMin` and `attachMax` are not a continuous range to clamp into —
+	 * they are the two boundary values of the two disjoint sides ("fully
+	 * above"/"fully left" at `attachMin`, "fully below"/"fully right" at
+	 * `attachMax`) the tooltip can occupy. Everything strictly between them
+	 * would overlap the target, so this picks whichever side actually has
+	 * room in the viewport — preferring `preferredSide` — instead of
+	 * interpolating across the gap (Floating UI's `limitShift`, with overlap
+	 * disallowed). When the target scrolls off-screen the tooltip still
+	 * follows it off-screen on its chosen side rather than pinning to the
+	 * viewport edge.
 	 *
 	 * @param value - The candidate axis value.
 	 * @param viewportMin - Lowest value inside the viewport.
 	 * @param viewportMax - Highest value inside the viewport.
-	 * @param attachMin - Lowest value that keeps the tooltip adjacent to the target.
-	 * @param attachMax - Highest value that keeps the tooltip adjacent to the target.
-	 * @returns The shifted axis value.
+	 * @param attachMin - The "fully above"/"fully left" boundary value, adjacent to the target.
+	 * @param attachMax - The "fully below"/"fully right" boundary value, adjacent to the target.
+	 * @param preferredSide - Which side (`min` or `max`) to keep when both have room.
+	 * @returns The shifted axis value, guaranteed to sit on the `attachMin` or `attachMax` side.
 	 */
 	function shiftIntoView(
 		value: number,
 		viewportMin: number,
 		viewportMax: number,
 		attachMin: number,
-		attachMax: number
+		attachMax: number,
+		preferredSide: 'min' | 'max'
 	): number {
-		const visible = Math.max(viewportMin, Math.min(value, viewportMax));
+		const minSideFits = attachMin >= viewportMin;
+		const maxSideFits = attachMax <= viewportMax;
 
-		return Math.max(attachMin, Math.min(visible, attachMax));
+		if (minSideFits && (preferredSide === 'min' || !maxSideFits)) {
+			return Math.max(viewportMin, Math.min(value, attachMin));
+		}
+
+		if (maxSideFits) {
+			return Math.min(viewportMax, Math.max(value, attachMax));
+		}
+
+		/** Neither side leaves room inside the viewport: snap to whichever boundary overflows least. */
+		return viewportMin - attachMin <= attachMax - viewportMax ? attachMin : attachMax;
 	}
 
 	/**
-	 * Shifts a position to keep the tooltip on-screen (Floating UI's `shift`).
+	 * Shifts a position to keep the tooltip on-screen without ever letting it
+	 * overlap the target (Floating UI's `shift`, with overlap disallowed).
 	 *
 	 * The alignment axis (along which the tooltip slides relative to the target —
 	 * horizontal for TOP/BOTTOM, vertical for MIDDLE) is clamped within the range
-	 * where the tooltip still overlaps the target. The placement axis is shifted
-	 * into the viewport but limited to the attached range, so the tooltip follows
-	 * the target off-screen instead of sticking to the viewport edge.
+	 * where the tooltip still overlaps the target, since that axis doesn't affect
+	 * whether the tooltip's box intersects the target's. The placement axis is
+	 * shifted into the viewport but kept on whichever non-overlapping side
+	 * (above/below or left/right of the target) has room, so the tooltip follows
+	 * the target off-screen instead of sticking to the viewport edge or sliding
+	 * over it.
 	 *
 	 * @param position - The candidate top/left in viewport coordinates.
 	 * @param tooltip - The tooltip size in pixels.
@@ -450,7 +475,7 @@ export default function useTooltipLayout({
 	 * @param placement - The placement actually being applied.
 	 * @param edgePadding - Minimum gap to keep from each viewport edge.
 	 * @param viewport - The viewport size in pixels.
-	 * @returns A position shifted to stay within the viewport while attached.
+	 * @returns A position shifted to stay within the viewport while never overlapping the target.
 	 */
 	function clampStickyToTarget(
 		position: BordaTooltipPosition,
@@ -470,6 +495,8 @@ export default function useTooltipLayout({
 		const bounds = getViewportBounds(tooltip, edgePadding, viewport);
 
 		if (isAlignmentVertical) {
+			const preferredSide = placement === ComponentPlacement.MIDDLE_START ? 'min' : 'max';
+
 			return {
 				top: clampAxis(
 					position.top,
@@ -483,10 +510,18 @@ export default function useTooltipLayout({
 					bounds.minLeft,
 					bounds.maxLeft,
 					anchor.left - tooltip.width - offset,
-					anchor.right + offset
+					anchor.right + offset,
+					preferredSide
 				)
 			};
 		}
+
+		const isTopSide =
+			placement === ComponentPlacement.TOP_START ||
+			placement === ComponentPlacement.TOP_CENTER ||
+			placement === ComponentPlacement.TOP_END;
+
+		const preferredSide = isTopSide ? 'min' : 'max';
 
 		return {
 			top: shiftIntoView(
@@ -494,7 +529,8 @@ export default function useTooltipLayout({
 				bounds.minTop,
 				bounds.maxTop,
 				anchor.top - tooltip.height - offset,
-				anchor.bottom + offset
+				anchor.bottom + offset,
+				preferredSide
 			),
 			left: clampAxis(
 				position.left,
