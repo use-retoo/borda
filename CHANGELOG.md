@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.1.2](https://github.com/use-retoo/borda/compare/v0.1.1...v0.1.2) (2026-06-22)
+
 ## [0.1.1](https://github.com/use-retoo/borda/compare/v0.1.0...v0.1.1) (2026-06-21)
 
 
