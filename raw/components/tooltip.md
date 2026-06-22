@@ -2,7 +2,7 @@
 
 > Positioned tooltip with title, description, arrow, and auto-flip placement.
 
-The tour tooltip displays the step's title and description in a positioned card with an optional arrow pointing at the target. It auto-flips to stay within the viewport. Pass `false` to disable.
+The tour tooltip displays the step's title and description in a positioned card with an optional arrow pointing at the target. It auto-flips to stay within the viewport and never overlaps the target. Pass `false` to disable.
 
 ## Config
 

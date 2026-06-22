@@ -205,16 +205,16 @@ The scroll feature smoothly scrolls the page to bring the active step's target e
     
     <td>
       <code>
-        true
+        false
       </code>
     </td>
     
     <td>
       Block manual page scroll while the tour is active. Set <code>
-        false
+        true
       </code>
       
-       to allow scrolling.
+       to lock scrolling.
     </td>
   </tr>
 </tbody>

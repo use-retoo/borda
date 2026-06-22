@@ -1175,7 +1175,11 @@ await borda.mount({
 
 ## Auto-placement
 
-When the requested placement doesn't fit in the viewport, Borda can automatically flip the tooltip to a fallback position. This is enabled by default.
+When the requested placement doesn't fit in the viewport, Borda can automatically flip the tooltip to a fallback position. This is enabled by default. The default fallback chain tries the mirrored side first, then centered variants, then the opposite-alignment sides, and finally the perpendicular (`middle-*`) sides.
+
+::callout{color="info"}
+The tooltip never overlaps its target. If no candidate placement fits the viewport, Borda shifts the least-overflowing one to whichever non-overlapping side has room — even if that means the tooltip ends up partially outside the viewport.
+::
 
 Configure the fallback chain through the tooltip's `autoPlacement` option:
 
@@ -1200,7 +1204,7 @@ await borda.mount({
 });
 ```
 
-The first placement from the fallback list that fits in the viewport wins. If none fit, the originally requested placement is kept and clamped to the viewport.
+The first placement from the fallback list that fits in the viewport wins. If none fit, Borda falls back to whichever candidate overflows the least, then shifts it to stay attached to the target without ever overlapping it.
 
 Disable auto-placement to use the requested position as-is:
 
@@ -1367,15 +1371,15 @@ The scroll feature smoothly scrolls the page to bring the active step's target e
 
 ## Config
 
-| Property   | Type                    | Default       | Description                                                                        |
-| ---------- | ----------------------- | ------------- | ---------------------------------------------------------------------------------- |
-| `block`    | `ScrollLogicalPosition` | `center`      | Vertical alignment — `start`, `center`, `end`, `nearest`                           |
-| `inline`   | `ScrollLogicalPosition` | `nearest`     | Horizontal alignment                                                               |
-| `duration` | `number`                | `400`         | Animation duration in ms. `0` for instant jump.                                    |
-| `easing`   | `BordaScrollEasing`     | `ease-in-out` | Built-in preset or custom function                                                 |
-| `offset.x` | `number`                | `0`           | Horizontal pixel offset                                                            |
-| `offset.y` | `number`                | `0`           | Vertical pixel offset                                                              |
-| `isLocked` | `boolean`               | `true`        | Block manual page scroll while the tour is active. Set `false` to allow scrolling. |
+| Property   | Type                    | Default       | Description                                                                      |
+| ---------- | ----------------------- | ------------- | -------------------------------------------------------------------------------- |
+| `block`    | `ScrollLogicalPosition` | `center`      | Vertical alignment — `start`, `center`, `end`, `nearest`                         |
+| `inline`   | `ScrollLogicalPosition` | `nearest`     | Horizontal alignment                                                             |
+| `duration` | `number`                | `400`         | Animation duration in ms. `0` for instant jump.                                  |
+| `easing`   | `BordaScrollEasing`     | `ease-in-out` | Built-in preset or custom function                                               |
+| `offset.x` | `number`                | `0`           | Horizontal pixel offset                                                          |
+| `offset.y` | `number`                | `0`           | Vertical pixel offset                                                            |
+| `isLocked` | `boolean`               | `false`       | Block manual page scroll while the tour is active. Set `true` to lock scrolling. |
 
 ::borda-container
   :::borda-component
@@ -2119,7 +2123,7 @@ interface BordaTourOverlayProps {
 
 # Tooltip
 
-The tour tooltip displays the step's title and description in a positioned card with an optional arrow pointing at the target. It auto-flips to stay within the viewport. Pass `false` to disable.
+The tour tooltip displays the step's title and description in a positioned card with an optional arrow pointing at the target. It auto-flips to stay within the viewport and never overlaps the target. Pass `false` to disable.
 
 ## Config
 
@@ -5601,12 +5605,12 @@ Each module format ships in two variants: a minified production build and an unm
 
 | File               | Format    | Raw       | Gzip     |
 | ------------------ | --------- | --------- | -------- |
-| `borda.min.es.js`  | ES Module | 130.96 KB | 36.37 KB |
-| `borda.min.umd.js` | UMD       | 135.87 KB | 36.74 KB |
-| `borda.min.cjs.js` | CommonJS  | 131.30 KB | 36.40 KB |
-| `borda.es.js`      | ES Module | 307.27 KB | 72.51 KB |
-| `borda.umd.js`     | UMD       | 318.10 KB | 73.39 KB |
-| `borda.cjs.js`     | CommonJS  | 308.46 KB | 72.65 KB |
+| `borda.min.es.js`  | ES Module | 131.40 KB | 36.51 KB |
+| `borda.min.umd.js` | UMD       | 136.32 KB | 36.89 KB |
+| `borda.min.cjs.js` | CommonJS  | 131.74 KB | 36.55 KB |
+| `borda.es.js`      | ES Module | 309.22 KB | 73.22 KB |
+| `borda.umd.js`     | UMD       | 320.08 KB | 74.05 KB |
+| `borda.cjs.js`     | CommonJS  | 310.41 KB | 73.38 KB |
 | `borda.css`        | CSS       | 28.03 KB  | 4.12 KB  |
 
 ## Tree-shaking

@@ -1,1 +1,0 @@
-import{b8 as r,o,e as t,p as n}from"./onHeb2u6.js";const s={},a={class:"w-full rounded-lg border border-dashed border-muted h-80 flex items-center justify-center *:cursor-pointer"};function c(e,d){return o(),t("div",a,[n(e.$slots,"default")])}const i=Object.assign(r(s,[["render",c]]),{__name:"BordaContainer"});export{i as default};

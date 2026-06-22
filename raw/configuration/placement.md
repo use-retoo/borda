@@ -167,7 +167,13 @@ await borda.mount({
 
 ## Auto-placement
 
-When the requested placement doesn't fit in the viewport, Borda can automatically flip the tooltip to a fallback position. This is enabled by default.
+When the requested placement doesn't fit in the viewport, Borda can automatically flip the tooltip to a fallback position. This is enabled by default. The default fallback chain tries the mirrored side first, then centered variants, then the opposite-alignment sides, and finally the perpendicular (`middle-*`) sides.
+
+<callout color="info">
+
+The tooltip never overlaps its target. If no candidate placement fits the viewport, Borda shifts the least-overflowing one to whichever non-overlapping side has room — even if that means the tooltip ends up partially outside the viewport.
+
+</callout>
 
 Configure the fallback chain through the tooltip's `autoPlacement` option:
 
@@ -192,7 +198,7 @@ await borda.mount({
 });
 ```
 
-The first placement from the fallback list that fits in the viewport wins. If none fit, the originally requested placement is kept and clamped to the viewport.
+The first placement from the fallback list that fits in the viewport wins. If none fit, Borda falls back to whichever candidate overflows the least, then shifts it to stay attached to the target without ever overlapping it.
 
 Disable auto-placement to use the requested position as-is:
 

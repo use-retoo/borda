@@ -42,11 +42,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      130.96 KB
+      131.40 KB
     </td>
     
     <td>
-      36.37 KB
+      36.51 KB
     </td>
   </tr>
   
@@ -62,11 +62,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      135.87 KB
+      136.32 KB
     </td>
     
     <td>
-      36.74 KB
+      36.89 KB
     </td>
   </tr>
   
@@ -82,11 +82,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      131.30 KB
+      131.74 KB
     </td>
     
     <td>
-      36.40 KB
+      36.55 KB
     </td>
   </tr>
   
@@ -102,11 +102,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      307.27 KB
+      309.22 KB
     </td>
     
     <td>
-      72.51 KB
+      73.22 KB
     </td>
   </tr>
   
@@ -122,11 +122,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      318.10 KB
+      320.08 KB
     </td>
     
     <td>
-      73.39 KB
+      74.05 KB
     </td>
   </tr>
   
@@ -142,11 +142,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      308.46 KB
+      310.41 KB
     </td>
     
     <td>
-      72.65 KB
+      73.38 KB
     </td>
   </tr>
   
