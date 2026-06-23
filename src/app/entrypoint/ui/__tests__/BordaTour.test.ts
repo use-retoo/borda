@@ -65,7 +65,8 @@ const defaultProps: BordaTourProps & BordaTourEvents = {
 	onPrev: vi.fn(),
 	onFinish: vi.fn(),
 	onSkip: vi.fn(),
-	onSkipChange: vi.fn()
+	onSkipChange: vi.fn(),
+	onExitComplete: vi.fn()
 };
 
 beforeEach(() => {
