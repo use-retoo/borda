@@ -66,7 +66,6 @@ export interface BordaTourTooltipProps extends BordaTourTooltipPositionProps {
 	id: string;
 	title: string;
 	description: string;
-	/** Size variant scaling the tooltip padding, gap, min-width and font sizes. */
 	size: ComponentSize;
 	placement: ComponentPlacement;
 	targetElement: HTMLElement | null;
@@ -88,6 +87,8 @@ export interface BordaTourTooltipProps extends BordaTourTooltipPositionProps {
 	 * - Object — custom fallback chain.
 	 */
 	autoPlacement: BordaTourTooltipAutoPlacement | boolean;
+	/** Called once the exit (fade/scale/slide-out) animation has fully settled to hidden. */
+	onExitComplete: () => void;
 }
 
 /** Snippet slots for the tooltip. */

@@ -35,7 +35,8 @@
 		close,
 		skip,
 		progress,
-		footer
+		footer,
+		onExitComplete
 	}: Partial<BordaTourTooltipProps & BordaTourTooltipSnippets> = $props();
 
 	let rootElement: HTMLDivElement | null = $state(null);
@@ -126,6 +127,15 @@
 		};
 	}
 
+	/** Fires `onExitComplete` once the fade/scale/slide-out animation has fully settled to hidden. */
+	function handleAnimationEnd(event: AnimationEvent) {
+		if (event.target !== rootElement) return;
+
+		if (animator.hasHiddenAnimation && event.animationName.endsWith('-out')) {
+			onExitComplete?.();
+		}
+	}
+
 	export function getResolvedRect(): BordaTourTooltipResolvedRect | null {
 		if (!rootElement) return null;
 
@@ -147,6 +157,7 @@
 	bind:this={rootElement}
 	class={rootClasses}
 	style={rootStyles}
+	onanimationend={handleAnimationEnd}
 	style:position={position.cssPosition}
 	style:top="{position.top}px"
 	style:left="{position.left}px"

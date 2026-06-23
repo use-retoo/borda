@@ -39,6 +39,8 @@ export interface BordaTourEvents {
 	onFinish: () => void;
 	onSkip: () => void;
 	onSkipChange: (checked: boolean) => void;
+	/** Fires once the tooltip's exit animation has fully settled to hidden. */
+	onExitComplete: () => void;
 }
 
 /** Registry of child component refs exposed by BordaTour. */
