@@ -35,7 +35,8 @@
 		onPrev,
 		onFinish,
 		onSkip,
-		onSkipChange
+		onSkipChange,
+		onExitComplete
 	}: Partial<BordaTourProps & BordaTourEvents> = $props();
 
 	let tourTooltipComponent: BordaTourTooltip | null = $state(null);
@@ -88,6 +89,7 @@
 	{isHidden}
 	{hasGlide}
 	animation={tourTooltipAnimation}
+	{onExitComplete}
 >
 	{#snippet image()}
 		{#if tourImageProps !== false && stepImage}

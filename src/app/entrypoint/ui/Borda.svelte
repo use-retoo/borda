@@ -80,7 +80,18 @@
 		animation.tooltip.appearance === BordaScrollAppearance.DURING_SCROLL
 	);
 
-	const isStepSettling = $derived(scroll.isScrolling || overlayTransition.isActive);
+	/**
+	 * Set the instant the scroll effect arms, and cleared once `scroll.isScrolling`
+	 * takes over. The scroll now starts asynchronously (after the fade-settle swap
+	 * and a `tick()`), so without this latch there's a frame where neither the
+	 * overlay transition nor `isScrolling` is active and the new tooltip flashes
+	 * un-hidden at its freshly computed position before the scroll re-hides it.
+	 */
+	let isScrollPending = $state(false);
+
+	const isStepSettling = $derived(
+		scroll.isScrolling || overlayTransition.isActive || isScrollPending
+	);
 
 	/** In fade mode, hide the tooltip while the step settles, then fade it in at the new position. */
 	const isHidden = $derived(!hasGlide && isAnimated && isStepSettling && !isShownOnScroll);
@@ -164,6 +175,9 @@
 
 		let cancelled = false;
 
+		/** Keep the tooltip hidden across the async gap until the scroll takes over. */
+		isScrollPending = true;
+
 		void (async () => {
 			await tick();
 
@@ -172,6 +186,8 @@
 			const tooltipRect = bordaTour?.getComponents().tourTooltip?.getResolvedRect() ?? null;
 
 			await scroll.scrollTo(target, tooltipRect);
+
+			if (!cancelled) isScrollPending = false;
 		})();
 
 		/** A new step (or teardown) supersedes this scroll before it starts. */
@@ -180,14 +196,24 @@
 		};
 	});
 
+	/** Snapshots the live step/target/config into `displayed`, swapping the rendered content. */
+	function swapDisplayed() {
+		displayed = {
+			step: controller.step,
+			target: controller.currentTarget,
+			currentStep: controller.currentStep,
+			config
+		};
+	}
+
+	/** Swap to the incoming step the moment the outgoing tooltip's fade-out settles. */
+	function handleTooltipExitComplete() {
+		if (isHidden) swapDisplayed();
+	}
+
 	$effect(() => {
 		if (!isHidden) {
-			displayed = {
-				step: controller.step,
-				target: controller.currentTarget,
-				currentStep: controller.currentStep,
-				config
-			};
+			swapDisplayed();
 
 			return;
 		}
@@ -197,17 +223,14 @@
 		 * like `tourProgress`) are live and swap the instant the step index
 		 * changes, so binding the tooltip/overlay to them directly would render
 		 * the new step's content immediately — visible for a frame before the
-		 * fade-out even starts. Keep showing the outgoing step's snapshot while
-		 * it fades out, and only swap once it's actually invisible.
+		 * fade-out even starts. Hold the outgoing step's snapshot and swap only
+		 * once the tooltip is actually invisible: normally on its exit
+		 * `animationend` (via {@link handleTooltipExitComplete}), with this timer
+		 * as a safety net for when no animation runs. The timer is padded past
+		 * `exitDuration` so it doesn't fire mid-fade and beat the animation, which
+		 * would briefly reveal the incoming content riding the tail of the fade-out.
 		 */
-		const timeoutId = setTimeout(() => {
-			displayed = {
-				step: controller.step,
-				target: controller.currentTarget,
-				currentStep: controller.currentStep,
-				config
-			};
-		}, animation.tooltip.exitDuration);
+		const timeoutId = setTimeout(swapDisplayed, animation.tooltip.exitDuration + 100);
 
 		return () => clearTimeout(timeoutId);
 	});
@@ -256,8 +279,9 @@
 					onNext={controller.next}
 					onPrev={controller.prev}
 					onFinish={controller.finish}
-					onSkip={close}
 					onSkipChange={skip.set}
+					onSkip={close}
+					onExitComplete={handleTooltipExitComplete}
 				/>
 			{/if}
 		{/if}

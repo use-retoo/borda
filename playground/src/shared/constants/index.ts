@@ -17,24 +17,30 @@ export const OVERLAY = {
 	padding: 12
 };
 
-/** Default three-step tour reused by most demos. */
+/** Default four-step tour reused by most demos — one per placement side. */
 export const STEPS = [
 	{
 		target: '#step-1',
 		title: 'Target by id',
 		description: 'Pass a CSS selector string.',
-		placement: ComponentPlacement.BOTTOM_START
+		placement: ComponentPlacement.TOP_CENTER
 	},
 	{
 		target: { class: 'pg-card--step' },
 		title: 'Target by class',
 		description: 'Pass a class name as an object.',
-		placement: ComponentPlacement.TOP_START
+		placement: ComponentPlacement.MIDDLE_START
 	},
 	{
 		target: { data: { name: 'demo-step', value: '3' } },
 		title: 'Target by data attribute',
 		description: 'Pass a data attribute name and value.',
-		placement: ComponentPlacement.MIDDLE_START
+		placement: ComponentPlacement.MIDDLE_END
+	},
+	{
+		target: '#step-overrides-target',
+		title: 'Target by id',
+		description: 'Pass a CSS selector string.',
+		placement: ComponentPlacement.BOTTOM_CENTER
 	}
 ];

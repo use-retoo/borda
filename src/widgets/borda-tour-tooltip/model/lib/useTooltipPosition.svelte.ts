@@ -36,7 +36,8 @@ export default function useTooltipPosition({
 	getOffset,
 	getMargin,
 	getAutoPlacement,
-	getArrowSide
+	getArrowSide,
+	getIsHidden
 }: UseTooltipPositionProps): UseTooltipPositionReturns {
 	let top = $state(0);
 
@@ -69,6 +70,8 @@ export default function useTooltipPosition({
 	const arrowSide = $derived(getArrowSide());
 
 	const anchored = $derived(isViewportAnchored(target));
+
+	const isHidden = $derived(getIsHidden());
 
 	/**
 	 * Resolves the layout and writes the position into state.
@@ -121,7 +124,15 @@ export default function useTooltipPosition({
 		 * targets additionally track scroll, so they follow a target pinned to the
 		 * viewport; document-flow targets stay glued via CSS and never recompute on
 		 * scroll.
+		 *
+		 * Also recompute on the hidden→visible transition: a programmatic
+		 * scroll-to-step settles the target into its final on-screen position only
+		 * after the layout was first computed (while the target was still
+		 * off-screen), so the flip decision is re-evaluated before the tooltip
+		 * fades back in.
 		 */
+		void isHidden;
+
 		if (anchored) {
 			void scroll.x;
 			void scroll.y;

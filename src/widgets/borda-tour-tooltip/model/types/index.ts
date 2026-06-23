@@ -66,7 +66,6 @@ export interface BordaTourTooltipProps extends BordaTourTooltipPositionProps {
 	id: string;
 	title: string;
 	description: string;
-	/** Size variant scaling the tooltip padding, gap, min-width and font sizes. */
 	size: ComponentSize;
 	placement: ComponentPlacement;
 	targetElement: HTMLElement | null;
@@ -88,6 +87,8 @@ export interface BordaTourTooltipProps extends BordaTourTooltipPositionProps {
 	 * - Object — custom fallback chain.
 	 */
 	autoPlacement: BordaTourTooltipAutoPlacement | boolean;
+	/** Called once the exit (fade/scale/slide-out) animation has fully settled to hidden. */
+	onExitComplete: () => void;
 }
 
 /** Snippet slots for the tooltip. */
@@ -137,6 +138,12 @@ export interface UseTooltipPositionProps {
 	 * `null` (no arrow) skips arrow offset updates.
 	 */
 	getArrowSide: () => BordaTooltipArrowSide | null;
+	/**
+	 * Reactive getter for the tooltip's hidden state. The layout is recomputed on
+	 * the hidden→visible transition so the flip is re-evaluated against the
+	 * target's final position once a scroll-to-step has settled.
+	 */
+	getIsHidden: () => boolean;
 }
 
 /** CSS `position` the tooltip is rendered with, chosen by the target's anchoring. */
