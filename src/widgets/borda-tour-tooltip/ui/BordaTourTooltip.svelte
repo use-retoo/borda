@@ -56,7 +56,8 @@
 		getMargin: () => margin,
 		getPadding: () => padding,
 		getAutoPlacement: () => autoPlacement,
-		getArrowSide: () => tooltipArrow.side
+		getArrowSide: () => tooltipArrow.side,
+		getIsHidden: () => isHidden
 	});
 
 	$effect(() => {

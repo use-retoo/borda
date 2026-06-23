@@ -138,6 +138,12 @@ export interface UseTooltipPositionProps {
 	 * `null` (no arrow) skips arrow offset updates.
 	 */
 	getArrowSide: () => BordaTooltipArrowSide | null;
+	/**
+	 * Reactive getter for the tooltip's hidden state. The layout is recomputed on
+	 * the hidden→visible transition so the flip is re-evaluated against the
+	 * target's final position once a scroll-to-step has settled.
+	 */
+	getIsHidden: () => boolean;
 }
 
 /** CSS `position` the tooltip is rendered with, chosen by the target's anchoring. */

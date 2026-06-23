@@ -104,6 +104,7 @@
 	<DemoSection>
 		<span class="pg-label">Target by class</span>
 		<div
+			id="step-2"
 			class="pg-item pg-card--step"
 			data-borda-step="2"
 			data-borda-title="Target by class"
@@ -120,6 +121,7 @@
 	<DemoSection>
 		<span class="pg-label">Target by data attribute</span>
 		<div
+			id="step-3"
 			class="pg-item"
 			data-demo-step="3"
 			data-borda-step="3"
