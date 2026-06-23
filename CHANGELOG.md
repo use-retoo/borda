@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.4](https://github.com/use-retoo/borda/compare/v0.1.3...v0.1.4) (2026-06-23)
+
+
+### Bug Fixes
+
+* **tooltip:** recompute placement on show so flip uses the on-screen target ([7da9297](https://github.com/use-retoo/borda/commit/7da929707efc17f83f123b92021e030e332fe46e))
+* **tooltip:** swap step content on exit animation end to stop flicker ([1974bff](https://github.com/use-retoo/borda/commit/1974bffdba968aeaead14a0742af3b97592e0b81))
+
 ## [0.1.3](https://github.com/use-retoo/borda/compare/v0.1.2...v0.1.3) (2026-06-22)
 
 
