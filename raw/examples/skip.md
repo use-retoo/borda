@@ -2,9 +2,15 @@
 
 > Let users dismiss the onboarding permanently with a persisted skip flag.
 
+<div id="skip-description">
+
 A common onboarding pattern: show the tour once, let users opt out, and don't bother them again. Borda handles this out of the box with a "Don't show again" checkbox and localStorage persistence.
 
+</div>
+
 ## How it works
+
+<div id="how-it-works-content">
 
 1. Borda checks `localStorage` for the skip flag under the configured key.
 2. If the flag is set, `borda.mount()` still works — but your app can skip calling it entirely.
@@ -13,8 +19,10 @@ A common onboarding pattern: show the tour once, let users opt out, and don't bo
 
 The skip state is managed by Borda — you only need to wrap the mount call in a check.
 
+</div>
+
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Welcome!","description":"This tour will help you get started.","placement":"bottom-start"},{"target":"#page-content","title":"Documentation","description":"Read through the guides to learn how Borda works.","placement":"middle-end"}],"skip":{"storageKey":"my-app-onboarding"},"tourSkip":{"label":"Do not show this again"}}">
+<borda-component :config="{"steps":[{"target":"#page-header","title":"Page header","description":"Every page starts with a header — the spotlight draws attention to it.","placement":"bottom-start"},{"target":"#skip-description","title":"Description","description":"Borda handles this out of the box — a checkbox, localStorage persistence, and a simple API.","placement":"bottom-start"},{"target":"#how-it-works","title":"How it works","description":"Borda checks localStorage for the skip flag. When checked, the flag is written automatically.","placement":"middle-end"},{"target":"#how-it-works-content","title":"Four steps","description":"The skip flow has four steps — check, mount, check box, and read flag on next visit.","placement":"middle-start"},{"target":"#code","title":"Code section","description":"The code shows the full pattern — check localStorage, configure storageKey, clear with API.","placement":"top-end"}],"skip":{"storageKey":"my-app-onboarding"},"tourSkip":{"label":"Do not show this again"}}">
 
 
 
@@ -22,6 +30,8 @@ The skip state is managed by Borda — you only need to wrap the mount call in a
 </borda-container>
 
 ## Code
+
+<div id="code-block">
 
 ```ts [main.ts]
 import { useBorda, ComponentPlacement } from '@retoo/borda';
@@ -58,6 +68,10 @@ if (!isSkipped) {
 }
 ```
 
+</div>
+
+<div id="clearing-code">
+
 Clearing the skip state:
 
 ```ts
@@ -65,3 +79,5 @@ localStorage.removeItem('my-app-onboarding');
 // or
 instance.skip.clear();
 ```
+
+</div>

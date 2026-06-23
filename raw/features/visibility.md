@@ -2,15 +2,11 @@
 
 > Show and hide the widget with optional CSS transitions.
 
+<div id="visibility-description">
+
 Visibility controls whether the widget is shown or hidden. It supports an initial hidden state and CSS-animated transitions. The widget can be toggled at runtime through the visibility API.
 
-<borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Visibility","description":"This tour demonstrates visibility transitions.","placement":"bottom-start"},{"target":"#page-toc","title":"Code example","description":"Configure visibility with isHidden and isAnimated.","placement":"top-center"}],"visibility":{"isHidden":true,"isAnimated":true}}">
-
-
-
-</borda-component>
-</borda-container>
+</div>
 
 ## Config
 

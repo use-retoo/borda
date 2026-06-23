@@ -4,7 +4,11 @@
 
 ## What is Borda?
 
+<div id="what-is-borda-description">
+
 Borda is an embeddable onboarding widget that guides users through your interface step by step. It renders a spotlight overlay around target elements, paired with a tooltip that displays a title, description, image, and navigation buttons — all configurable per step.
+
+</div>
 
 Borda works on any type of site — SaaS dashboards, landing pages, e-commerce stores, documentation portals — without requiring a specific framework. The widget mounts into any container or directly into `document.body` as a floating overlay.
 
@@ -21,7 +25,7 @@ Borda is a fully open-source, non-commercial project. It's built and maintained 
 The only required field is `steps` — an array of step definitions. Each step specifies a `target` element, a `title`, a `description`, and a `placement` for the tooltip. This tour runs on the page you're reading right now: every target below is a real heading or feature card further down, and each step uses a different `placement` to show the tooltip positioning itself around its target.
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#what-is-borda","title":"What is Borda?","description":"An embeddable widget — a spotlight overlay plus a positioned tooltip — driven by a plain array of steps. The dimmed backdrop and tooltip you're reading are a single `mount()` call.","placement":"bottom-center"},{"target":"#feature-tours","title":"Guided, multi-step tours","description":"Chain steps together, each with its own target, title, description, and placement. Async `prepareElement` hooks can expand a panel or wait for data before a step shows.","placement":"middle-start"},{"target":"#feature-overlay","title":"Spotlight overlay","description":"A backdrop dims the page with a cutout around the active element. Padding, border radius, and the transition between cutouts are all configurable.","placement":"middle-start"},{"target":"#feature-tooltips","title":"Tooltips that adapt","description":"Tooltips auto-flip to stay inside the viewport and can carry an image above the title, like this one. Components can also be swapped per step — this progress indicator just switched from dots to a line.","image":{"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='240'%3E%3Crect width='480' height='240' fill='%23d4d4d8'/%3E%3C/svg%3E","alt":"Placeholder image"},"placement":"top-center","tourProgress":{"variant":"line"}}],"tourProgress":{"variant":"dots"}}">
+<borda-component :config="{"steps":[{"target":"#page-header","title":"Page header","description":"Every page has a header with a title and description — Borda spotlights it as the starting point of the tour.","placement":"bottom-center"},{"target":"#what-is-borda","title":"What is Borda?","description":"The first section heading on the page. Borda can target any element with a CSS selector — headings, paragraphs, cards, or containers.","placement":"bottom-start"},{"target":"#what-is-borda-description","title":"Description","description":"A paragraph of text right below the heading. The spotlight wraps around just this block — not the whole section.","placement":"bottom-start"},{"target":"#features","title":"Features","description":"The entire Features section — field cards, icons, and descriptions — wrapped in a single spotlight. One step can cover a large area.","placement":"middle-start"},{"target":"#bundle-size","title":"Bundle size","description":"Under 40 KB gzipped. Zero runtime dependencies. The spotlight moves to the bottom of the page for this step.","placement":"top-start"},{"target":"#bundle-callout","title":"Full breakdown","description":"Callouts, links, and inline elements are valid targets too. This one links to the full bundle size reference.","placement":"top-center"}],"tourProgress":{"variant":"dots"}}">
 
 
 
@@ -29,11 +33,7 @@ The only required field is `steps` — an array of step definitions. Each step s
 </borda-container>
 
 ```ts
-import {
-  useBorda,
-  ComponentPlacement,
-  BordaTourProgressVariant,
-} from '@retoo/borda';
+import { useBorda, ComponentPlacement } from '@retoo/borda';
 
 import '@retoo/borda/styles';
 
@@ -42,40 +42,42 @@ const borda = useBorda();
 const instance = await borda.mount({
   steps: [
     {
-      target: '#what-is-borda',
-      title: 'What is Borda?',
-      description: "An embeddable widget — a spotlight overlay plus a positioned tooltip — driven by a plain array of steps. The dimmed backdrop and tooltip you're reading are a single mount() call.",
+      target: '#page-header',
+      title: 'Page header',
+      description: 'Every page has a header with a title and description — Borda spotlights it as the starting point of the tour.',
       placement: ComponentPlacement.BOTTOM_CENTER,
     },
     {
-      target: '#feature-tours',
-      title: 'Guided, multi-step tours',
-      description: 'Chain steps together, each with its own target, title, description, and placement. Async prepareElement hooks can expand a panel or wait for data before a step shows.',
+      target: '#what-is-borda',
+      title: 'What is Borda?',
+      description: 'The first section heading on the page. Borda can target any element with a CSS selector.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '#what-is-borda-description',
+      title: 'Description',
+      description: 'A paragraph of text right below the heading. The spotlight wraps around just this block.',
+      placement: ComponentPlacement.BOTTOM_START,
+    },
+    {
+      target: '#features',
+      title: 'Features',
+      description: 'The entire Features section wrapped in a single spotlight. One step can cover a large area.',
       placement: ComponentPlacement.MIDDLE_START,
     },
     {
-      target: '#feature-overlay',
-      title: 'Spotlight overlay',
-      description: 'A backdrop dims the page with a cutout around the active element. Padding, border radius, and the transition between cutouts are all configurable.',
-      placement: ComponentPlacement.MIDDLE_START,
+      target: '#bundle-size',
+      title: 'Bundle size',
+      description: 'Under 40 KB gzipped. Zero runtime dependencies.',
+      placement: ComponentPlacement.TOP_START,
     },
     {
-      target: '#feature-tooltips',
-      title: 'Tooltips that adapt',
-      description: 'Tooltips auto-flip to stay inside the viewport and can carry an image above the title, like this one. Components can also be swapped per step — this progress indicator just switched from dots to a line.',
-      image: {
-        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='240'%3E%3Crect width='480' height='240' fill='%23d4d4d8'/%3E%3C/svg%3E",
-        alt: 'Placeholder image',
-      },
+      target: '#bundle-callout',
+      title: 'Full breakdown',
+      description: 'Callouts, links, and inline elements are valid targets too.',
       placement: ComponentPlacement.TOP_CENTER,
-      tourProgress: {
-        variant: BordaTourProgressVariant.LINE,
-      },
     },
   ],
-  tourProgress: {
-    variant: BordaTourProgressVariant.DOTS,
-  },
 });
 ```
 
@@ -141,8 +143,10 @@ Patch or replace the entire config without unmounting.
 
 The production bundle weighs under **40 KB gzipped** (JS + CSS combined). Zero runtime dependencies — nothing is loaded beyond the assets you provide.
 
+<div id="bundle-callout">
 <callout icon="i-lucide-arrow-right" to="/distribution/bundle-size">
 
 Full breakdown by format in the **Bundle Size** reference.
 
 </callout>
+</div>

@@ -2,15 +2,11 @@
 
 > The root wrapper that hosts the tour widget.
 
+<div id="container-description">
+
 Container is the root wrapper that hosts all tour components. It provides the outermost DOM element for positioning and styling.
 
-<borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Container","description":"The container wraps all tour components.","placement":"bottom-start"},{"target":"#page-toc","title":"Code example","description":"Configure the container with custom classes and styles.","placement":"top-center"}]}">
-
-
-
-</borda-component>
-</borda-container>
+</div>
 
 ## Config
 

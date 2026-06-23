@@ -2,7 +2,11 @@
 
 > Control tooltip position relative to the target element using ComponentPlacement.
 
+<div id="placement-description">
+
 The `placement` field on each step controls where the tooltip appears relative to its target element. Borda uses a 3×3 grid system with 9 named positions.
+
+</div>
 
 ## Values
 
@@ -131,7 +135,7 @@ The `placement` field on each step controls where the tooltip appears relative t
 </table>
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"bottom-start","description":"Tooltip sits below the target, aligned to its left edge.","placement":"bottom-start"},{"target":"#page-content","title":"middle-end","description":"Tooltip sits to the right of the target, vertically centered.","placement":"middle-end"},{"target":"#page-toc","title":"top-end","description":"Tooltip sits above the target, aligned to its right edge.","placement":"top-end"}]}">
+<borda-component :config="{"steps":[{"target":"#placement-description","title":"3×3 grid","description":"Borda uses a 3×3 grid with 9 named positions for tooltip placement.","placement":"bottom-start"},{"target":"#values","title":"Placement values","description":"The table lists all 9 positions — TOP_START through BOTTOM_END.","placement":"middle-end"},{"target":"#auto-placement","title":"Auto-placement","description":"When the requested placement doesn't fit, Borda flips the tooltip to a fallback position.","placement":"top-end"}]}">
 
 
 

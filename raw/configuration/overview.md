@@ -2,10 +2,14 @@
 
 > Structure of BordaConfig and the principle of disabling components with false.
 
+<div id="overview-description">
+
 Every aspect of the tour — from step definitions to the appearance of each UI element — is controlled through a single configuration object, `BordaConfig`, passed to `borda.mount()`. The only required field is `steps`; everything else has a sensible default or can be disabled entirely.
 
+</div>
+
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Section heading","description":"Each page opens with a title and short description.","placement":"bottom-start"},{"target":"#page-content","title":"Main content","description":"The body of the page — text, tables, and live demos like this one.","placement":"middle-end"},{"target":"#page-toc","title":"On this page","description":"Quick links to every heading on the current page.","placement":"top-end"}],"tourProgress":{"variant":"dots"}}">
+<borda-component :config="{"steps":[{"target":"#overview-description","title":"Description","description":"The intro paragraph explains what this page covers.","placement":"bottom-start"},{"target":"#config-structure","title":"Config structure","description":"The table lists every BordaConfig key — steps, size, shape, components, and feature flags.","placement":"middle-end"},{"target":"#disabling-components","title":"Disabling components","description":"Pass false to any component key to remove it from the tour entirely.","placement":"top-end"}],"tourProgress":{"variant":"dots"}}">
 
 
 
@@ -359,7 +363,7 @@ const instance = await borda.mount({
 Pass `false` to any component key to remove it from the tour entirely:
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Quiet mode","description":"No buttons, no progress dots, no skip checkbox, no close button — just the spotlight and this card.","placement":"bottom-start"}],"tourSkip":false,"tourButtons":false,"tourProgress":false,"closeButton":false}">
+<borda-component :config="{"steps":[{"target":"#disabling-components","title":"Quiet mode","description":"No buttons, no progress dots, no skip checkbox, no close button — just the spotlight and this card.","placement":"bottom-start"},{"target":"#config-structure","title":"Minimal config","description":"With all components disabled, the only required field left is steps.","placement":"middle-end"}],"tourSkip":false,"tourButtons":false,"tourProgress":false,"closeButton":false}">
 
 
 
@@ -436,7 +440,7 @@ Both methods trigger a reactive update — the widget re-renders immediately wit
 Most components accept `customClasses` and `customStyles` for visual overrides without modifying the source. Classes are merged with the defaults; styles are applied as inline CSS.
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Branded tooltip","description":"This card uses customStyles to override the border radius, background, and border color.","placement":"bottom-start"}],"tourTooltip":{"customStyles":{"root":{"borderRadius":"4px","background":"#fafaf9","border":"2px solid"}}}}">
+<borda-component :config="{"steps":[{"target":"#runtime-updates","title":"Runtime updates","description":"Modify any config property after mount through mergeConfig or setConfig — no need to remount.","placement":"bottom-start"},{"target":"#customization","title":"Custom classes","description":"Most components accept customClasses and customStyles for visual overrides.","placement":"middle-end"}],"tourTooltip":{"customStyles":{"root":{"borderRadius":"4px","background":"#fafaf9","border":"2px solid"}}}}">
 
 
 

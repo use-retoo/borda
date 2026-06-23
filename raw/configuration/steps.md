@@ -2,7 +2,11 @@
 
 > Define tour steps with target elements, titles, descriptions, images, and lifecycle hooks.
 
+<div id="steps-description">
+
 Steps are the core of any tour. Each step defines which element to spotlight, what content to show in the tooltip, and optional lifecycle hooks that fire during navigation.
+
+</div>
 
 ## Config
 
@@ -245,7 +249,7 @@ Steps are the core of any tour. Each step defines which element to spotlight, wh
 ## Basic example
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Section heading","description":"Each page opens with a title and short description.","placement":"bottom-start"},{"target":"#page-content","title":"Main content","description":"The body of the page — text, code, and live demos.","placement":"middle-end"},{"target":"#page-toc","title":"On this page","description":"Jump to any heading on the current page.","placement":"top-end"}]}">
+<borda-component :config="{"steps":[{"target":"#steps-description","title":"Description","description":"Steps are the core of any tour — each one defines a target, tooltip content, and optional hooks.","placement":"bottom-start"},{"target":"#config","title":"Config table","description":"The table lists every step property — target, title, description, placement are required.","placement":"middle-end"},{"target":"#target-resolution","title":"Target resolution","description":"The target field accepts a CSS selector, a direct HTMLElement, or a structured query with data attributes.","placement":"bottom-start"},{"target":"#images","title":"Images","description":"Add an image above the tooltip heading with a URL string or an object with src and alt.","placement":"middle-end"},{"target":"#per-step-component-overrides","title":"Per-step overrides","description":"Each step can override global component settings — pass false to disable a component for that step only.","placement":"bottom-start"},{"target":"#lifecycle-hooks","title":"Lifecycle hooks","description":"Use prepareElement for async setup before a step is shown — expand a panel, scroll to an element, or fetch data.","placement":"middle-end"},{"target":"#interface","title":"Interface","description":"The TypeScript interface defines the full shape of a BordaStep — target, title, description, placement, and optional hooks.","placement":"top-end"}]}">
 
 
 
@@ -303,7 +307,7 @@ The `target` field accepts three formats:
 Add an image above the tooltip heading:
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-content","title":"With an image","description":"Images render above the title, inset within the tooltip padding by default.","image":{"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='240'%3E%3Crect width='480' height='240' fill='%23d4d4d8'/%3E%3C/svg%3E","alt":"Placeholder image"},"placement":"middle-end"}]}">
+<borda-component :config="{"steps":[{"target":"#images","title":"With an image","description":"Images render above the title, inset within the tooltip padding by default.","image":{"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='240'%3E%3Crect width='480' height='240' fill='%23d4d4d8'/%3E%3C/svg%3E","alt":"Placeholder image"},"placement":"middle-end"}]}">
 
 
 

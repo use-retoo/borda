@@ -2,7 +2,11 @@
 
 > Configure the "Don't show again" feature with persistent localStorage storage.
 
+<div id="skip-description">
+
 The skip feature adds a "Don't show again" checkbox to the tooltip. When checked, the onboarding won't replay for returning users — the state is persisted in `localStorage`.
+
+</div>
 
 ## Config
 
@@ -55,7 +59,7 @@ The skip feature adds a "Don't show again" checkbox to the tooltip. When checked
 </table>
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Welcome","description":"This onboarding will help you get started. Check the box below to skip it next time.","placement":"bottom-start"},{"target":"#page-toc","title":"One more thing","description":"The skip checkbox is available on every step, not just the first.","placement":"top-end"}],"skip":{"storageKey":"docs-demo-skip"}}">
+<borda-component :config="{"steps":[{"target":"#skip-description","title":"Don't show again","description":"The skip feature adds a checkbox to the tooltip. When checked, the onboarding won't replay.","placement":"bottom-start"},{"target":"#config","title":"Config","description":"The only config option is storageKey — the key used in localStorage to persist the skip flag.","placement":"middle-end"},{"target":"#disabling-skip","title":"Disabling skip","description":"Pass false to remove the skip checkbox entirely.","placement":"top-end"}],"skip":{"storageKey":"docs-demo-skip"}}">
 
 
 

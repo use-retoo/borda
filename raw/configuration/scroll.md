@@ -2,7 +2,11 @@
 
 > Configure smooth scroll to bring the active step target into view.
 
+<div id="scroll-description">
+
 The scroll feature smoothly scrolls the page to bring the active step's target element into view. It uses a custom `requestAnimationFrame` animation so `duration`, `easing`, and `offset` are fully configurable.
+
+</div>
 
 ## Config
 
@@ -221,7 +225,7 @@ The scroll feature smoothly scrolls the page to bring the active step's target e
 </table>
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Top of the page","description":"First step starts at the top.","placement":"bottom-start"},{"target":"#page-toc","title":"Scrolled into view","description":"The page scrolled smoothly to bring this target into view.","placement":"top-end"}],"scroll":{"block":"center","duration":600,"easing":"ease-in-out","offset":{"y":-20}}}">
+<borda-component :config="{"steps":[{"target":"#scroll-description","title":"Smooth scroll","description":"The scroll feature uses a custom requestAnimationFrame animation — duration, easing, and offset are configurable.","placement":"bottom-start"},{"target":"#config","title":"Config table","description":"The table lists every scroll property — block alignment, duration, easing, pixel offsets, and scroll lock.","placement":"middle-end"},{"target":"#easing-presets","title":"Easing presets","description":"Five built-in presets from linear to ease-in-out, or pass a custom function.","placement":"top-end"}],"scroll":{"block":"center","duration":600,"easing":"ease-in-out","offset":{"y":-20}}}">
 
 
 

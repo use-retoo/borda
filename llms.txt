@@ -72,7 +72,7 @@
 
 - [Basic Setup](https://use-retoo.github.io/borda/raw/examples/basic-setup.md): Every BordaConfig option in one live control panel — steps, widget size, components, animation, and scroll.
 - [Multi-step](https://use-retoo.github.io/borda/raw/examples/multi-step.md): Tour with different target selectors — CSS id, class, and data attributes.
-- [Styling](https://use-retoo.github.io/borda/raw/examples/custom-styling.md): Override tooltip and overlay appearance with customClasses and customStyles.
+- [Custom Styling](https://use-retoo.github.io/borda/raw/examples/custom-styling.md): Override tooltip title, description, and button appearance with customStyles.
 - [Highlight](https://use-retoo.github.io/borda/raw/examples/highlight.md): Spotlight a single element with or without tooltip.
 - [Responsive](https://use-retoo.github.io/borda/raw/examples/responsive.md): Different tour configurations at different viewport widths.
 - [Overrides](https://use-retoo.github.io/borda/raw/examples/overrides.md): Per-step config overrides that shadow the global settings.

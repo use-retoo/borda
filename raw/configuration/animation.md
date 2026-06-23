@@ -2,7 +2,11 @@
 
 > Configure enter/exit animations for the tooltip and overlay spotlight transitions.
 
+<div id="animation-description">
+
 Borda supports configurable animations for tooltip enter/exit and overlay spotlight transitions. All animation settings are grouped under the `animation` config key.
+
+</div>
 
 ## Config
 
@@ -315,7 +319,7 @@ Controls how the tooltip moves between steps:
 </table>
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Glide step 1","description":"The tooltip stays visible and glides to the next target.","placement":"bottom-start"},{"target":"#page-content","title":"Glide step 2","description":"No fade-out — the tooltip moves continuously between steps.","placement":"middle-end"}],"animation":{"tooltip":{"transition":"glide"}}}">
+<borda-component :config="{"steps":[{"target":"#animation-description","title":"Configurable animations","description":"All animation settings are grouped under the animation config key.","placement":"bottom-start"},{"target":"#tooltip-transition","title":"Tooltip transition","description":"Controls how the tooltip moves between steps — fade or glide.","placement":"middle-end"},{"target":"#config","title":"Config table","description":"The table lists all animation properties — effects, durations, easing, and overlay transitions.","placement":"top-end"}],"animation":{"tooltip":{"transition":"glide"}}}">
 
 
 
@@ -402,7 +406,7 @@ await borda.mount({
 </table>
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Scale in","description":"This tooltip scales in from the center on enter.","placement":"bottom-start"},{"target":"#page-toc","title":"Step 2","description":"Notice the scale transition between steps too.","placement":"top-end"}],"animation":{"isEnabled":true,"tooltip":{"enter":"scale","exit":"scale","enterDuration":250,"exitDuration":150}}}">
+<borda-component :config="{"steps":[{"target":"#config","title":"Full config","description":"Every animation property lives under one config key — effects, durations, and easing.","placement":"bottom-start"},{"target":"#animation-effects","title":"Animation effects","description":"Four effects available — none, fade, scale, and slide. Each can be applied independently.","placement":"top-end"},{"target":"#disabling-animation","title":"Disabling","description":"Pass false to the animation key to disable all animations globally.","placement":"middle-end"}],"animation":{"isEnabled":true,"tooltip":{"enter":"scale","exit":"scale","enterDuration":250,"exitDuration":150}}}">
 
 
 
