@@ -1,5 +1,17 @@
 # Changelog
 
+# [0.2.0](https://github.com/use-retoo/borda/compare/v0.1.4...v0.2.0) (2026-07-20)
+
+
+### Bug Fixes
+
+* **tooltip:** re-evaluate placement after the scroll-to-step settles ([bb693e1](https://github.com/use-retoo/borda/commit/bb693e174f6e4d36a0d1b4aee28eb5b069803a49))
+
+
+### Features
+
+* **tooltip:** add swipe navigation between tour steps ([eb63ef5](https://github.com/use-retoo/borda/commit/eb63ef516c79cc5e7414e1febe64adea440da77b))
+
 ## [0.1.4](https://github.com/use-retoo/borda/compare/v0.1.3...v0.1.4) (2026-06-23)
 
 
