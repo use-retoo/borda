@@ -87,8 +87,21 @@ export interface BordaTourTooltipProps extends BordaTourTooltipPositionProps {
 	 * - Object — custom fallback chain.
 	 */
 	autoPlacement: BordaTourTooltipAutoPlacement | boolean;
+	/**
+	 * Enable swipe navigation on the tooltip: swipe left for next, swipe right for prev.
+	 * Defaults to `true`.
+	 */
+	hasSwipeControl: boolean;
+}
+
+/** Event handlers for the BordaTourTooltip component. */
+export interface BordaTourTooltipEvents {
 	/** Called once the exit (fade/scale/slide-out) animation has fully settled to hidden. */
 	onExitComplete: () => void;
+	/** Called when a leftward swipe is detected. Ignored when `hasSwipeControl` is `false`. */
+	onSwipeNext: () => void;
+	/** Called when a rightward swipe is detected. Ignored when `hasSwipeControl` is `false`. */
+	onSwipePrev: () => void;
 }
 
 /** Snippet slots for the tooltip. */

@@ -81,11 +81,8 @@
 	);
 
 	/**
-	 * Set the instant the scroll effect arms, and cleared once `scroll.isScrolling`
-	 * takes over. The scroll now starts asynchronously (after the fade-settle swap
-	 * and a `tick()`), so without this latch there's a frame where neither the
-	 * overlay transition nor `isScrolling` is active and the new tooltip flashes
-	 * un-hidden at its freshly computed position before the scroll re-hides it.
+	 * Latches hidden across the async gap before `scroll.isScrolling` takes over,
+	 * so the tooltip doesn't flash un-hidden at its new position.
 	 */
 	let isScrollPending = $state(false);
 
@@ -96,7 +93,10 @@
 	/** In fade mode, hide the tooltip while the step settles, then fade it in at the new position. */
 	const isHidden = $derived(!hasGlide && isAnimated && isStepSettling && !isShownOnScroll);
 
-	/** Seeded once from the initial step so the first render has content; kept in sync by the effect below. */
+	/**
+	 * Seeded once from the initial step so the first render has content;
+	 * kept in sync by the effect below.
+	 */
 	let displayed = $state({
 		step: untrack(() => controller.step),
 		target: untrack(() => controller.currentTarget),
@@ -105,10 +105,8 @@
 	});
 
 	/**
-	 * The settled target as a value-deduped signal: `displayed` is reassigned to a
-	 * fresh object on every fade settle, but this only changes when the target
-	 * *element* actually changes — so the auto-scroll effect fires once per step
-	 * instead of looping through the `isScrolling → isHidden → displayed` cycle.
+	 * Value-deduped target: only changes when the target *element* changes, so
+	 * the auto-scroll effect doesn't loop on every `displayed` reassignment.
 	 */
 	const scrollTarget = $derived(displayed.target);
 
@@ -142,7 +140,10 @@
 		};
 	});
 
-	/** Public API exposed via `bind:this` — grants access to the tour controller, mounted child components and the event bus. */
+	/**
+	 * Public API exposed via `bind:this` — grants access to the tour controller,
+	 * mounted child components and the event bus.
+	 */
 	export const api: BordaApi = {
 		get controller() {
 			return controller;
@@ -164,12 +165,8 @@
 		if (config.visibility?.isHidden) return;
 
 		/**
-		 * Track the settled target (not `controller.currentTarget`): the tooltip
-		 * renders from `displayed.target`, so this is the moment its geometry for
-		 * the new step exists. `tick()` then flushes the tooltip's own position
-		 * effect so its rect is final before we scroll the union of target +
-		 * tooltip into view. Reading the deduped `scrollTarget` keeps this effect
-		 * from re-firing on every fade settle.
+		 * The deduped settled target — `tick()` below flushes the tooltip's
+		 * position effect so its rect is final before scrolling.
 		 */
 		const target = scrollTarget;
 
@@ -219,16 +216,8 @@
 		}
 
 		/**
-		 * `step`/`currentTarget`/`currentStep`/`config` (incl. per-step overrides
-		 * like `tourProgress`) are live and swap the instant the step index
-		 * changes, so binding the tooltip/overlay to them directly would render
-		 * the new step's content immediately — visible for a frame before the
-		 * fade-out even starts. Hold the outgoing step's snapshot and swap only
-		 * once the tooltip is actually invisible: normally on its exit
-		 * `animationend` (via {@link handleTooltipExitComplete}), with this timer
-		 * as a safety net for when no animation runs. The timer is padded past
-		 * `exitDuration` so it doesn't fire mid-fade and beat the animation, which
-		 * would briefly reveal the incoming content riding the tail of the fade-out.
+		 * Fallback for when {@link handleTooltipExitComplete}'s `animationend` never
+		 * fires (no animation); padded past `exitDuration` so it doesn't preempt the fade-out.
 		 */
 		const timeoutId = setTimeout(swapDisplayed, animation.tooltip.exitDuration + 100);
 

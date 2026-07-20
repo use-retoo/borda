@@ -12,14 +12,12 @@ import type { BordaTourEvents, BordaTourProps } from '../../model';
 
 vi.mock('@/entities/borda', () => ({ getBordaContext: vi.fn() }));
 
-vi.mock('@/shared/lib/animator', () => ({
-	useAnimator: () => ({
-		isHidden: false,
-		hasShownAnimation: false,
-		hasHiddenAnimation: false,
-		classes: []
-	})
-}));
+vi.mock('@/shared/lib/animator', async () => {
+	const { createAnimatorMock } =
+		await import('@/shared/lib/animator/model/lib/__tests__/useAnimator.utils');
+
+	return { useAnimator: createAnimatorMock };
+});
 
 vi.mock('@/widgets/borda-tour-tooltip/model', async (importOriginal) => {
 	const actual = (await importOriginal()) as Record<string, unknown>;

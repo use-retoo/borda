@@ -28,14 +28,12 @@ vi.mock('@/entities/borda', () => ({
 	getBordaContext: vi.fn(() => mockContext)
 }));
 
-vi.mock('@/shared/lib/animator', () => ({
-	useAnimator: () => ({
-		isHidden: false,
-		hasShownAnimation: false,
-		hasHiddenAnimation: false,
-		classes: []
-	})
-}));
+vi.mock('@/shared/lib/animator', async () => {
+	const { createAnimatorMock } =
+		await import('@/shared/lib/animator/model/lib/__tests__/useAnimator.utils');
+
+	return { useAnimator: createAnimatorMock };
+});
 
 vi.mock('@/shared/lib/focus-trap', () => ({
 	useFocusTrap: vi.fn()

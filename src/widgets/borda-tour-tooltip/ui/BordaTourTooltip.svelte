@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { AnimationEffect, ComponentPlacement, ComponentSize } from '@/shared/enums';
 	import { useAnimator } from '@/shared/lib/animator';
+	import { useSwipeTouch } from '@/shared/lib/swipe-touch';
 	import { formatComponentStyles } from '@/shared/utils';
 
 	import { useTooltipArrow, useTooltipPosition } from '../model';
 
 	import type {
 		BordaTourTooltipElements,
+		BordaTourTooltipEvents,
 		BordaTourTooltipProps,
 		BordaTourTooltipResolvedRect,
 		BordaTourTooltipSnippets
@@ -31,13 +33,16 @@
 		isHidden = false,
 		hasGlide = false,
 		animation = false,
+		hasSwipeControl = true,
 		image,
 		close,
 		skip,
 		progress,
 		footer,
-		onExitComplete
-	}: Partial<BordaTourTooltipProps & BordaTourTooltipSnippets> = $props();
+		onExitComplete,
+		onSwipeNext,
+		onSwipePrev
+	}: Partial<BordaTourTooltipProps & BordaTourTooltipEvents & BordaTourTooltipSnippets> = $props();
 
 	let rootElement: HTMLDivElement | null = $state(null);
 
@@ -58,6 +63,13 @@
 		getAutoPlacement: () => autoPlacement,
 		getArrowSide: () => tooltipArrow.side,
 		getIsHidden: () => isHidden
+	});
+
+	useSwipeTouch({
+		getContainer: () => rootElement,
+		getIsEnabled: () => hasSwipeControl,
+		onSwipeLeft: () => onSwipeNext?.(),
+		onSwipeRight: () => onSwipePrev?.()
 	});
 
 	$effect(() => {
