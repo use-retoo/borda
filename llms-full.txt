@@ -45,8 +45,8 @@ The only required field is `steps` — an array of step definitions. Each step s
         placement: middle-start
       - target: "#bundle-size"
         title: Bundle size
-        description: Under 40 KB gzipped. Zero runtime dependencies. The spotlight moves
-          to the bottom of the page for this step.
+        description: ~42 KB gzipped. Zero runtime dependencies. The spotlight moves to
+          the bottom of the page for this step.
         placement: top-start
       - target: "#bundle-callout"
         title: Full breakdown
@@ -95,7 +95,7 @@ const instance = await borda.mount({
     {
       target: '#bundle-size',
       title: 'Bundle size',
-      description: 'Under 40 KB gzipped. Zero runtime dependencies.',
+      description: '~42 KB gzipped. Zero runtime dependencies.',
       placement: ComponentPlacement.TOP_START,
     },
     {
@@ -131,8 +131,8 @@ See the **Basic Setup** example for a complete onboarding flow with multiple ste
   Positioned tooltips with title, description, image, and arrow. Auto-flips to stay in viewport.
   :::
 
-  :::field{name="Navigation" type="buttons + keyboard"}
-  Built-in prev/next/finish/skip buttons and keyboard navigation with ArrowRight, ArrowLeft, and Escape.
+  :::field{name="Navigation" type="buttons + keyboard + swipe"}
+  Built-in prev/next/finish/skip buttons, keyboard navigation with ArrowRight, ArrowLeft, and Escape, and touch swipe gestures on the tooltip.
   :::
 
   :::field{name="Skip feature" type="localStorage"}
@@ -154,7 +154,7 @@ See the **Basic Setup** example for a complete onboarding flow with multiple ste
 
 ## Bundle size
 
-The production bundle weighs under **40 KB gzipped** (JS + CSS combined). Zero runtime dependencies — nothing is loaded beyond the assets you provide.
+The production bundle weighs **\~42 KB gzipped** (JS + CSS combined). Zero runtime dependencies — nothing is loaded beyond the assets you provide.
 
 ::div{#bundle-callout}
   :::callout
@@ -2182,22 +2182,23 @@ The tour tooltip displays the step's title and description in a positioned card 
 
 ## Config
 
-| Property        | Type                                        | Default | Description                                                 |
-| --------------- | ------------------------------------------- | ------- | ----------------------------------------------------------- |
-| `size`          | `ComponentSize`                             | `MD`    | Size variant scaling padding, gap, min-width and font sizes |
-| `placement`     | `ComponentPlacement`                        | —       | Tooltip placement relative to the target                    |
-| `autoPlacement` | `BordaTourTooltipAutoPlacement | boolean`   | `true`  | Auto-flip when placement doesn't fit                        |
-| `margin`        | `number`                                    | `16`    | Minimum gap from viewport edges                             |
-| `offset`        | `number`                                    | `8`     | Gap between tooltip and target in pixels                    |
-| `padding`       | `number`                                    | `12`    | Inner padding in pixels                                     |
-| `arrow`         | `BordaTourTooltipArrowProps | false`        | —       | Arrow config. Pass `false` to hide.                         |
-| `animation`     | `BordaTourTooltipAnimation | false`         | —       | Enter/exit animation settings                               |
-| `hasGlide`      | `boolean`                                   | `false` | Whether the tooltip glides its position between steps       |
-| `isHidden`      | `boolean`                                   | `false` | Whether the tooltip is currently hidden                     |
-| `aria`          | `Partial<ComponentAriaProps>`               | —       | ARIA attributes                                             |
-| `customClasses` | `Partial<BordaTourTooltipComponentClasses>` | —       | Custom CSS classes                                          |
-| `customHtml`    | `Partial<BordaTourTooltipComponentHtml>`    | —       | Custom inner HTML for title/description                     |
-| `customStyles`  | `Partial<BordaTourTooltipComponentStyles>`  | —       | Custom inline styles                                        |
+| Property          | Type                                        | Default | Description                                                 |
+| ----------------- | ------------------------------------------- | ------- | ----------------------------------------------------------- |
+| `size`            | `ComponentSize`                             | `MD`    | Size variant scaling padding, gap, min-width and font sizes |
+| `placement`       | `ComponentPlacement`                        | —       | Tooltip placement relative to the target                    |
+| `autoPlacement`   | `BordaTourTooltipAutoPlacement | boolean`   | `true`  | Auto-flip when placement doesn't fit                        |
+| `margin`          | `number`                                    | `16`    | Minimum gap from viewport edges                             |
+| `offset`          | `number`                                    | `8`     | Gap between tooltip and target in pixels                    |
+| `padding`         | `number`                                    | `12`    | Inner padding in pixels                                     |
+| `arrow`           | `BordaTourTooltipArrowProps | false`        | —       | Arrow config. Pass `false` to hide.                         |
+| `animation`       | `BordaTourTooltipAnimation | false`         | —       | Enter/exit animation settings                               |
+| `hasGlide`        | `boolean`                                   | `false` | Whether the tooltip glides its position between steps       |
+| `hasSwipeControl` | `boolean`                                   | `true`  | Enable swipe-to-navigate on touch devices                   |
+| `isHidden`        | `boolean`                                   | `false` | Whether the tooltip is currently hidden                     |
+| `aria`            | `Partial<ComponentAriaProps>`               | —       | ARIA attributes                                             |
+| `customClasses`   | `Partial<BordaTourTooltipComponentClasses>` | —       | Custom CSS classes                                          |
+| `customHtml`      | `Partial<BordaTourTooltipComponentHtml>`    | —       | Custom inner HTML for title/description                     |
+| `customStyles`    | `Partial<BordaTourTooltipComponentStyles>`  | —       | Custom inline styles                                        |
 
 ```ts
 await borda.mount({
@@ -2246,6 +2247,58 @@ tourTooltip: {
 }
 ```
 
+## Swipe navigation (touch)
+
+On touch devices, swiping the tooltip navigates the tour — swipe left for the next step, swipe right for the previous one. A swipe must move at least 50px horizontally and no more than 75px vertically to register, so vertical scrolling near the tooltip doesn't accidentally trigger navigation.
+
+Swiping calls the same `next()` / `prev()` handlers as the buttons, so it fires the regular `ON_TOUR_NEXT` / `ON_TOUR_PREV` [tour events](https://use-retoo.github.io/borda/events/tour) — there's no separate swipe event to subscribe to.
+
+Enabled by default. Disable it globally:
+
+```ts
+tourTooltip: {
+  hasSwipeControl: false,
+}
+```
+
+Override it for a single step:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#intro',
+      title: 'Welcome',
+      description: 'Swipe left or right to navigate.',
+      placement: 'bottom-center',
+    },
+    {
+      target: '#chart',
+      title: 'Chart',
+      description: 'Swipe is off here so it doesn\'t conflict with panning the chart.',
+      placement: 'middle-end',
+      tourTooltip: { hasSwipeControl: false },
+    },
+  ],
+});
+```
+
+Or scope it to a breakpoint — e.g. only enable swipe below tablet width:
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourTooltip: {
+    hasSwipeControl: false,
+  },
+  responsive: {
+    768: {
+      tourTooltip: { hasSwipeControl: true },
+    },
+  },
+});
+```
+
 ## Interface
 
 ```ts
@@ -2259,6 +2312,7 @@ interface BordaTourTooltipProps {
   autoPlacement: BordaTourTooltipAutoPlacement | boolean;
   isHidden: boolean;
   hasGlide: boolean;
+  hasSwipeControl: boolean;
   animation: BordaTourTooltipAnimation | false;
   aria: Partial<ComponentAriaProps>;
   customClasses: Partial<BordaTourTooltipComponentClasses>;
@@ -3508,6 +3562,7 @@ instance.api.events.off(BordaEvent.ON_TOUR_FINISH, handler);
 - `ON_TOUR_FINISH` fires before the unmount animation begins.
 - `ON_TOUR_CLOSE` fires when the user dismisses the tour via the close button, backdrop click, or Escape key.
 - `ON_TOUR_STEP_CHANGE` fires on every navigation — including `next`, `prev`, `changeStep`, and `finish`.
+- `ON_TOUR_NEXT` / `ON_TOUR_PREV` also fire on tooltip swipe gestures on touch devices.
 
 
 # Widget
@@ -5893,7 +5948,7 @@ For SSR or prerendering scenarios, Borda requires Node.js 16.0 or later. The Com
 
 # Bundle Size
 
-The production bundle (minified JS + CSS) weighs **\~40 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
+The production bundle (minified JS + CSS) weighs **\~42 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
 
 ## Distribution files
 
@@ -5901,12 +5956,12 @@ Each module format ships in two variants: a minified production build and an unm
 
 | File               | Format    | Raw       | Gzip     |
 | ------------------ | --------- | --------- | -------- |
-| `borda.min.es.js`  | ES Module | 131.40 KB | 36.51 KB |
-| `borda.min.umd.js` | UMD       | 136.32 KB | 36.89 KB |
-| `borda.min.cjs.js` | CommonJS  | 131.74 KB | 36.55 KB |
-| `borda.es.js`      | ES Module | 309.22 KB | 73.22 KB |
-| `borda.umd.js`     | UMD       | 320.08 KB | 74.05 KB |
-| `borda.cjs.js`     | CommonJS  | 310.41 KB | 73.38 KB |
+| `borda.min.es.js`  | ES Module | 134.61 KB | 37.49 KB |
+| `borda.min.umd.js` | UMD       | 139.65 KB | 37.89 KB |
+| `borda.min.cjs.js` | CommonJS  | 134.95 KB | 37.53 KB |
+| `borda.es.js`      | ES Module | 318.88 KB | 76.31 KB |
+| `borda.umd.js`     | UMD       | 330.01 KB | 77.16 KB |
+| `borda.cjs.js`     | CommonJS  | 320.07 KB | 76.46 KB |
 | `borda.css`        | CSS       | 28.03 KB  | 4.12 KB  |
 
 ## Tree-shaking
@@ -5926,6 +5981,7 @@ The bundle contains:
 - Spotlight overlay with SVG cutout
 - Tooltip positioning engine with auto-flip
 - Keyboard navigation handler
+- Touch swipe navigation handler
 - Event bus
 - Responsive breakpoint system
 - Scroll animation engine

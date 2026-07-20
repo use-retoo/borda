@@ -2,7 +2,7 @@
 
 > Size of each distribution format and tree-shaking capabilities.
 
-The production bundle (minified JS + CSS) weighs **~40 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
+The production bundle (minified JS + CSS) weighs **~42 KB gzipped**. Borda has no runtime dependencies and loads nothing beyond the assets you provide.
 
 ## Distribution files
 
@@ -42,11 +42,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      131.40 KB
+      134.61 KB
     </td>
     
     <td>
-      36.51 KB
+      37.49 KB
     </td>
   </tr>
   
@@ -62,11 +62,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      136.32 KB
+      139.65 KB
     </td>
     
     <td>
-      36.89 KB
+      37.89 KB
     </td>
   </tr>
   
@@ -82,11 +82,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      131.74 KB
+      134.95 KB
     </td>
     
     <td>
-      36.55 KB
+      37.53 KB
     </td>
   </tr>
   
@@ -102,11 +102,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      309.22 KB
+      318.88 KB
     </td>
     
     <td>
-      73.22 KB
+      76.31 KB
     </td>
   </tr>
   
@@ -122,11 +122,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      320.08 KB
+      330.01 KB
     </td>
     
     <td>
-      74.05 KB
+      77.16 KB
     </td>
   </tr>
   
@@ -142,11 +142,11 @@ Each module format ships in two variants: a minified production build and an unm
     </td>
     
     <td>
-      310.41 KB
+      320.07 KB
     </td>
     
     <td>
-      73.38 KB
+      76.46 KB
     </td>
   </tr>
   
@@ -191,6 +191,7 @@ The bundle contains:
 - Spotlight overlay with SVG cutout
 - Tooltip positioning engine with auto-flip
 - Keyboard navigation handler
+- Touch swipe navigation handler
 - Event bus
 - Responsive breakpoint system
 - Scroll animation engine

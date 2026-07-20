@@ -179,3 +179,4 @@ instance.api.events.off(BordaEvent.ON_TOUR_FINISH, handler);
 - `ON_TOUR_FINISH` fires before the unmount animation begins.
 - `ON_TOUR_CLOSE` fires when the user dismisses the tour via the close button, backdrop click, or Escape key.
 - `ON_TOUR_STEP_CHANGE` fires on every navigation — including `next`, `prev`, `changeStep`, and `finish`.
+- `ON_TOUR_NEXT` / `ON_TOUR_PREV` also fire on tooltip swipe gestures on touch devices.

@@ -245,6 +245,30 @@ The tour tooltip displays the step's title and description in a positioned card 
   <tr>
     <td>
       <code>
+        hasSwipeControl
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        boolean
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        true
+      </code>
+    </td>
+    
+    <td>
+      Enable swipe-to-navigate on touch devices
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
         isHidden
       </code>
     </td>
@@ -403,6 +427,58 @@ tourTooltip: {
 }
 ```
 
+## Swipe navigation (touch)
+
+On touch devices, swiping the tooltip navigates the tour — swipe left for the next step, swipe right for the previous one. A swipe must move at least 50px horizontally and no more than 75px vertically to register, so vertical scrolling near the tooltip doesn't accidentally trigger navigation.
+
+Swiping calls the same `next()` / `prev()` handlers as the buttons, so it fires the regular `ON_TOUR_NEXT` / `ON_TOUR_PREV` [tour events](/events/tour) — there's no separate swipe event to subscribe to.
+
+Enabled by default. Disable it globally:
+
+```ts
+tourTooltip: {
+  hasSwipeControl: false,
+}
+```
+
+Override it for a single step:
+
+```ts
+await borda.mount({
+  steps: [
+    {
+      target: '#intro',
+      title: 'Welcome',
+      description: 'Swipe left or right to navigate.',
+      placement: 'bottom-center',
+    },
+    {
+      target: '#chart',
+      title: 'Chart',
+      description: 'Swipe is off here so it doesn\'t conflict with panning the chart.',
+      placement: 'middle-end',
+      tourTooltip: { hasSwipeControl: false },
+    },
+  ],
+});
+```
+
+Or scope it to a breakpoint — e.g. only enable swipe below tablet width:
+
+```ts
+await borda.mount({
+  steps: [...],
+  tourTooltip: {
+    hasSwipeControl: false,
+  },
+  responsive: {
+    768: {
+      tourTooltip: { hasSwipeControl: true },
+    },
+  },
+});
+```
+
 ## Interface
 
 ```ts
@@ -416,6 +492,7 @@ interface BordaTourTooltipProps {
   autoPlacement: BordaTourTooltipAutoPlacement | boolean;
   isHidden: boolean;
   hasGlide: boolean;
+  hasSwipeControl: boolean;
   animation: BordaTourTooltipAnimation | false;
   aria: Partial<ComponentAriaProps>;
   customClasses: Partial<BordaTourTooltipComponentClasses>;
