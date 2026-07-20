@@ -1,10 +1,10 @@
 # @retoo/borda
 
 [![npm version](https://img.shields.io/npm/v/@retoo/borda)](https://www.npmjs.com/package/@retoo/borda)
-[![bundle size](https://img.shields.io/badge/gzipped-~30KB-blue)](https://use-retoo.github.io/borda/distribution/bundle-size)
+[![bundle size](https://img.shields.io/badge/gzipped-~42KB-blue)](https://use-retoo.github.io/borda/distribution/bundle-size)
 [![license](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-blue)](./LICENSE.md)
 
-Embeddable onboarding widget for any website. Framework-agnostic, SSR-safe, ~26KB gzipped.
+Embeddable onboarding widget for any website. Framework-agnostic, SSR-safe, ~42KB gzipped.
 
 **[Documentation](https://use-retoo.github.io/borda)**
 
