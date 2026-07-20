@@ -90,6 +90,8 @@
 	{hasGlide}
 	animation={tourTooltipAnimation}
 	{onExitComplete}
+	onSwipeNext={onNext}
+	onSwipePrev={onPrev}
 >
 	{#snippet image()}
 		{#if tourImageProps !== false && stepImage}

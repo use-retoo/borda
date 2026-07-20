@@ -4,6 +4,7 @@ export type {
 	BordaTourTooltipAutoPlacement,
 	BordaTourTooltipComponentClasses,
 	BordaTourTooltipComponentStyles,
+	BordaTourTooltipEvents,
 	BordaTourTooltipProps,
 	BordaTourTooltipRef,
 	BordaTourTooltipSnippets
