@@ -2,17 +2,16 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ComponentPlacement } from '@/shared/enums';
+import { swipe } from '@/shared/lib/swipe-touch/model/lib/__tests__/useSwipeTouch.utils';
 
 import BordaTourTooltip from '../BordaTourTooltip.svelte';
 
-vi.mock('@/shared/lib/animator', () => ({
-	useAnimator: () => ({
-		isHidden: false,
-		hasShownAnimation: false,
-		hasHiddenAnimation: false,
-		classes: []
-	})
-}));
+vi.mock('@/shared/lib/animator', async () => {
+	const { createAnimatorMock } =
+		await import('@/shared/lib/animator/model/lib/__tests__/useAnimator.utils');
+
+	return { useAnimator: createAnimatorMock };
+});
 
 vi.mock('@/widgets/borda-tour-tooltip/model', async (importOriginal) => {
 	const actual = (await importOriginal()) as Record<string, unknown>;
@@ -107,6 +106,65 @@ describe('BordaTourTooltip', () => {
 			});
 
 			expect(container.querySelector('.rb-tour-tooltip__description')).toHaveClass('my-desc');
+		});
+	});
+
+	describe('swipe navigation', () => {
+		it('calls onSwipeNext on a leftward swipe', () => {
+			const onSwipeNext = vi.fn();
+
+			const { container } = render(BordaTourTooltip, { props: { onSwipeNext } });
+
+			swipe(container.querySelector('.rb-tour-tooltip')!, -100);
+
+			expect(onSwipeNext).toHaveBeenCalledOnce();
+		});
+
+		it('calls onSwipePrev on a rightward swipe', () => {
+			const onSwipePrev = vi.fn();
+
+			const { container } = render(BordaTourTooltip, { props: { onSwipePrev } });
+
+			swipe(container.querySelector('.rb-tour-tooltip')!, 100);
+
+			expect(onSwipePrev).toHaveBeenCalledOnce();
+		});
+
+		it('does not call swipe callbacks when hasSwipeControl is false', () => {
+			const onSwipeNext = vi.fn();
+			const onSwipePrev = vi.fn();
+
+			const { container } = render(BordaTourTooltip, {
+				props: { hasSwipeControl: false, onSwipeNext, onSwipePrev }
+			});
+
+			const root = container.querySelector('.rb-tour-tooltip')!;
+
+			swipe(root, -100);
+			swipe(root, 100);
+
+			expect(onSwipeNext).not.toHaveBeenCalled();
+			expect(onSwipePrev).not.toHaveBeenCalled();
+		});
+
+		it('ignores a swipe shorter than the distance threshold', () => {
+			const onSwipeNext = vi.fn();
+
+			const { container } = render(BordaTourTooltip, { props: { onSwipeNext } });
+
+			swipe(container.querySelector('.rb-tour-tooltip')!, -20);
+
+			expect(onSwipeNext).not.toHaveBeenCalled();
+		});
+
+		it('ignores a swipe with excessive vertical travel', () => {
+			const onSwipeNext = vi.fn();
+
+			const { container } = render(BordaTourTooltip, { props: { onSwipeNext } });
+
+			swipe(container.querySelector('.rb-tour-tooltip')!, -100, 100);
+
+			expect(onSwipeNext).not.toHaveBeenCalled();
 		});
 	});
 });
