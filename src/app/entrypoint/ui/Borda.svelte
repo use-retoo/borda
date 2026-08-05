@@ -83,8 +83,13 @@
 	/**
 	 * Latches hidden across the async gap before `scroll.isScrolling` takes over,
 	 * so the tooltip doesn't flash un-hidden at its new position.
+	 *
+	 * Starts latched: the widget is mounted per tour, so the first step's scroll is
+	 * always pending on the very first render. Rendering hidden from the start makes
+	 * the tooltip skip the exit animation it has nothing to exit from, and simply
+	 * fade in once the scroll settles.
 	 */
-	let isScrollPending = $state(false);
+	let isScrollPending = $state(true);
 
 	const isStepSettling = $derived(
 		scroll.isScrolling || overlayTransition.isActive || isScrollPending

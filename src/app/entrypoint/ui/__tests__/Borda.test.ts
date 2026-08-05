@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/svelte';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/svelte';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BordaScrollAppearance, BordaTooltipTransition } from '@/app/entrypoint';
 import type { BordaProps } from '@/app/entrypoint';
@@ -28,11 +28,19 @@ vi.mock('@/entities/borda', () => ({
 	getBordaContext: vi.fn(() => mockContext)
 }));
 
-vi.mock('@/shared/lib/animator', async () => {
+/** Lets the appearance suite opt into the real animator, which the other suites stub out. */
+const animatorMode = vi.hoisted(() => ({ hasRealAnimator: false }));
+
+vi.mock('@/shared/lib/animator', async (importOriginal) => {
+	const actual = (await importOriginal()) as typeof import('@/shared/lib/animator');
+
 	const { createAnimatorMock } =
 		await import('@/shared/lib/animator/model/lib/__tests__/useAnimator.utils');
 
-	return { useAnimator: createAnimatorMock };
+	return {
+		useAnimator: (props: Parameters<typeof actual.useAnimator>[0]) =>
+			animatorMode.hasRealAnimator ? actual.useAnimator(props) : createAnimatorMock()
+	};
 });
 
 vi.mock('@/shared/lib/focus-trap', () => ({
@@ -237,6 +245,71 @@ describe('Borda', () => {
 			render(Borda, { props: { ...defaultProps, mount } });
 
 			expect(mount).toHaveBeenCalledOnce();
+		});
+	});
+
+	describe('tooltip appearance', () => {
+		/** Renders with animations on and a scroll the test resolves by hand. */
+		function renderWithPendingScroll() {
+			let resolveScroll = () => {};
+
+			const scrollTo = vi.fn(
+				() =>
+					new Promise<void>((resolve) => {
+						resolveScroll = resolve;
+					})
+			);
+
+			const { container } = render(Borda, {
+				props: {
+					...defaultProps,
+					scroll: {
+						...mockScroll,
+						scrollTo
+					},
+					animation: {
+						...mockAnimation,
+						isEnabled: true
+					}
+				}
+			});
+
+			return {
+				scrollTo,
+				tooltip: container.querySelector('.rb-tour-tooltip'),
+				settleScroll: () => resolveScroll()
+			};
+		}
+
+		beforeEach(() => {
+			animatorMode.hasRealAnimator = true;
+		});
+
+		afterEach(() => {
+			animatorMode.hasRealAnimator = false;
+		});
+
+		it('renders the tooltip hidden while the initial scroll is pending', () => {
+			const { tooltip } = renderWithPendingScroll();
+
+			expect(tooltip).toHaveClass('rb-tour-tooltip--hidden');
+		});
+
+		it('does not play an exit animation before the tooltip has ever been shown', () => {
+			const { tooltip } = renderWithPendingScroll();
+
+			expect(tooltip).not.toHaveClass('rb-tour-tooltip--anim-out');
+		});
+
+		it('animates the tooltip in once the initial scroll settles', async () => {
+			const { scrollTo, tooltip, settleScroll } = renderWithPendingScroll();
+
+			/** The scroll starts a tick after mount, so wait for it before settling it. */
+			await waitFor(() => expect(scrollTo).toHaveBeenCalled());
+
+			settleScroll();
+
+			await waitFor(() => expect(tooltip).toHaveClass('rb-tour-tooltip--anim-in'));
 		});
 	});
 });
