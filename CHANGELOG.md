@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/use-retoo/borda/compare/v0.2.0...v0.2.1) (2026-08-05)
+
+### Bug Fixes
+
+* **lint:** add explicit @typescript-eslint/parser dependency ([da1cf6f](https://github.com/use-retoo/borda/commit/da1cf6f123e17ccb2dd7db232647507ae6eb9169))
+* **tooltip:** prevent exit animation flash before the initial scroll ([cf3fa92](https://github.com/use-retoo/borda/commit/cf3fa92c0abee11e20f46b862a834f3eae1dcdad))
+
 # [0.2.0](https://github.com/use-retoo/borda/compare/v0.1.4...v0.2.0) (2026-07-20)
 
 
