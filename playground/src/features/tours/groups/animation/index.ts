@@ -1,6 +1,6 @@
 import { AnimationEffect } from '@/shared/enums';
 import { OVERLAY, SCROLL, STEPS } from '~/shared/constants';
-import { withEffect } from '~/shared/lib';
+import { withEffect } from '~/shared/utils';
 
 import type { TourGroupFactory } from '../../model';
 

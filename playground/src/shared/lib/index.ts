@@ -1,2 +1,1 @@
-export * from './animation';
-export * from './demo-image';
+export * from './horizontal-scroll';

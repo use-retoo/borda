@@ -1,5 +1,5 @@
 import { ComponentPlacement } from '@/shared/enums';
-import { OVERLAY } from '~/shared/constants';
+import { OVERLAY, TARGET } from '~/shared/constants';
 
 import type { TourGroupFactory } from '../../model';
 
@@ -12,7 +12,7 @@ export const createPositioningGroup: TourGroupFactory = ({ startHighlight }) => 
 			start: () =>
 				startHighlight(
 					{
-						target: '#sticky-target',
+						target: TARGET.sticky,
 						title: 'Sticky target',
 						description:
 							'The tooltip stays aligned with a position:sticky element while you scroll.',
@@ -26,7 +26,7 @@ export const createPositioningGroup: TourGroupFactory = ({ startHighlight }) => 
 			start: () =>
 				startHighlight(
 					{
-						target: '#fixed-target',
+						target: TARGET.fixed,
 						title: 'Fixed target',
 						description: 'The tooltip tracks a position:fixed element pinned to the viewport.',
 						placement: ComponentPlacement.TOP_END

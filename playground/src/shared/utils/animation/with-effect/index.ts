@@ -21,7 +21,12 @@ export function withEffect(
 ) {
 	return {
 		animation: {
-			tooltip: { enter: effect, exit: effect, ...ANIMATION_BASE, appearance }
+			tooltip: {
+				enter: effect,
+				exit: effect,
+				...ANIMATION_BASE,
+				appearance
+			}
 		}
 	} as const;
 }

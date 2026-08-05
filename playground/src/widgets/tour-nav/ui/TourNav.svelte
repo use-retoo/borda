@@ -1,9 +1,21 @@
 <script lang="ts">
+	import { useHorizontalScroll } from '~/shared/lib';
+
 	import type { TourNavEvents, TourNavProps } from '../model';
 
 	const { groups, onClearSkip }: TourNavProps & TourNavEvents = $props();
 
+	let stripElement: HTMLDivElement | null = $state(null);
+
 	let active = $state<string | null>(null);
+
+	const strip = useHorizontalScroll({ getContainer: () => stripElement });
+
+	const rootClasses = $derived([
+		'tour-nav',
+		strip.hasStartOverflow && 'tour-nav--overflow-start',
+		strip.hasEndOverflow && 'tour-nav--overflow-end'
+	]);
 
 	function handleStart(groupLabel: string, tourLabel: string, start: () => void) {
 		active = `${groupLabel}::${tourLabel}`;
@@ -11,8 +23,8 @@
 	}
 </script>
 
-<nav class="tour-nav">
-	<div class="tour-nav__strip">
+<nav class={rootClasses}>
+	<div class="tour-nav__strip" bind:this={stripElement}>
 		{#each groups as group (group.label)}
 			<div class="tour-nav__group">
 				<span class="tour-nav__label">{group.label}</span>
@@ -43,21 +55,56 @@
 
 <style>
 	.tour-nav {
-		overflow: hidden;
+		position: relative;
+	}
+
+	/* Fades hint at the groups still hidden past either edge of the strip. */
+	.tour-nav::before,
+	.tour-nav::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 32px;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.12s ease;
+	}
+
+	.tour-nav::before {
+		left: 0;
+		background: linear-gradient(to right, var(--pg-color-surface), transparent);
+	}
+
+	.tour-nav::after {
+		right: 0;
+		background: linear-gradient(to left, var(--pg-color-surface), transparent);
+	}
+
+	.tour-nav--overflow-start::before,
+	.tour-nav--overflow-end::after {
+		opacity: 1;
 	}
 
 	.tour-nav__strip {
 		display: flex;
-		gap: 0;
-		overflow-x: auto;
-		overflow-y: visible;
-		scrollbar-width: none;
-		padding: 10px 24px;
 		align-items: flex-end;
+		gap: 0;
+		padding: 10px 24px;
+		overflow-x: auto;
+		overflow-y: hidden;
+		overscroll-behavior-x: contain;
+		scrollbar-width: thin;
+		scrollbar-color: var(--pg-color-border) transparent;
 	}
 
 	.tour-nav__strip::-webkit-scrollbar {
-		display: none;
+		height: 6px;
+	}
+
+	.tour-nav__strip::-webkit-scrollbar-thumb {
+		border-radius: var(--pg-radius-pill);
+		background: var(--pg-color-border);
 	}
 
 	.tour-nav__group {
@@ -67,7 +114,7 @@
 		flex-shrink: 0;
 		padding-right: 20px;
 		margin-right: 20px;
-		border-right: 1px solid rgba(17, 17, 17, 0.12);
+		border-right: 1px solid var(--pg-color-border);
 	}
 
 	.tour-nav__group:last-child {
@@ -81,7 +128,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: rgb(107, 107, 107);
+		color: var(--pg-color-muted);
 		white-space: nowrap;
 	}
 
@@ -95,10 +142,10 @@
 		font-family: inherit;
 		font-size: 12px;
 		font-weight: 500;
-		color: rgb(17, 17, 17);
+		color: var(--pg-color-text);
 		background: transparent;
-		border: 1px solid rgba(17, 17, 17, 0.12);
-		border-radius: 20px;
+		border: 1px solid var(--pg-color-border);
+		border-radius: var(--pg-radius-pill);
 		cursor: pointer;
 		white-space: nowrap;
 		transition:
@@ -108,16 +155,16 @@
 	}
 
 	.tour-nav__pill:hover {
-		background: rgba(17, 17, 17, 0.05);
+		background: var(--pg-color-surface-alt);
 	}
 
 	.tour-nav__pill--active {
-		background: rgb(17, 17, 17);
-		color: rgb(255, 255, 255);
-		border-color: rgb(17, 17, 17);
+		background: var(--pg-color-text);
+		color: var(--pg-color-text-inverse);
+		border-color: var(--pg-color-text);
 	}
 
 	.tour-nav__pill--active:hover {
-		background: rgb(17, 17, 17);
+		background: var(--pg-color-text);
 	}
 </style>

@@ -1,0 +1,23 @@
+:root {
+	--pg-color-text: rgb(17, 17, 17);
+	--pg-color-text-inverse: rgb(255, 255, 255);
+	--pg-color-muted: rgb(107, 107, 107);
+	--pg-color-surface: rgb(255, 255, 255);
+	--pg-color-surface-alt: rgba(17, 17, 17, 0.05);
+	--pg-color-border: rgba(17, 17, 17, 0.12);
+
+	--pg-radius-md: 8px;
+	--pg-radius-pill: 20px;
+
+	--pg-shadow-raised: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+	--pg-font-family:
+		system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--pg-font-size: 14px;
+
+	--pg-header-height: 64px;
+
+	/* Above the tour overlay (1000) and tooltip (1010) so the nav stays usable. */
+	--pg-z-header: 1100;
+	--pg-z-pinned: 50;
+}

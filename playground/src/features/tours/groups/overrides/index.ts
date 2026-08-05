@@ -1,6 +1,6 @@
 import { ComponentPlacement } from '@/shared/enums';
 import { BordaTourProgressVariant } from '@/widgets/borda-tour-progress';
-import { OVERLAY, SCROLL } from '~/shared/constants';
+import { OVERLAY, SCROLL, TARGET } from '~/shared/constants';
 
 import type { TourGroupFactory } from '../../model';
 
@@ -17,13 +17,13 @@ export const createOverridesGroup: TourGroupFactory = ({ startTour }) => ({
 					tourProgress: { variant: BordaTourProgressVariant.LINE },
 					steps: [
 						{
-							target: '#step-1',
+							target: TARGET.byId,
 							title: 'Default step',
 							description: 'No overrides — all components use the global config.',
 							placement: ComponentPlacement.BOTTOM_START
 						},
 						{
-							target: { class: 'pg-card--step' },
+							target: TARGET.byClass,
 							title: 'Tight spotlight',
 							description: 'Padding 2 px, sharp corners, custom button labels.',
 							placement: ComponentPlacement.TOP_START,
@@ -32,7 +32,7 @@ export const createOverridesGroup: TourGroupFactory = ({ startTour }) => ({
 							tourSkip: false
 						},
 						{
-							target: '#step-overrides-target',
+							target: TARGET.overrides,
 							title: 'Locked step',
 							description: 'Progress and close button hidden — must click Finish.',
 							placement: ComponentPlacement.TOP_START,

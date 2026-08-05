@@ -1,5 +1,5 @@
 import { ComponentPlacement } from '@/shared/enums';
-import { OVERLAY } from '~/shared/constants';
+import { OVERLAY, TARGET } from '~/shared/constants';
 
 import type { TourGroupFactory } from '../../model';
 
@@ -12,7 +12,7 @@ export const createHighlightGroup: TourGroupFactory = ({ startHighlight }) => ({
 			start: () =>
 				startHighlight(
 					{
-						target: '#step-1',
+						target: TARGET.byId,
 						title: 'Spotlight',
 						description: 'Single-element highlight — no navigation.',
 						placement: ComponentPlacement.BOTTOM_START
@@ -29,7 +29,7 @@ export const createHighlightGroup: TourGroupFactory = ({ startHighlight }) => ({
 			start: () =>
 				startHighlight(
 					{
-						target: '#step-1',
+						target: TARGET.byId,
 						title: '',
 						description: '',
 						placement: ComponentPlacement.BOTTOM_START
