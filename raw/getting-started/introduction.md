@@ -25,7 +25,7 @@ Borda is a fully open-source, non-commercial project. It's built and maintained 
 The only required field is `steps` — an array of step definitions. Each step specifies a `target` element, a `title`, a `description`, and a `placement` for the tooltip. This tour runs on the page you're reading right now: every target below is a real heading or feature card further down, and each step uses a different `placement` to show the tooltip positioning itself around its target.
 
 <borda-container>
-<borda-component :config="{"steps":[{"target":"#page-header","title":"Page header","description":"Every page has a header with a title and description — Borda spotlights it as the starting point of the tour.","placement":"bottom-center"},{"target":"#what-is-borda","title":"What is Borda?","description":"The first section heading on the page. Borda can target any element with a CSS selector — headings, paragraphs, cards, or containers.","placement":"bottom-start"},{"target":"#what-is-borda-description","title":"Description","description":"A paragraph of text right below the heading. The spotlight wraps around just this block — not the whole section.","placement":"bottom-start"},{"target":"#features","title":"Features","description":"The entire Features section — field cards, icons, and descriptions — wrapped in a single spotlight. One step can cover a large area.","placement":"middle-start"},{"target":"#bundle-size","title":"Bundle size","description":"~42 KB gzipped. Zero runtime dependencies. The spotlight moves to the bottom of the page for this step.","placement":"top-start"},{"target":"#bundle-callout","title":"Full breakdown","description":"Callouts, links, and inline elements are valid targets too. This one links to the full bundle size reference.","placement":"top-center"}],"tourProgress":{"variant":"dots"}}">
+<borda-component :config="{"steps":[{"target":"#page-header","title":"Page header","description":"The first step of the tour.","placement":"bottom-center"},{"target":"#what-is-borda","title":"What is Borda?","description":"Any element matched by a CSS selector can be a target.","placement":"bottom-start"},{"target":"#what-is-borda-description","title":"Description","description":"The spotlight wraps the target only, not its section.","placement":"bottom-start"},{"target":"#features","title":"Features","description":"One step can cover a large area.","placement":"middle-start"},{"target":"#bundle-size","title":"Bundle size","description":"Steps further down the page are scrolled into view.","placement":"top-start"},{"target":"#bundle-callout","title":"Full breakdown","description":"Callouts, links, and inline elements work as targets too.","placement":"top-center"}],"tourProgress":{"variant":"dots"}}">
 
 
 
@@ -44,37 +44,37 @@ const instance = await borda.mount({
     {
       target: '#page-header',
       title: 'Page header',
-      description: 'Every page has a header with a title and description — Borda spotlights it as the starting point of the tour.',
+      description: 'The first step of the tour.',
       placement: ComponentPlacement.BOTTOM_CENTER,
     },
     {
       target: '#what-is-borda',
       title: 'What is Borda?',
-      description: 'The first section heading on the page. Borda can target any element with a CSS selector.',
+      description: 'Any element matched by a CSS selector can be a target.',
       placement: ComponentPlacement.BOTTOM_START,
     },
     {
       target: '#what-is-borda-description',
       title: 'Description',
-      description: 'A paragraph of text right below the heading. The spotlight wraps around just this block.',
+      description: 'The spotlight wraps the target only, not its section.',
       placement: ComponentPlacement.BOTTOM_START,
     },
     {
       target: '#features',
       title: 'Features',
-      description: 'The entire Features section wrapped in a single spotlight. One step can cover a large area.',
+      description: 'One step can cover a large area.',
       placement: ComponentPlacement.MIDDLE_START,
     },
     {
       target: '#bundle-size',
       title: 'Bundle size',
-      description: '~42 KB gzipped. Zero runtime dependencies.',
+      description: 'Steps further down the page are scrolled into view.',
       placement: ComponentPlacement.TOP_START,
     },
     {
       target: '#bundle-callout',
       title: 'Full breakdown',
-      description: 'Callouts, links, and inline elements are valid targets too.',
+      description: 'Callouts, links, and inline elements work as targets too.',
       placement: ComponentPlacement.TOP_CENTER,
     },
   ],
