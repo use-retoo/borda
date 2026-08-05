@@ -43,4 +43,4 @@ Bug fixes and patches are welcome — open a pull request. For larger changes, o
 
 [PolyForm Shield 1.0.0](./LICENSE.md) — free to use, modifications and redistribution allowed; competing products not permitted.
 
-Copyright © Retoo — Dmitry Derzhavin, Oleg Grant — [support@retoo.ru](mailto:support@retoo.ru)
+Copyright © Retoo — Dmitry Derzhavin — [support@retoo.ru](mailto:support@retoo.ru)
